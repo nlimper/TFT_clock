@@ -1,0 +1,6 @@
+# Name,   Type, SubType, Offset,  Size,     Flags
+nvs,      data, nvs,     0x9000,  0x5000,
+app0,     app,  factory, 0x10000, 0x400000,
+ffat,     data, fat,     0x410000,0xBE0000,
+coredump, data, coredump,0xFF0000,0x10000,
+# to create/use ffat, see https://github.com/marcmerlin/esp32_fatfsimage

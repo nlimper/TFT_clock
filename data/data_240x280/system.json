@@ -1,0 +1,119 @@
+{
+	"hardware": {
+		"ds3231": 1,
+		"max98357": 1,
+		"lis3d": 1,
+		"bh1750": 1,
+		"solenoid": 0,
+		"rotary": 1,
+		"gps": 0,
+		"buttons": [ 6, 7, 40 ],
+		"invertbacklight": 0
+	},
+	"config": {
+		"alarmclock": 1,
+		"autobrightness": 1,
+		"wifi": 1,
+		"fliporientation": "3",
+		"luxday": 0.15,
+		"luxnight": 0.11,
+		"luxfactor": 75
+	},
+	"menu": [
+		{ "name": "Alarm set", "children": [
+				{ "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Thursday", "function": "setAlarm4", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Friday", "function": "setAlarm5", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Saturday", "function": "setAlarm6", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Sunday", "function": "setAlarm0", "info": "Long press 'enter'\nto turn off alarm" },
+				{ "name": "Exit", "function": "exitMenu" }
+			] },
+		{ "name": "Time set", "children": [
+				{ "name": "Year", "function": "setYear" },
+				{ "name": "Month", "function": "setMonth" },
+				{ "name": "Day", "function": "setDay" },
+				{ "name": "Hour", "function": "setHour" },
+				{ "name": "Minute", "function": "setMinute" },
+				{ "name": "Set time", "function": "setTime" },
+				{ "name": "Exit", "function": "exitMenu" }
+			] },
+		{ "name": "Font", "function": "selectFont" },
+		{ "name": "Brightness", "function": "setBrightness" },
+		{ "name": "Color", "function": "setColor" },
+		{ "name": "Sound", "children": [
+				{ "name": "Audio volume", "function": "adjustVolume" },
+				{ "name": "Minute sound", "function": "selectMinuteSound" },
+				{ "name": "Hourly sound", "function": "selectHourSound" },
+				{ "name": "Alarm sound", "function": "selectAlarmSound" },
+				{ "name": "Silent from", "function": "selectNightFrom" },
+				{ "name": "Silent until", "function": "selectNightTo" },
+				{ "name": "Exit", "function": "exitMenu" }
+			] },
+		{ "name": "Settings", "children": [
+				{ "name": "Hour format", "function": "selectHourMode" },
+				{ "name": "Min.brightness", "function": "setMinBrightness", "info": "This brightness is used in total\ndarkness when a light sensor\nis present." },
+				{ "name": "Exit", "function": "exitMenu" }
+			] },
+		{ "name": "Exit", "function": "exitMenu" }
+	],
+	"fonts": [
+		[ "Benne", "benne-subset.ttf", 310, -5, 25 ],
+		[ "Bitmap", "bitmap-subset.ttf", 370, -8, 15 ],
+		[ "Bungee", "bungee-subset.ttf", 415, -25, -70 ],
+		[ "Cabin", "cabin-subset.ttf", 350, -7, -20 ],
+		[ "Caveat", "caveat-subset.ttf", 405, -17, -80 ],
+		[ "Cilbirab", "cilbirab-subset.ttf", 385, -5, 23 ],
+		[ "DejaVuSans", "dejavusans-subset.ttf", 325, -7, -25 ],
+		[ "EmilysCandy", "emilyscandy-subset.ttf", 330, -7, -40 ],
+		[ "FellEnglish", "fellenglish-subset.ttf", 305, -7, -70 ],
+		[ "HennyPenny", "hennypenny-subset.ttf", 260, -7, -70 ],
+		[ "Michroma", "michroma-subset.ttf", 242, -7, -68 ],
+		[ "Moiraione", "moiraione-subset.ttf", 310, -7, -2 ],
+		[ "OCR-A", "ocra-subset.ttf", 310, -15, 30 ],
+		[ "Quicksand", "quicksand-subset.ttf", 345, -7, -55 ],
+		[ "Vibur", "vibur-subset.ttf", 320, -7, -25 ],
+		[ "YatraOne", "yatraone-subset.ttf", 345, -7, -62 ]
+	],
+	"colors": [
+		[ "Snow White", 255, 255, 255 ],
+		[ "Sunshine Yellow", 255, 255, 0 ],
+		[ "Tangerine Dream", 255, 128, 0 ],
+		[ "Crimson Red", 255, 0, 0 ],
+		[ "Emerald Green", 0, 255, 0 ],
+		[ "Ocean Blue", 0, 0, 255 ],
+		[ "Coral Blush", 240, 128, 128 ],
+		[ "Mint Green", 144, 238, 144 ],
+		[ "Lavender Mist", 230, 230, 250 ],
+		[ "Peach Fuzz", 255, 215, 180 ]
+	],
+	"sounds": [
+		[ "Rooster", "rooster.mp3" ],
+		[ "Ptarmigan", "ptarmigan.mp3" ],
+		[ "Cowbells", "cowbells.mp3" ],
+		[ "Moldau", "moldau.mp3" ],
+		[ "Wakeup", "wakeup.mp3" ]
+	],
+	"timezone": [
+		[ "UTC", "UTC0" ],
+		[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0" ],
+		[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3" ],
+		[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4" ],
+		[ "PST", "PST8PDT,M3.2.0,M11.1.0" ],
+		[ "MST", "MST7MDT,M3.2.0,M11.1.0" ],
+		[ "CST", "CST6CDT,M3.2.0,M11.1.0" ],
+		[ "EST", "EST5EDT,M3.2.0,M11.1.0" ],
+		[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24" ],
+		[ "BRT", "BRT3" ],
+		[ "GST", "GST-4" ],
+		[ "IST", "IST-5:30" ],
+		[ "AWST", "AWST-8" ],
+		[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3" ],
+		[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3" ],
+		[ "CST", "CST-8" ]
+	],
+	"layout": {
+		"nextalarm": [ 60, 202 ]
+	}
+}

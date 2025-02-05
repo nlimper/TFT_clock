@@ -4,7 +4,7 @@
 
 TFT_clock is a complete software solution designed to drive four circular TFT displays as an advanced alarm clock running an ESP32-S3 MCU. It features a customizable interface with a selection of TrueType fonts, adjustable brightness control, and auto-rotation using an accelerometer. Additional options include 7-day alarms, optional minute/hour chimes, and a night mode that dims the display and shifts colors to red.
 
-This software powers the [QuadClock](https://www.quadblock.com/) product line, offering a refined and stylish way to keep time. A fully compatible PCB with all necessary hardware is also available: [QuadClock PCB](https://quadclock.com/pcb/). While it was developed for the QuadClock project, it can also be adapted for other uses.
+This software powers the [QuadClock](https://www.quadblock.com/) product line, offering a series of stylish clocks. A PCB to create your own clock design is also available: [QuadClock PCB](https://quadclock.com/pcb/). While it was developed for the QuadClock project, it can be adapted for other uses. The devices are [available for sale on Tindie](https://www.tindie.com/stores/electronics-by-nic/).
 
 ![menu](https://github.com/user-attachments/assets/ba737011-526d-4891-a56f-4068fa5ed6fb)
 

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <BH1750.h>
 #include <FS.h>
+#include <SD.h>
 #include <LittleFS.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
@@ -48,11 +49,9 @@ RTC_DS3231 rtc;
 
 int currentFont = -1, currentColor = -1;
 uint32_t lastmenuactive = 0;
-int minuutoud = 61;
-int d1 = 10;
-int d2 = 10;
-int d3 = 10;
-int uur, minuut;
+int prevMinute = 61, prevHour = 61;
+int d1 = 10, d2 = 10, d3 = 10;
+int hour, minute;
 int curr_menu_time = 0, currmenu = 0;
 int menulevel = 1;
 int time_set[6];
@@ -62,7 +61,7 @@ int hourlyChimeTrigger = false, currentChimeCount = 0;
 int alarmActive = 0;
 int timerAlarmFlashId, timerAlarmSoundId;
 float lux = 75, avgLux = 75;
-bool nightmode = false, flipOrientation = false;
+bool nightmode = false, manualNightmode = false, flipOrientation = false;
 bool hasLightmeter = false, hasAccelerometer = false;
 fs::FS *contentFS = nullptr;
 
@@ -102,7 +101,7 @@ void alarmAck() {
 		timer.deleteTimer(timerAlarmFlashId);
 		ledcWrite(1, perc2ledc(prefs.getUShort("brightness", 15)));
 		d1 = 10;
-		minuutoud = -1;
+		prevMinute = -1;
 	}
 }
 
@@ -114,10 +113,10 @@ void setup(void) {
 	pinMode(TING_PIN, OUTPUT);
 	digitalWrite(TING_PIN, LOW);
 
-	initTFT();
-
 	Serial.begin(115200);
 	Serial.setDebugOutput(true);
+
+	initTFT();
 
 	// filesystem
 	if (!LittleFS.begin()) {
@@ -134,7 +133,7 @@ void setup(void) {
 
 	Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
-	if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
+	if (hardware.bh1750 && lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
 		lightMeter.setMTreg(254);
 		Serial.println(F("BH1750 found"));
 		hasLightmeter = true;
@@ -168,7 +167,7 @@ void setup(void) {
 	initAudio();
 	audioStart("/sounds/bell.mp3");
 
-	String tz = timezones[prefs.getUShort("timezone", 2)].tzstring;
+	String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
 	setenv("TZ", tz.c_str(), 1);
 	tzset();
 
@@ -182,7 +181,6 @@ void loop() {
 
 	timer.run();
 	interfaceRun();
-	accelerometerRun();
 
 	time_t now;
 	struct tm timeinfo;
@@ -192,31 +190,33 @@ void loop() {
 	uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
 	if (menustate == OFF) {
+		accelerometerRun();
 		if (hasLightmeter) {
 			if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
 		} else {
 			lux = nightmode ? 25 : 75;
 		}
 		avgLux = 0.98 * avgLux + 0.02 * lux;
-		int ledc = perc2ledc(prefs.getUShort("brightness", 15));
+		int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
 		if (alarmActive == 0) ledcWrite(1, ledc);
+
+		int nightTo = prefs.getUShort("night_to", 9);
+		if (manualNightmode && prevHour == (nightTo - 1 + 24) % 24 && timeinfo.tm_hour == nightTo) {
+			Serial.println("Manual nightmode off");
+			manualNightmode = false;
+			nightmode = false;
+			initSprites(true);
+		}
+		prevHour = timeinfo.tm_hour;
 
 		if (isNightMode(timeinfo.tm_hour) && !nightmode) {
 			Serial.println("Nightmode on");
 			nightmode = true;
-			d1 = 10;
-			d2 = 10;
-			d3 = 10;
-			minuutoud = -1;
 			initSprites(true);
 		}
 		if (!isNightMode(timeinfo.tm_hour) && nightmode && (nextAlarm == 24 * 60 || timevalue >= alarm_set[timeinfo.tm_wday])) { 
 			Serial.println("Nightmode off");
 			nightmode = false;
-			d1 = 10;
-			d2 = 10;
-			d3 = 10;
-			minuutoud = -1;
 			initSprites(true);
 		}
 	}
@@ -226,19 +226,19 @@ void loop() {
 	}
 
 	if (menustate == PREVIEW) {
-		uur = timeinfo.tm_hour;
-		minuut = timeinfo.tm_sec;
+		hour = timeinfo.tm_hour;
+		minute = timeinfo.tm_sec;
 	} else {
 		if (prefs.getUShort("hourmode", 0) == 2) {
-			uur = timeinfo.tm_hour % 12;
-			if (uur == 0) uur = 12;
+			hour = timeinfo.tm_hour % 12;
+			if (hour == 0) hour = 12;
 		} else {
-			uur = timeinfo.tm_hour;
+			hour = timeinfo.tm_hour;
 		}
-		minuut = timeinfo.tm_min;
+		minute = timeinfo.tm_min;
 	}
 
-	if (minuut != minuutoud && menustate != MENU) {
+	if (minute != prevMinute && menustate != MENU) {
 
 		if (alarmActive == 0 && timevalue == alarm_set[timeinfo.tm_wday] - 1) {
 			alarmActive = 1;
@@ -247,6 +247,11 @@ void loop() {
 			alarmActive = 2;
 			timerAlarmFlashId = timer.setInterval(500, alarmFlash);
 			uint16_t soundid = prefs.getUShort("alarmsound", 0);
+			if (nightmode) {
+				manualNightmode = false;
+				nightmode = false;
+				initSprites(true);
+			}
 			audioStart("/sounds/" + sounds[soundid].filename);
 		}
 		if (alarmActive == 2 && audioRunning() == false) {
@@ -263,12 +268,10 @@ void loop() {
 			alarmAck();
 		}
 
-		if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && minuutoud != -1) {
+		if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && prevMinute != -1) {
 			uint16_t volume = prefs.getUShort("volume", 5);
 			audioStart("/sounds/flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
 		}
-
-		minuutoud = minuut;
 
 		// hourly chime
 		if (timeinfo.tm_min > 0) hourlyChimeTrigger = false;
@@ -301,14 +304,11 @@ void loop() {
 		}
 
 		if ((currentFont != prefs.getUShort("font", 0) || currentColor != prefs.getUShort("color", 0)) && (menustate == OFF)) {
-			d1 = 10;
-			d2 = 10;
-			d3 = 10;
 			initSprites(true);
 		}
 
-		if (d1 != int(uur / 10) && (menustate == OFF)) {
-			d1 = int(uur / 10);
+		if (d1 != int(hour / 10) && (menustate == OFF)) {
+			d1 = int(hour / 10);
 			if (d1 > 0 || prefs.getUShort("hourmode", 0) == 1) {
 				selectScreen(1);
 				drawDigit(d1);
@@ -318,68 +318,32 @@ void loop() {
 
 			if (nextAlarm != 24 * 60) {
 				selectScreen(1);
-
-				currentColor = prefs.getUShort("color", 0);
-				int fontr = colors[currentColor].r / 1.2;
-				int fontg = colors[currentColor].g / 1.2;
-				int fontb = colors[currentColor].b / 1.2;
-
-				if (nightmode) {
-					fontr = 255 / 1.5;
-					fontg = 0;
-					fontb = 0;
-				}
-				// https://www.iconsdb.com/black-icons/alarm-clock-icon.html
-				// https://notisrac.github.io/FileToCArray/
-				const unsigned char alarmIcon[] PROGMEM =
-					{
-						0xf3, 0xe7, 0xcf, 0xc1, 0xc3, 0x83, 0x83, 0xff, 0xc1, 0x87, 0x00, 0xe1, 0x0e, 0x00, 0x30, 0x98, 0x24, 0x19, 0xb0, 0xe7, 0x0d, 0xf1, 0xe7, 0x87, 0xe3, 0xe7, 0xc7, 0xe7, 0xe7, 0xe7, 0xc7, 0xe7, 0xe3, 0xc7, 0xe7, 0xe3, 0xc3, 0xe7, 0xc3, 0xc3, 0xe3, 0xc3, 0xc7, 0xf1, 0xf3, 0xc7, 0xfc, 0xe3, 0xe7, 0xfe, 0xe7, 0xe3, 0xff, 0xc7, 0xf1, 0xff, 0x8f, 0xf0, 0xe7, 0x0f, 0xfc, 0x00, 0x1f, 0xfc, 0x00, 0x3f, 0xfd, 0x81, 0xbf, 0xf9, 0xff, 0x9f};
-				uint16_t labelBG = tft.color565(5, 5, 3);
-				tft.fillSmoothRoundRect(layoutNextalarmX, layoutNextalarmY, 130, 30, 5, labelBG, TFT_BLACK);
-				tft.drawSmoothRoundRect(layoutNextalarmX, layoutNextalarmY, 5, 5, 130, 30, tft.color565(fontr, fontg, fontb), TFT_BLACK);
-				tft.drawBitmap(layoutNextalarmX + 10, layoutNextalarmY + 4, alarmIcon, 24, 24, labelBG, tft.color565(fontr, fontg, fontb));
-				tft.setTextColor(tft.color565(fontr, fontg, fontb), labelBG);
-				tft.setTextDatum(TL_DATUM);
-				tft.loadFont("/dejavusanscond24", *contentFS);
-				tft.drawString(formatTime(nextAlarm), layoutNextalarmX + 40, layoutNextalarmY + 5);
-				tft.unloadFont();
+				showAlarmIcon(nextAlarm);
 			}
 
 			deselectScreen(1);
 		}
 
-		if (d2 != uur % 10 && (menustate == OFF)) {
-			d2 = uur % 10;
+		if (d2 != hour % 10 && (menustate == OFF)) {
+			d2 = hour % 10;
 			selectScreen(2);
 			drawDigit(d2);
 			deselectScreen(2);
 		}
 
-		if (menustate == OFF) {
-			if (d3 != int(minuut / 10)) {
-				d3 = int(minuut / 10);
+		if (menustate == OFF || menustate == PREVIEW) {
+			if (d3 != int(minute / 10)) {
+				d3 = int(minute / 10);
 				selectScreen(3);
-				drawDigit(d3);
+				drawDigit(d3, menustate == PREVIEW ? false : true);
 				deselectScreen(3);
 			}
 
 			selectScreen(4);
-			drawDigit(minuut % 10);
+			drawDigit(minute % 10, menustate == PREVIEW ? false : true);
 			deselectScreen(4);
 		}
 
-		if (menustate == PREVIEW) {
-			// font/color preview in menu
-			if (d3 != int(minuut / 10)) {
-				d3 = int(minuut / 10);
-				selectScreen(3);
-				drawDigit(d3, false);
-				deselectScreen(3);
-			}
-
-			selectScreen(4);
-			drawDigit(minuut % 10, false);
-			deselectScreen(4);
-		}
+		prevMinute = minute;
 	}
 }

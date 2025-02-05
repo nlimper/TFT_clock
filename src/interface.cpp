@@ -60,23 +60,17 @@ void initInterface() {
 }
 
 void onButtonPress(int buttonIndex) {
-	// Serial.print("Button ");
-	// Serial.print(buttonIndex);
-	// Serial.println(" was pressed!");
 	alarmAck();
 	handleMenuInput(buttonIndex);
 }
 
-void onButtonHold(int buttonIndex) {
-	handleMenuHold(buttonIndex);
-}
-
 void onButtonPress(int buttonIndex, int stepSize) {
-	// Serial.print("Button ");
-	// Serial.print(buttonIndex);
-	// Serial.println(" was pressed!");
 	alarmAck();
 	handleMenuInput(buttonIndex, stepSize);
+}
+
+void onButtonHold(int buttonIndex) {
+	handleMenuHold(buttonIndex);
 }
 
 void rotary_loop() {
@@ -94,7 +88,6 @@ void rotary_loop() {
 			} else {
 				stepSize = 1;
 			}
-			// Serial.println("Direction: " + String(direction) + " Step size: " + String(stepSize) + " timeDiff: " + String(timeDiff));
 			if (direction == 1) {
 				onButtonPress(1, stepSize);
 			} else if (direction == -1) {
@@ -204,13 +197,13 @@ void accelerometerRun() {
 			d1 = 10;
 			d2 = 10;
 			d3 = 10;
-			minuutoud = -1;
+			prevMinute = -1;
 		} else if (flipOrientation == true) {
 			flipOrientation = false;
 			d1 = 10;
 			d2 = 10;
 			d3 = 10;
-			minuutoud = -1;
+			prevMinute = -1;
 		}
 	}
 }

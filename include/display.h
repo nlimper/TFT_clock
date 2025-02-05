@@ -6,20 +6,21 @@
 #include <TFT_eSPI.h>
 #include "config.h"
 
+extern TFT_eSprite spr;
 extern fs::FS *contentFS;
 extern TFT_eSPI tft;
 extern OpenFontRender truetype;
-extern TFT_eSPI tft;
 extern TFT_eSprite sprites[10];
 extern Preferences prefs;
 
 extern int currentFont, currentColor;
 extern bool nightmode, flipOrientation;
+extern int prevMinute, d1, d2, d3;
 
 extern uint8_t digits[];
 extern uint8_t backlight[];
 extern Font fonts[20];
-extern Color colors[20];
+extern Color colors[30];
 
 void initTFT();
 void initTruetype();
@@ -32,6 +33,7 @@ void deselectScreen(uint8_t digitId);
 void showRaster();
 void showColors();
 void drawDigit(uint8_t digit, bool useSprite = true);
+void showAlarmIcon(uint16_t nextAlarm);
 
 FT_FILE *OFR_fopen(const char *filename, const char *mode);
 void OFR_fclose(FT_FILE *stream);

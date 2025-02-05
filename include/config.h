@@ -53,6 +53,7 @@ struct Sound {
 struct TimeZone {
 	String name;
 	String tzstring;
+	String tzcity;
 };
 
 struct Button {
@@ -69,7 +70,7 @@ struct Button {
 extern Config config;
 extern Hardware hardware;
 extern Font fonts[20];
-extern Color colors[20];
+extern Color colors[30];
 extern Sound sounds[20];
 extern Button buttons[4];
 extern TimeZone timezones[20];
@@ -84,3 +85,4 @@ extern uint16_t layoutNextalarmY;
 
 void initConfig();
 void haltError(String message);
+String generateSerialWord();

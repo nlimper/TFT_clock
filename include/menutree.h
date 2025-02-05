@@ -8,11 +8,13 @@
 #include <vector>
 
 extern TFT_eSPI tft;
+extern TFT_eSprite spr;
 extern fs::FS *contentFS;
-extern int d1, d2, d3, minuutoud;
+extern int d1, d2, d3, prevMinute;
 extern uint32_t lastmenuactive;
 extern uint16_t alarm_set[8];
 extern Preferences prefs;
+extern bool nightmode, manualNightmode;
 
 #ifndef MENUTREEH
 #define MENUTREEH
@@ -42,3 +44,4 @@ void handleMenuHold(int button);
 String getValue(const String &name);
 void doFunction(String &name, int8_t increment);
 void showValue(String value, uint8_t menuLevel, bool initialise = false);
+void showVersion(int8_t digitId);

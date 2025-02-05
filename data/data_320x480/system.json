@@ -36,7 +36,7 @@
 				{ "name": "Day", "function": "setDay" },
 				{ "name": "Hour", "function": "setHour" },
 				{ "name": "Minute", "function": "setMinute" },
-				{ "name": "Set time", "function": "setTime" },
+				{ "name": "Time zone", "function": "setTimezone" },
 				{ "name": "Exit", "function": "exitMenu" }
 			] },
 		{ "name": "Font", "function": "selectFont" },
@@ -95,24 +95,25 @@
 		[ "Moldau", "moldau.mp3" ],
 		[ "Wakeup", "wakeup.mp3" ]
 	],
-	"timezone": [
-		[ "UTC", "UTC0" ],
-		[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0" ],
-		[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3" ],
-		[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4" ],
-		[ "PST", "PST8PDT,M3.2.0,M11.1.0" ],
-		[ "MST", "MST7MDT,M3.2.0,M11.1.0" ],
-		[ "CST", "CST6CDT,M3.2.0,M11.1.0" ],
-		[ "EST", "EST5EDT,M3.2.0,M11.1.0" ],
-		[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24" ],
-		[ "BRT", "BRT3" ],
-		[ "GST", "GST-4" ],
-		[ "IST", "IST-5:30" ],
-		[ "AWST", "AWST-8" ],
-		[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3" ],
-		[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3" ],
-		[ "CST", "CST-8" ]
-	],
+"timezone": [
+	[ "UTC", "UTC0", "UTC" ],
+	[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
+	[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
+	[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
+	[ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
+	[ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
+	[ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
+	[ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
+	[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
+	[ "BRT", "BRT3", "Sao Paulo" ],
+	[ "GST", "GST-4", "Dubai" ],
+	[ "IST", "IST-5:30", "Mumbai" ],
+	[ "AWST", "AWST-8", "Perth" ],
+	[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
+	[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
+	[ "CST", "CST-8", "Beijing" ],
+	[ "JST", "JST-9", "Tokyo" ]
+],
 	"layout": {
 		"nextalarm": [ 10, 440 ]
 	}

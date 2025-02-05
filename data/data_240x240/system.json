@@ -3,7 +3,7 @@
 		"ds3231": 1,
 		"max98357": 1,
 		"lis3d": 1,
-		"bh1750": 1,
+		"bh1750": 0,
 		"solenoid": 0,
 		"rotary": 0,
 		"gps": 0,
@@ -36,8 +36,7 @@
 				{ "name": "Day", "function": "setDay" },
 				{ "name": "Hour", "function": "setHour" },
 				{ "name": "Minute", "function": "setMinute" },
-				{ "name": "Set time", "function": "setTime" },
-				{ "name": "Time zone", "function": "setTimeZone" },
+				{ "name": "Time zone", "function": "setTimezone" },
 				{ "name": "Exit", "function": "exitMenu" }
 			] },
 		{ "name": "Font", "function": "selectFont" },
@@ -54,7 +53,8 @@
 			] },
 		{ "name": "Settings", "children": [
 				{ "name": "Hour format", "function": "selectHourMode" },
-				{ "name": "Min.brightness", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness\nwhen a light sensor\nis present." },
+				{ "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
+				{ "name": "Version info", "function": "showVersion" },
 				{ "name": "Exit", "function": "exitMenu" }
 			] },
 		{ "name": "Exit", "function": "exitMenu" }
@@ -66,9 +66,9 @@
 		[ "Cabin", "cabin-subset.ttf", 285, -7, -12 ],
 		[ "Caveat", "caveat-subset.ttf", 310, -17, -60 ],
 		[ "Cilbirab", "cilbirab-subset.ttf", 290, -5, 11 ],
-		[ "DejaVuSans", "dejavusans-subset.ttf", 260, -7, -17 ],
-		[ "EmilysCandy", "emilyscandy-subset.ttf", 260, -7, -30 ],
-		[ "FellEnglish", "fellenglish-subset.ttf", 270, -7, -60 ],
+		[ "DejaVu Sans", "dejavusans-subset.ttf", 260, -7, -17 ],
+		[ "Emilys Candy", "emilyscandy-subset.ttf", 260, -7, -30 ],
+		[ "Fell English", "fellenglish-subset.ttf", 270, -7, -60 ],
 		[ "HennyPenny", "hennypenny-subset.ttf", 200, -7, -40 ],
 		[ "Michroma", "michroma-subset.ttf", 212, -7, -58 ],
 		[ "Moiraione", "moiraione-subset.ttf", 260, -7, 5 ],
@@ -77,18 +77,22 @@
 		[ "Vibur", "vibur-subset.ttf", 270, -7, -20 ],
 		[ "YatraOne", "yatraone-subset.ttf", 275, -7, -48 ]
 	],
-	"colors": [
-		[ "Snow White", 255, 255, 255 ],
-		[ "Sunshine Yellow", 255, 255, 0 ],
-		[ "Tangerine Dream", 255, 128, 0 ],
-		[ "Crimson Red", 255, 0, 0 ],
-		[ "Emerald Green", 0, 255, 0 ],
-		[ "Ocean Blue", 0, 0, 255 ],
-		[ "Coral Blush", 240, 128, 128 ],
-		[ "Mint Green", 144, 238, 144 ],
-		[ "Lavender Mist", 230, 230, 250 ],
-		[ "Peach Fuzz", 255, 215, 180 ]
-	],
+"colors": [
+	[ "Snow White", 255, 255, 255 ],
+	[ "Sunshine Yellow", 255, 255, 0 ],
+	[ "Pale Lemon", 255, 255, 128 ],
+	[ "Golden Tangerine", 255, 192, 64 ],
+	[ "Burnt Orange", 255, 128, 0 ],
+	[ "Peach Blossom", 255, 215, 180 ],
+	[ "Scarlet Glow", 255, 96, 96 ],
+	[ "Fiery Red", 255, 0, 0 ],
+	[ "Lush Green", 64, 255, 128 ],
+	[ "Neon Lime", 0, 255, 0 ],
+	[ "Sky Lagoon", 64, 192, 255 ],
+	[ "Deep Ocean", 0, 0, 255 ],
+	[ "Soft Lavender", 224, 192, 255 ],
+	[ "Royal Amethyst", 192, 128, 255 ]
+],
 	"sounds": [
 		[ "Rooster", "rooster.mp3" ],
 		[ "Ptarmigan", "ptarmigan.mp3" ],
@@ -96,24 +100,25 @@
 		[ "Moldau", "moldau.mp3" ],
 		[ "Wakeup", "wakeup.mp3" ]
 	],
-	"timezone": [
-		[ "UTC", "UTC0" ],
-		[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0" ],
-		[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3" ],
-		[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4" ],
-		[ "PST", "PST8PDT,M3.2.0,M11.1.0" ],
-		[ "MST", "MST7MDT,M3.2.0,M11.1.0" ],
-		[ "CST", "CST6CDT,M3.2.0,M11.1.0" ],
-		[ "EST", "EST5EDT,M3.2.0,M11.1.0" ],
-		[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24" ],
-		[ "BRT", "BRT3" ],
-		[ "GST", "GST-4" ],
-		[ "IST", "IST-5:30" ],
-		[ "AWST", "AWST-8" ],
-		[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3" ],
-		[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3" ],
-		[ "CST", "CST-8" ]
-	],
+"timezone": [
+	[ "UTC", "UTC0", "UTC" ],
+	[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
+	[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
+	[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
+	[ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
+	[ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
+	[ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
+	[ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
+	[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
+	[ "BRT", "BRT3", "Sao Paulo" ],
+	[ "GST", "GST-4", "Dubai" ],
+	[ "IST", "IST-5:30", "Mumbai" ],
+	[ "AWST", "AWST-8", "Perth" ],
+	[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
+	[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
+	[ "CST", "CST-8", "Beijing" ],
+	[ "JST", "JST-9", "Tokyo" ]
+],
 	"layout": {
 		"nextalarm": [ 60, 185 ]
 	}

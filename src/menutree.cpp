@@ -14,8 +14,6 @@
 #include <map>
 #include <vector>
 
-TFT_eSprite spr = TFT_eSprite(&tft);
-
 extern MenuState menustate;
 std::vector<MenuItem> menuItems;
 uint16_t activeItemId = 0;
@@ -131,7 +129,7 @@ void exitmenu() {
 	d1 = 10;
 	d2 = 10;
 	d3 = 10;
-	minuutoud = -1;
+	prevMinute = -1;
 	menuActive = false;
 	menustate = OFF;
 }
@@ -270,16 +268,17 @@ void handleMenuInput(int button, int stepSize) {
 			currentMenuId = menuItems[currentMenuId].parentId;
 			menuLevel--;
 			drawMenu(currentMenuId, activeItemId, menuLevel);
-		} else {
+		} else if (menuActive) {
 			exitmenu();
+		} else {
+			Serial.println("Manual nightmode toggle");
+			int ledc_from = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
+			manualNightmode = !manualNightmode;
+			nightmode = manualNightmode;
+			int ledc_to = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
+			fadeLEDC(1, ledc_from, ledc_to, 600);
+			initSprites(true);
 		}
-		/*
-		if (currentItem.parentId != -1) {
-			activeItemId = findChild(currentItem.parentId, 0);
-			menuLevel--;
-			drawMenu(currentItem.parentId, activeItemId, menuLevel);
-		}
-		*/
 		break;
 	}
 }
@@ -310,10 +309,10 @@ String getValue(const String &name) {
 		{"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
 																																: "0:00 AM"; }},
 		{"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
-		{"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "soft"
-																																		: "loud"; }},
+		{"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
+																																		: "Loud"; }},
 		{"selectHourSound", []() { 
-			 String modeStrs[] = {"OFF", "once", "count", "cuckoo"};
+			 String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
 			 uint16_t hourSound = prefs.getUShort("hoursound", 0);
 			 String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
 			 return modeStr;
@@ -331,7 +330,9 @@ String getValue(const String &name) {
 		{"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
 		{"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
 		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 15)); }},
-		{"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }}};
+		{"showVersion", []() { return ""; }},
+		{"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }},
+		{"setTimezone", []() { return String(timezones[prefs.getUShort("timezone", 1)].name); }}};
 
 	auto it = menuFunctions.find(name);
 	if (it != menuFunctions.end()) {
@@ -346,6 +347,7 @@ void updateTime(int index, int increment, int minValue, int maxValue) {
 	if (increment == 0) {
 		if (inFunction) {
 			clearScreen(menuLevel + 2);
+			setSystemTime();
 		} else {
 			showValue(String(time_set[index]), menuLevel + 1, true);
 		}
@@ -388,16 +390,27 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 			 uint16_t hourSound = prefs.getUShort("hoursound", 0);
 			 increment = std::clamp(increment, -1, 1);
 			 hourSound = (hourSound + increment + 4) % 4;
-			 String modeStrs[] = {"OFF", "once", "count", "cuckoo"};
+			 String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
 			 String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
 			 if (increment == 0) {
 				 if (inFunction) {
+					 audioStop();
 					 clearScreen(menuLevel + 2);
 					 return;
 				 } else {
-					 showValue(modeStr, menuLevel + 1, true);
+					if (hourSound == 1 || hourSound == 2) {
+						audioStart("/sounds/bell.mp3");
+					} else if (hourSound == 3) {
+						audioStart("/sounds/cuckoo.mp3");
+					}						
+					showValue(modeStr, menuLevel + 1, true);
 				 }
 			 } else {
+				 if (hourSound == 1 || hourSound == 2) {
+					 audioStart("/sounds/bell.mp3");
+				 } else if (hourSound == 3) {
+					 audioStart("/sounds/cuckoo.mp3");
+				 }
 				 showValue(modeStr, menuLevel + 1);
 				 prefs.putUShort("hoursound", hourSound);
 			 }
@@ -459,8 +472,8 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 
 			 increment = std::clamp(increment, -1, 1);
 			 minuteSound = (minuteSound + increment + 3) % 3;
-			 String modeStr = (minuteSound == 0) ? "OFF" : (minuteSound == 1) ? "soft"
-																		  : "loud";
+			 String modeStr = (minuteSound == 0) ? "OFF" : (minuteSound == 1) ? "Soft"
+																		  : "Loud";
 			 if (increment == 0) {
 				 if (inFunction) {
 					 clearScreen(menuLevel + 2);
@@ -542,12 +555,12 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 				 } else {
 					 menustate = PREVIEW;
 					 d3 = 10;
-					 minuutoud = -1;
+					 prevMinute = -1;
 					 showValue(colors[color].name, menuLevel + 1, true);
 				 }
 			 } else {
 				 d3 = 10;
-				 minuutoud = -1;
+				 prevMinute = -1;
 				 showValue(colors[color].name, menuLevel + 1);
 				 prefs.putUShort("color", color);
 			 }
@@ -563,12 +576,12 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 					 return;
 				 } else {
 					 menustate = PREVIEW;
-					 minuutoud = -1;
+					 prevMinute = -1;
 					 d3 = 10;
 					 showValue(fonts[font].name, menuLevel + 1, true);
 				 }
 			 } else {
-				 minuutoud = -1;
+				 prevMinute = -1;
 				 d3 = 10;
 				 increment = std::clamp(increment, -1, 1);
 				 font = (font + increment + fontCount) % fontCount;
@@ -593,6 +606,38 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 				 audioStart("/sounds/" + sounds[soundid].filename);
 				 showValue(sounds[soundid].name, menuLevel + 1);
 				 prefs.putUShort("alarmsound", soundid);
+			 }
+		 }},
+		{"setTimezone", [](int increment) {
+			 uint16_t tzid = prefs.getUShort("timezone", 1);
+			 if (increment == 0) {
+				 if (inFunction) {
+					 clearScreen(menuLevel + 2);
+					 String tz = timezones[tzid].tzstring;
+					 setenv("TZ", tz.c_str(), 1);
+					 tzset();
+					 return;
+				 } else {
+					 showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1, true);
+				 }
+			 } else {
+				 increment = std::clamp(increment, -1, 1);
+				 tzid = (tzid + increment + timeZoneCount) % timeZoneCount;
+				 showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1);
+				 prefs.putUShort("timezone", tzid);
+			 }
+		 }},
+		{"showVersion", [](int increment) {
+			 increment = std::clamp(increment, -1, 1);
+			 if (increment == 0) {
+				 if (inFunction) {
+					 clearScreen(menuLevel + 2);
+					 return;
+				 } else {
+					showVersion(menuLevel + 2);
+				 }
+			 } else {
+				 showVersion(menuLevel + 2);
 			 }
 		 }},
 		{"exitMenu", [](int increment) {
@@ -673,3 +718,61 @@ void showValue(String value, uint8_t menuLevel, bool initialise) {
 	tft.unloadFont();
 	deselectScreen(menuLevel + 1);
 };
+
+void printTableRow(const char *label, const String &value, int y) {
+	tft.setTextColor(tft.color565(120, 120, 120), TFT_BLACK);
+	tft.setCursor(0, y, 2);
+	tft.print(label);
+
+	tft.loadFont("/dejavusanscond15", *contentFS);
+	tft.setTextColor(TFT_WHITE, TFT_BLACK);
+	tft.setCursor(85, y);
+	tft.println(value);
+	tft.unloadFont();
+}
+
+String parseDate(const char *dateStr) {
+	const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+	char monthStr[4];
+	int day, year, monthIndex;
+	sscanf(dateStr, "%s %d %d", monthStr, &day, &year);
+	monthIndex = (strstr(months, monthStr) - months) / 3 + 1;
+	char formattedDate[7];
+	snprintf(formattedDate, sizeof(formattedDate), "%02d%02d%02d", year % 100, monthIndex, day);
+	return String(formattedDate);
+}
+
+void showVersion(int8_t digitId) {
+	selectScreen(digitId);
+	tft.fillScreen(TFT_BLACK);
+	tft.loadFont("/dejavusanscond24", *contentFS);
+	tft.setTextColor(tft.color565(200, 200, 200), TFT_BLACK);
+	tft.setCursor(50, 25);
+	tft.println("Version");
+	tft.unloadFont();
+	tft.setViewport(50, 50, TFT_WIDTH - 50, TFT_HEIGHT - 50);
+
+	int y = 0;
+	int lineHeight = 18;
+	printTableRow("Serial", generateSerialWord(), y += lineHeight);
+	printTableRow("Firmware", parseDate(__DATE__), y += lineHeight);
+	y += lineHeight;
+	printTableRow("Chip", String(ESP.getChipModel()), y += lineHeight);
+	printTableRow("Flash", String(ESP.getFlashChipSize() / 1024) + " kB", y += lineHeight);
+	printTableRow("PSRAM", String(ESP.getPsramSize() / 1024) + " kB", y += lineHeight);
+	printTableRow("Free PSRAM", String(ESP.getFreePsram() / 1024) + " kB", y += lineHeight);
+	printTableRow("Free Heap", String(ESP.getFreeHeap() / 1024) + " kB", y += lineHeight);
+
+	tft.resetViewport();
+	deselectScreen(digitId);
+
+	Serial.println("===== System Info =====");
+	Serial.println("Compiled: " + String(__DATE__) + " " + String(__TIME__));
+	Serial.println("Chip: " + String(ESP.getChipModel()));
+	Serial.println("Flash: " + String(ESP.getFlashChipSize() / 1024 / 1024) + "MB");
+	Serial.println("Total PSRAM: " + String(ESP.getPsramSize() / 1024 / 1024) + "MB");
+	Serial.println("Free PSRAM: " + String(ESP.getFreePsram() / 1024) + "KB");
+	Serial.println("Heap: " + String(ESP.getFreeHeap() / 1024) + "KB");
+	Serial.println("Serial: " + generateSerialWord());
+	Serial.println("=======================");
+}

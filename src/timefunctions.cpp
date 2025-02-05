@@ -9,9 +9,8 @@ extern const char *timezone;
 extern uint16_t time_set[];
 extern uint16_t alarm_set[8];
 extern float avgLux;
-extern bool hasLightmeter;
 extern Preferences prefs;
-extern bool nightmode;
+extern bool nightmode, manualNightmode, hasLightmeter;
 
 void setESP32RTCfromDS3231() {
 	DateTime now = rtc.now();
@@ -80,6 +79,9 @@ uint16_t checkNextAlarm(struct tm timeinfo) {
 }
 
 bool isNightMode(int hour) {
+	if (manualNightmode) {
+		return true; 
+	}
 	if (hasLightmeter) {
 		if (avgLux <= config.luxnight || (nightmode == true && avgLux < config.luxday)) {
 			return true;

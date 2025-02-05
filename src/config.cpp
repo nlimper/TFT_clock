@@ -10,7 +10,7 @@
 Config config;
 Hardware hardware;
 Font fonts[20];
-Color colors[20];
+Color colors[30];
 Sound sounds[20];
 Button buttons[4];
 TimeZone timezones[20];
@@ -105,19 +105,20 @@ bool readConfig() {
 	timeZoneCount = timezoneArray.size();
 
 	if (timeZoneCount < 2) {
-		timeZoneCount = 3;
+		timeZoneCount = 2;
 		timezones[0].name = "UTC";
 		timezones[0].tzstring = "UTC0";
-		timezones[1].name = "GMT";
-		timezones[1].tzstring = "GMT0BST,M3.5.0/1,M10.5.0";
-		timezones[2].name = "CET";
-		timezones[2].tzstring = "CET-1CEST,M3.5.0,M10.5.0/3";
+		timezones[0].tzcity = "UTC";
+		timezones[1].name = "CET";
+		timezones[1].tzstring = "CET-1CEST,M3.5.0,M10.5.0/3";
+		timezones[1].tzcity = "Berlin";
 	}
 
 	for (int i = 0; i < timeZoneCount; i++) {
 		JsonArray tz = timezoneArray[i];
 		timezones[i].name = tz[0].as<String>();
 		timezones[i].tzstring = tz[1].as<String>();
+		timezones[i].tzcity = tz[2].as<String>();
 	}
 
 	// Parse 'layout'

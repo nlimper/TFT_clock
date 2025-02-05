@@ -1,12 +1,20 @@
 #include "display.h"
 #include "OpenFontRender.h"
+#include "common.h"
 #include <Arduino.h>
 #include <TFT_eSPI.h>
+#include <TJpg_Decoder.h>
 
 fs::File ttfFile;
+TFT_eSprite spr = TFT_eSprite(&tft);
 
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 uint8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
+
+bool jpgDraw(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
+	spr.pushImage(x, y, w, h, bitmap);
+	return true;
+}
 
 void initTFT() {
 
@@ -33,22 +41,67 @@ void initTFT() {
 		digitalWrite(pin, HIGH);
 	}
 
-	ledcSetup(1, 5000, 12);
+	ledcSetup(1, 9700, 12);
 	ledcWrite(1, 2048);
-	ledcSetup(2, 5000, 12);
+	ledcSetup(2, 9700, 12);
 	ledcWrite(2, 2048);
 	vTaskDelay(1 / portTICK_PERIOD_MS);
 
 	for (int i = 0; i < 4; i++) {
 		selectScreen(i + 1, true);
 		tft.fillScreen(TFT_RED);
+
 		tft.setTextColor(TFT_YELLOW, TFT_RED);
-		tft.setCursor(50, 50, 2);
+
+		tft.setCursor(50, 50, 4);
 		tft.println("display " + String(i + 1));
+		tft.setRotation(2);
+		tft.setCursor(50, 50, 4);
+		tft.println("display " + String(i + 1));
+		tft.setRotation(0);
+
 		deselectScreen(i + 1);
-		vTaskDelay(200 / portTICK_PERIOD_MS);
+		vTaskDelay(300 / portTICK_PERIOD_MS);
 	}
-	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+
+	// jpeg test
+	/*
+	if (!LittleFS.begin(true)) { 
+		Serial.println("LittleFS mount failed!");
+	} else {
+		contentFS = &LittleFS;
+	}
+
+	TJpgDec.setJpgScale(1);
+	TJpgDec.setSwapBytes(true);
+	TJpgDec.setCallback(jpgDraw);
+
+	selectScreen(1);
+
+	uint16_t w = 0, h = 0;
+	TJpgDec.getFsJpgSize(&w, &h, "/digit7.jpg", *contentFS);
+	Serial.println("JPG size: " + String(w) + "x" + String(h));
+	if (w == 0 && h == 0) {
+		Serial.println("invalid jpg");
+		return;
+	}
+	time_t t = millis();
+	spr.setColorDepth(16);
+	spr.createSprite(w, h);
+	if (spr.getPointer() == nullptr) {
+		Serial.println("Failed to create sprite in jpg2buffer");
+	} else {
+		spr.fillSprite(TFT_BLACK);
+		TJpgDec.drawFsJpg(0, 0, "/digit7.jpg", *contentFS);
+		spr.pushSprite(0, 0);
+		spr.deleteSprite();
+	}
+	deselectScreen(1);
+	Serial.println("JPG loaded in " + String(millis() - t) + "ms");
+	vTaskDelay(5000 / portTICK_PERIOD_MS);
+	*/
 }
 
 void initTruetype() {
@@ -73,6 +126,11 @@ void loadTruetype(String fontFile, int fontSize) {
 }
 
 void initSprites(bool reInit) {
+	d1 = 10;
+	d2 = 10;
+	d3 = 10;
+	prevMinute = -1;
+
 	if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
 
 	currentColor = prefs.getUShort("color", 0);
@@ -199,12 +257,12 @@ void drawDigit(uint8_t digit, bool useSprite) {
 		int fonttemp = prefs.getUShort("font", 0);
 		int posx = TFT_WIDTH / 2 + fonts[fonttemp].posX;
 		int posy = TFT_HEIGHT / 2 + fonts[fonttemp].posY - fonts[fonttemp].size / 2;
-		TFT_eSprite spr = TFT_eSprite(&tft);
-		spr.setColorDepth(16);
-		spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
-		if (spr.created()) {
-			spr.fillSprite(TFT_BLACK);
-			truetype.setDrawer(spr);
+		TFT_eSprite digitspr = TFT_eSprite(&tft);
+		digitspr.setColorDepth(16);
+		digitspr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+		if (digitspr.created()) {
+			digitspr.fillSprite(TFT_BLACK);
+			truetype.setDrawer(digitspr);
 		} else {
 			tft.fillScreen(TFT_BLACK);
 			truetype.setDrawer(tft);
@@ -214,11 +272,38 @@ void drawDigit(uint8_t digit, bool useSprite) {
 		truetype.setAlignment(Align::Center);
 		truetype.setCursor(posx, posy);
 		truetype.printf("%d", digit);
-		if (spr.created()) {
-			spr.pushSprite(0, 0);
-			spr.deleteSprite();
+		if (digitspr.created()) {
+			digitspr.pushSprite(0, 0);
+			digitspr.deleteSprite();
 		}
 	}
+}
+
+void showAlarmIcon(uint16_t nextAlarm) {
+	currentColor = prefs.getUShort("color", 0);
+	int fontr = colors[currentColor].r / 1.2;
+	int fontg = colors[currentColor].g / 1.2;
+	int fontb = colors[currentColor].b / 1.2;
+
+	if (nightmode) {
+		fontr = 255 / 1.5;
+		fontg = 0;
+		fontb = 0;
+	}
+	// https://www.iconsdb.com/black-icons/alarm-clock-icon.html
+	// https://notisrac.github.io/FileToCArray/
+	const unsigned char alarmIcon[] PROGMEM =
+		{
+			0xf3, 0xe7, 0xcf, 0xc1, 0xc3, 0x83, 0x83, 0xff, 0xc1, 0x87, 0x00, 0xe1, 0x0e, 0x00, 0x30, 0x98, 0x24, 0x19, 0xb0, 0xe7, 0x0d, 0xf1, 0xe7, 0x87, 0xe3, 0xe7, 0xc7, 0xe7, 0xe7, 0xe7, 0xc7, 0xe7, 0xe3, 0xc7, 0xe7, 0xe3, 0xc3, 0xe7, 0xc3, 0xc3, 0xe3, 0xc3, 0xc7, 0xf1, 0xf3, 0xc7, 0xfc, 0xe3, 0xe7, 0xfe, 0xe7, 0xe3, 0xff, 0xc7, 0xf1, 0xff, 0x8f, 0xf0, 0xe7, 0x0f, 0xfc, 0x00, 0x1f, 0xfc, 0x00, 0x3f, 0xfd, 0x81, 0xbf, 0xf9, 0xff, 0x9f};
+	uint16_t labelBG = tft.color565(15, 10, 5);
+	tft.fillSmoothRoundRect(layoutNextalarmX, layoutNextalarmY, 130, 30, 5, labelBG, TFT_BLACK);
+	tft.drawSmoothRoundRect(layoutNextalarmX, layoutNextalarmY, 5, 5, 130, 30, tft.color565(fontr, fontg, fontb), TFT_BLACK);
+	tft.drawBitmap(layoutNextalarmX + 10, layoutNextalarmY + 4, alarmIcon, 24, 24, labelBG, tft.color565(fontr, fontg, fontb));
+	tft.setTextColor(tft.color565(fontr, fontg, fontb), labelBG);
+	tft.setTextDatum(TL_DATUM);
+	tft.loadFont("/dejavusanscond24", *contentFS);
+	tft.drawString(formatTime(nextAlarm), layoutNextalarmX + 40, layoutNextalarmY + 5);
+	tft.unloadFont();
 }
 
 FT_FILE *OFR_fopen(const char *filename, const char *mode) {

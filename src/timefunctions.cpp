@@ -1,7 +1,9 @@
 #include "RTClib.h"
 #include "config.h"
+#include "esp_sntp.h"
 #include <Arduino.h>
 #include <Preferences.h>
+#include <functional>
 
 extern RTC_DS3231 rtc;
 const char *ntpServer = "pool.ntp.org";
@@ -18,23 +20,6 @@ void setESP32RTCfromDS3231() {
 	struct timeval tv = {epochTime, 0};
 	settimeofday(&tv, NULL);
 	Serial.printf("ESP32 RTC set from DS3231. Epoch time: %ld\n", epochTime);
-}
-
-void setESP32RTCfromNTP() {
-	configTime(0, 0, ntpServer); // Use NTP to set the time (without timezone initially)
-
-	struct tm timeinfo;
-	if (getLocalTime(&timeinfo)) {
-		Serial.println("Time synchronized from NTP");
-
-		// Set timezone after NTP sync
-		setenv("TZ", timezone, 1); // Set timezone environment variable
-		tzset();				   // Apply the timezone
-
-		Serial.println("ESP32 RTC set from NTP.");
-	} else {
-		Serial.println("Failed to sync time from NTP.");
-	}
 }
 
 void setSystemTime() {
@@ -64,6 +49,39 @@ void setSystemTime() {
 	Serial.println("DS3231 RTC updated.");
 }
 
+volatile bool sntpCallbackTriggered = false;
+extern "C" void time_sync_notification_cb(struct timeval *tv) {
+	sntpCallbackTriggered = true;
+}
+
+void synchronizeNTP() {
+	sntpCallbackTriggered = false;
+
+	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+
+	configTime(0, 0, ntpServer);
+	xTaskCreate([](void *param) {
+		const int timeout_ms = 20000;
+		unsigned long start = millis();
+
+		while (!sntpCallbackTriggered && (millis() - start < timeout_ms)) {
+			vTaskDelay(pdMS_TO_TICKS(500));
+		}
+
+		if (sntpCallbackTriggered) {
+			Serial.println("NTP sync successful");
+			time_t now;
+			time(&now);
+			rtc.adjust(DateTime(now));
+		} else {
+			Serial.println("NTP sync timed out");
+		}
+
+		vTaskDelete(nullptr);
+	},
+				"NTP Timeout Task", 4096, nullptr, 1, nullptr);
+}
+
 uint16_t checkNextAlarm(struct tm timeinfo) {
 	// check today
 	uint8_t dow = timeinfo.tm_wday;
@@ -80,7 +98,7 @@ uint16_t checkNextAlarm(struct tm timeinfo) {
 
 bool isNightMode(int hour) {
 	if (manualNightmode) {
-		return true; 
+		return true;
 	}
 	if (hasLightmeter) {
 		if (avgLux <= config.luxnight || (nightmode == true && avgLux < config.luxday)) {

@@ -3,6 +3,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
+#include "timefunctions.h"
 
 // #include "udp.h"
 // #include "web.h"
@@ -182,6 +183,9 @@ bool WifiManager::waitForConnection() {
 	terminalLog("Connected! IP: " + WiFi.localIP().toString());
 	_nextReconnectCheck = millis() + _reconnectIntervalCheck;
 	wifiStatus = CONNECTED;
+
+	synchronizeNTP();
+
 	return true;
 }
 

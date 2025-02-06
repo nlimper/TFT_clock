@@ -63,8 +63,6 @@ void initTFT() {
 		deselectScreen(i + 1);
 		vTaskDelay(300 / portTICK_PERIOD_MS);
 	}
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
-
 
 	// jpeg test
 	/*
@@ -306,6 +304,14 @@ void showAlarmIcon(uint16_t nextAlarm) {
 	tft.unloadFont();
 }
 
+void debugTFT(String message) {
+	selectScreen(1);
+	tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+	tft.fillRect(0, 105, 240, 26, TFT_BLACK);
+	tft.setCursor(40,110,2);
+	tft.println(message);
+	deselectScreen(1);
+}
 FT_FILE *OFR_fopen(const char *filename, const char *mode) {
 	ttfFile = contentFS->open(filename, mode);
 	return &ttfFile;

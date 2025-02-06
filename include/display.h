@@ -34,6 +34,7 @@ void showRaster();
 void showColors();
 void drawDigit(uint8_t digit, bool useSprite = true);
 void showAlarmIcon(uint16_t nextAlarm);
+void debugTFT(String message);
 
 FT_FILE *OFR_fopen(const char *filename, const char *mode);
 void OFR_fclose(FT_FILE *stream);

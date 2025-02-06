@@ -9,14 +9,6 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 
-#ifdef ENABLE_WIFI
-#include "AsyncUDP.h"
-#include <ESPmDNS.h>
-#include <WiFi.h>
-#include <WiFiUdp.h>
-// #include <NTPtimeESP32.h>
-#endif
-
 #include "OpenFontRender.h"
 #include "audio.h"
 #include "common.h"
@@ -25,18 +17,16 @@
 #include "interface.h"
 #include "menutree.h"
 #include "timefunctions.h"
+#include "wifimanager.h"
+#include "web.h"
 #include <SimpleTimer.h>
 
 int timerId = 0;
 
-#ifdef ENABLE_WIFI
-const char *ssid = "****";	   // Set you WiFi SSID
-const char *password = "****"; // Set you WiFi password
-#endif
-
 SimpleTimer timer;
 Preferences prefs;
 MenuState menustate;
+WifiManager wm;
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprites[10] = {
@@ -112,10 +102,12 @@ void setup(void) {
 	digitalWrite(TING_PIN, LOW);
 
 	Serial.begin(115200);
-	Serial.setDebugOutput(true);
+	// Serial.setDebugOutput(true);
+	Serial.setTxTimeoutMs(0);
 
 	initTFT();
 
+	debugTFT("File system starting");
 	if (!LittleFS.begin()) {
 		Serial.println("LittleFS initialisation failed!");
 		haltError("LittleFS Mount Failed");
@@ -123,22 +115,28 @@ void setup(void) {
 		contentFS = &LittleFS;
 	}
 
+	debugTFT("Read configuration");
 	initConfig();
 
 	prefs.begin("clock", false);
 	prefs.getBytes("alarm_set", alarm_set, sizeof(alarm_set));
 
+	debugTFT("I2C starting");
 	Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
-	if (hardware.bh1750 && lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
-		lightMeter.setMTreg(254);
-		Serial.println(F("BH1750 found"));
-		hasLightmeter = true;
-		timer.setInterval(1000, displayLux);
-	} else {
-		Serial.println(F("BH1750 not found"));
+	debugTFT("Light sensor init");
+	if (hardware.bh1750) {
+		if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
+			lightMeter.setMTreg(254);
+			Serial.println(F("BH1750 found"));
+			hasLightmeter = true;
+			timer.setInterval(1000, displayLux);
+		} else {
+			Serial.println(F("BH1750 not found"));
+		}
 	}
 
+	debugTFT("Real time clock init");
 	if (!rtc.begin()) {
 		Serial.println("Couldn't find RTC");
 	}
@@ -148,21 +146,22 @@ void setup(void) {
 		rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 	}
 
+	debugTFT("Accelerometer init");
 	initAccelerometer();
 	// int timerAccelerometerId = timer.setInterval(1000, accelerometerRun);
 
-#ifdef ENABLE_WIFI
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
-	while (WiFi.status() != WL_CONNECTED) {
-		Serial.print(".");
-		delay(500);
+	if (true || prefs.getBool("enablewifi", false)) {
+		debugTFT("WiFi init");
+		init_web();
+	} else {
+		WiFi.mode(WIFI_OFF);
 	}
-	Serial.println("WiFi connected");
-#endif
 
+	debugTFT("Audio init");
 	initAudio();
 	audioStart("/sounds/bell.mp3");
+
+	debugTFT("Init interfaces");
 
 	String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
 	setenv("TZ", tz.c_str(), 1);
@@ -170,13 +169,20 @@ void setup(void) {
 
 	initInterface();
 	initMenu();
+
+	debugTFT("Init sprites");
 	initSprites(false);
+
+	debugTFT("Set clock");
 	setESP32RTCfromDS3231();
+
+	debugTFT("Finished!");
 }
 
 void loop() {
 
 	timer.run();
+	wm.poll();
 	interfaceRun();
 
 	time_t now;

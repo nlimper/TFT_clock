@@ -1,0 +1,1001 @@
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	list-style-type: none;
+	outline: none;
+	font-weight: 400;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	font-smooth: auto;
+	-webkit-font-smoothing: antialiased;
+}
+
+body {
+	font-size: 12px;
+	font-family: Helvetica, Arial, Verdana, sans-serif;
+	line-height: 1.5;
+	background-color: #e4e4e0;
+}
+
+header {
+	background-color: #646260;
+	z-index: 999;
+	position: sticky;
+	top: 0px;
+	width: 100%;
+}
+
+nav>div:first-child>div:first-child {
+	flex-grow: 2;
+}
+
+nav>div {
+	display: flex;
+	gap: 20px;
+	padding: 10px;
+	background-color: white;
+}
+
+nav label {
+	padding: 0px 5px;
+	vertical-align: text-bottom;
+	width: auto;
+	cursor: pointer;
+}
+
+footer {
+	padding: 5px;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: white;
+
+	#sysinfo {
+		float: right;
+	}
+}
+
+.logo {
+	margin: 0 auto;
+	height: 50px;
+	text-indent: 12px;
+	overflow: hidden;
+	font-size: 2.5em;
+	color: white;
+}
+
+h3 {
+	padding-bottom: 10px;
+	font-size: 1.5em;
+}
+
+/* tabs */
+
+.tab-container {
+	display: flex;
+	gap: 1rem;
+}
+
+.tablinks {
+	background-color: #f2f2f2;
+	padding: 5px 10px;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background-color: #ddd;
+	}
+}
+
+.tab-container .active {
+	background-color: #ccc;
+	margin-top: 10px;
+	margin-bottom: -10px;
+	padding-bottom: 0px;
+}
+
+.tabcontent {
+	display: none;
+	border-top: 1px solid #ccc;
+}
+
+
+label {
+	width: 200px;
+	display: inline-block;
+	vertical-align: top;
+	padding: 4px 20px;
+}
+
+.container {
+	padding-bottom: 20px;
+	;
+}
+
+#hometab {
+	font-size: 24px;
+
+	& table {
+		margin: 20px;
+		background: #fff;
+		padding: 5px 20px;
+		border-spacing: 0px;
+	}
+
+	& td {
+		padding: 10px 12px;
+	}
+
+	& td:nth-child(3) {
+		text-align: right;
+		font-size: 32px;
+	}
+
+	& tr:hover {
+		background-color: #ccc;
+		cursor: pointer;
+	}
+
+	& .material-symbols-outlined {
+		font-size: 48px;
+	}
+}
+
+.tagheader {
+	width: 100%;
+	padding: 10px 10px;
+	display: flex;
+	gap: 2em;
+	justify-content: space-between;
+
+	& #toggleFilters {
+		padding: 0px 10px;
+	}
+
+	& h3 {
+		padding-bottom: 0px;
+	}
+
+	& #activefilter {
+		flex-grow: 2;
+		align-self: center;
+	}
+}
+
+.tabheader {
+	background-color: white;
+	padding: 5px 10px;
+	display: flex;
+	gap: 2em;
+}
+
+#filterOptions {
+	background-color: white;
+	max-height: 0;
+	padding: 0px 10px;
+	overflow: hidden;
+	transition: all 0.3s ease-in-out;
+	display: flex;
+	gap: 1rem;
+
+	&.active {
+		padding: 10px 10px;
+		max-height: 100px;
+		margin-bottom: 10px;
+	}
+
+	& label {
+		width: inherit;
+		display: inline-block;
+		vertical-align: top;
+		padding: 0px 5px;
+	}
+}
+
+#aptab,
+#configtab,
+#updatetab,
+#flashtab {
+	padding: 10px;
+
+	& p {
+		padding: 3px;
+	}
+}
+
+#updatetab, #flashtab {
+	&>div {
+		display: flex;
+		gap: 2em;
+		flex-flow: wrap;
+	}
+	& label {
+		width: 100px;
+		display: inline-block;
+		vertical-align: baseline;
+		padding: 7px 0px;
+	}
+	& input[type="text"] {
+		width: 200px;
+	}
+	& button {
+		margin: 0px 5px;
+	}
+	& input:read-only {
+		background-color: #ccc;
+	}
+	& .warning {
+		padding: 5px;
+		color: #f02000;
+		background-color: #ffffc0;
+		font-weight: bold;
+	}
+}
+
+#aplist {
+	display: flex;
+	gap: 1em;
+	flex-flow: wrap;
+}
+
+.apcard {
+	background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 10px;
+	width: 300px;
+
+	& .apalias {
+		font-size: 1.5em;
+	}
+
+	& .space {
+		padding-left: 20px;
+	}
+
+	& div {
+		display: flex;
+		font-size: 2.0em;
+		align-items: center;
+		gap: 0.2em;
+	}
+
+}
+
+#apcard {
+	display: none;
+}
+
+#apcfgsave {
+	margin: 20px 205px;
+}
+
+.filebutton {
+	width: inherit;
+	padding: 5px 10px;
+	margin-bottom: 0px;
+	margin-top: -1px;
+	background-color: #ccc;
+	text-decoration: none;
+	color: black;
+	cursor: pointer;
+	white-space: nowrap;
+	text-align: center;
+
+	&:hover {
+		background-color: #aaa;
+	}
+}
+
+#rebootbutton,
+#updatebutton,
+#downloadDBbutton,
+#uploadButton,
+.wifibutton {
+	padding: 4px 5px;
+	background-color: #ccc;
+	text-decoration: none;
+	color: black;
+	cursor: pointer;
+	white-space: nowrap;
+	width: 120px;
+	margin: 2px 5px 2px 20px;
+	display: inline-block;
+	text-align: center;
+
+	&:hover {
+		background-color: #aaa;
+	}
+}
+
+#uploadButton {
+	margin-left:5px;
+}
+
+.columns div {
+	flex: 1;
+}
+
+textarea,
+input.text,
+input[type="text"],
+input[type="button"],
+input[type="submit"],
+button {
+	appearance: none;
+	border-radius: 0;
+}
+
+input {
+	border: solid 1px #cccccc;
+	padding: 4px;
+	border-radius: 0px;
+}
+
+input[type=button],
+button {
+	border: 0px;
+	padding: 4px 10px;
+	cursor: pointer;
+	background-color: #ccc;
+}
+
+input[type=button]:hover,
+button:hover {
+	background-color: #aaaaaa;
+}
+
+input[type=file] {
+	padding: 0px;
+	margin-left: 20px;
+	width: 200px;
+}
+
+input[type=checkbox] {
+	margin-right: 5px;
+}
+
+select {
+	padding: 3px 4px;
+	border-radius: 0px;
+	border: solid 1px #cccccc;
+	max-width: 180px;
+}
+
+#apconfigbox,
+#apupdatebox {
+	display: none;
+	position: fixed;
+	top: 65px;
+	left: 15px;
+	min-width: 380px;
+	padding: 15px;
+	background-color: #f0e6d3;
+	z-index: 999;
+	box-shadow: 7px 10px 52px -19px rgba(0, 0, 0, 0.63);
+	overflow: auto;
+	max-height: calc(100vh - 75px);
+}
+
+#configbox {
+	margin: auto;
+	min-width: 380px;
+	padding: 15px;
+	background-color: #f0e6d3;
+	z-index: 999;
+	box-shadow: 7px 10px 52px -19px rgba(0, 0, 0, 0.63);
+	overflow: auto;
+	max-height: calc(100vh - 75px);
+
+	& label {
+			width: 150px;
+	}
+}
+
+#configbox p,
+#apconfigbox p,
+#apupdatebox p {
+	padding: 5px;
+	display: flex;
+	gap: 5px;
+	align-items: flex-start;
+	max-width: 400px;
+}
+
+#configbox h3,
+#apconfigbox h3,
+#apupdatebox h3 {
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+#configbox input,
+#apconfigbox input {
+	border: solid 1px #cccccc;
+}
+
+#configbox input[type=number] {
+	width: 80px;
+}
+
+#advancedoptions {
+	overflow: hidden;
+	transition: height 0.3s ease;
+}
+
+#advancedoptions p:first-child {
+	font-weight: 700;
+	font-size: 1.2em;
+}
+
+.tagbuttons {
+	flex-flow: wrap;
+}
+
+.tagbuttons button {
+	font-size: 0.95em;
+	padding: 2px 4px;
+}
+
+#savebar {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+}
+
+#savebar:first-child {
+	flex-grow: 2;
+}
+
+#cfgmore {
+	padding: 2px 5px;
+	font-weight: 700;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+
+#apconfigbox {
+	background-color: #e6f0d3;
+}
+
+#apupdatebox {
+	background-color: #f0d0c8;
+	width: 700px;
+	padding-bottom: 20px;
+	border: 1px solid #d0b0a8;
+}
+
+#cfgdelete {
+	cursor: pointer;
+	padding: 2px 10px;
+}
+
+.closebtn,
+.closebtn2 {
+	border: 1px solid black;
+	float: right;
+	width: 19px;
+	height: 20px;
+	font-size: 1.1em;
+	text-align: center;
+	margin: 5px;
+	cursor: pointer;
+}
+
+#logtab {
+	& img {
+		vertical-align: bottom;
+		cursor: pointer;
+	}
+
+	& label {
+		width: inherit;
+		vertical-align: top;
+		padding: 4px 10px;
+	}
+
+	& input {
+		vertical-align: text-bottom;
+	}
+}
+
+.blink-red {
+	animation: tagflash 1s infinite;
+	color: red;
+}
+
+.taglist {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0px 10px 30px 10px;
+}
+
+#tagtemplate {
+	display: none;
+}
+
+.tagcard {
+	width: 225px;
+	position: relative;
+	min-height: 170px;
+	margin: 3px;
+	padding: 4px 5px 5px 8px;
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	transition: box-shadow 0.3s ease;
+
+	&:hover {
+		cursor: pointer;
+		box-shadow: 7px 10px 52px -19px rgba(0, 0, 0, 0.63);
+		filter: brightness(1.02);
+	}
+}
+
+.tagflash {
+	animation: tagflash 1s;
+}
+
+.tagxfer {
+	transition: box-shadow background-color 0.05s ease-in-out;
+	box-shadow: #e2f103 0px 0px 10px 5px;
+	background-color: #e2f103 !important;
+}
+
+.tagpending {
+	animation: pending 1.5s ease infinite;
+}
+
+.taggroup {
+	border: 1px solid #c0c0c0;
+	width: 100%;
+	background-color: #6d6e6e;
+	color: white;
+	padding: 5px;
+	margin: 0px 3px;
+}
+
+.currimg {
+	float: right;
+}
+
+.currimg img,
+.currimg canvas {
+	max-width: 50px;
+	border: 1px solid #c0c0c0;
+}
+
+.mac {
+	font-size: 0.9em;
+	line-height: 1.25;
+}
+
+.model {
+	font-size: 0.9em;
+	line-height: 1.25;
+}
+
+.alias {
+	font-size: 1.4em;
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-bottom: 4px;
+}
+
+.resolution {
+	font-size: 0.9em;
+	line-height: 1.25;
+}
+
+.received {
+	display: flex;
+	font-size: .9em;
+	padding-bottom: 5px;
+	line-height: 1.25;
+}
+
+.received div {
+	display: inline-block;
+}
+
+.contentmode {
+	font-weight: bold;
+	font-size: 1.4em;
+	padding-bottom: 5px;
+}
+
+.lastseen,
+.nextcheckin,
+.nextupdate {
+	font-size: 0.9em;
+}
+
+.lastseen span,
+.nextcheckin span,
+.nextupdate span {
+	width: 105px;
+	display: inline-block;
+}
+
+.corner {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	padding: 5px;
+}
+
+.pendingicon {
+	width: 20px;
+	height: 20px;
+	background-color: rgb(1, 154, 201);
+	font-size: 1.2em;
+	text-align: center;
+	font-weight: bold;
+	display: none;
+	vertical-align: top;
+	color: white;
+}
+
+.warningicon {
+	display: none;
+	font-size: 1.3em;
+	background-color: yellow;
+	color: black;
+	height: 20px;
+	width: 20px;
+	vertical-align: top;
+	text-align: center;
+}
+
+ul.messages {
+	padding: 5px;
+}
+
+ul.messages li {
+	position: relative;
+}
+
+ul.messages li.new {
+	animation-name: new;
+	animation-duration: 1400ms;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in-out;
+}
+
+.error {
+	color: red;
+}
+
+.mono {
+	font-family: monospace;
+	word-break: break-all;
+	background-color: #666;
+	color: #ccc;
+	padding: 2px;
+}
+
+.quote {
+	color: white;
+}
+
+#georesults {
+	position: absolute;
+	background: white;
+	cursor: pointer;
+	width: 240px;
+	max-height: 115px;
+	overflow-y: scroll;
+	padding: 0px 2px 0px 2px;
+	& div {
+		display:flex;
+	}
+	& div:hover {
+		background-color: #e0e0e0;
+	}
+}
+
+#paintbutton {
+	padding: 1px 3px;
+	border: 1px solid black;
+	font-size: 1.3em;
+	vertical-align: top;
+	margin-left: 12px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+#paintbutton:hover {
+	background-color: #aaaaaa;
+}
+
+.drophighlight {
+	border: 1px solid red;
+	box-shadow: 7px 10px 52px -19px rgba(255, 0, 0, 0.63);
+}
+
+#context-menu {
+	display: none;
+	position: absolute;
+	background: white;
+	border: 1px solid gray;
+	list-style: none;
+	z-index: 999;
+	padding: 2px 5px;
+}
+
+#context-menu li {
+	cursor: pointer;
+	padding: 1px 5px;
+}
+
+#context-menu li:hover {
+	background-color: #e0e0e0;
+}
+
+/* painter */
+
+#canvasdiv {
+	padding: 5px;
+}
+
+#canvasdiv canvas {
+	border: 1px solid black;
+}
+
+#buttonbar {
+	padding: 5px;
+	display: flex;
+	gap: 5px;
+}
+
+#buttonbar button,
+#layersdiv button {
+	padding: 1px 2px;
+	border: 1px solid #cccccc;
+	background-color: #dddddd;
+	width: 40px;
+}
+
+#buttonbar button {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+#buttonbar .active {
+	background-color: #ffffff;
+	cursor: pointer;
+}
+
+#buttonbar button:hover,
+#layersdiv button:hover {
+	background-color: #cccccc;
+	cursor: pointer;
+}
+
+#layersdiv {
+	padding: 0px 5px;
+}
+
+#layersdiv>div {
+	display: flex;
+	gap: 5px;
+	margin-bottom: 5px;
+}
+
+#layersdiv input,
+#layersdiv select {
+	padding: 2px;
+}
+
+#font-select {
+	width: 150px;
+}
+
+#savebar button {
+	border: solid 1px #666666;
+}
+
+/* updatescreens */
+
+#easyupdate {
+	padding: 10px;
+	background-color: white;
+	width: 400px;
+	margin-bottom: 20px;
+}
+
+#easyupdate button {
+	display: block;
+	margin: 15px 40px;
+	padding: 10px 20px;
+}
+
+#easyupdate a {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+h4 {
+	font-size: 1.25em;
+	margin: 10px 0px;
+	font-weight: bold;
+}
+
+#releasetable {
+	margin: 10px 0px;
+}
+
+#releasetable table {
+	border-spacing: 1px;
+}
+
+#releasetable th {
+	text-align: left;
+	background-color: #ffffff;
+	padding: 1px 5px;
+}
+
+#releasetable td {
+	background-color: #ffffff;
+	padding: 1px 5px;
+	min-width: 70px;
+	vertical-align: baseline;
+}
+
+#releasetable td:nth-child(2) {
+	white-space: nowrap;
+}
+
+#releasetable button {
+	padding: 3px 10px;
+	background-color: #e0e0e0;
+}
+
+#releasetable button:hover {
+	background-color: #a0a0a0;
+}
+
+.updateCol1, .flashCol1 {
+	flex-grow: 1;
+}
+
+.console {
+	width: 450px;
+	background-color: black;
+	font-family: 'lucida console', 'ui-monospace';
+	color: white;
+	padding: 5px 10px;
+	padding-bottom: 25px;
+	height: calc(100vh - 200px);
+	overflow-y: scroll;
+	white-space: break-spaces;
+	flex-grow: 1;
+	max-width: 600px;
+}
+
+.console div {
+	word-break: break-all;
+}
+
+/* media */
+
+@media(max-width: 460px) {
+
+	.messages li div,
+	ul.messages li div.date,
+	ul.messages li div.message {
+		display: block;
+		position: relative;
+		padding: 0;
+		left: auto;
+	}
+
+	.messages li div.message,
+	li.pending {
+		margin-bottom: 8px;
+	}
+
+	ul.messages {
+		padding-bottom: 4px;
+	}
+}
+
+@keyframes new {
+	0% {
+		background-color: rgba(255, 255, 204, 1);
+	}
+
+	50% {
+		background-color: rgba(255, 255, 204, .5);
+	}
+
+	100% {
+		background-color: rgba(255, 255, 204, 0);
+	}
+}
+
+@keyframes tagflash {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes pending {
+	0% {}
+
+	50% {
+		background-color: #d4d4f5;
+	}
+
+	100% {}
+}
+
+@media screen and (max-width: 480px) {
+	/* styles for mobile devices in portrait mode */
+
+	body {
+		font-size: 13px;
+	}
+
+	.tagcard {
+		width: 100%;
+		min-height: 200px;
+	}
+
+	footer #sysinfo {
+		float: none;
+		display: block;
+	}
+
+	#configbox {
+		top: 0px;
+		left: 0px;
+		width: 100%;
+	}
+
+	.currimg {
+		float: none;
+		position: absolute;
+		right: 5px;
+	}
+
+	.currimg img,
+	.currimg canvas {
+		max-width: 60px;
+	}
+
+	.logo {
+		padding-top: 10px;
+		text-indent: 0px;
+		font-size: 1.8em;
+		text-align: center;
+	}
+
+	.actionbox>div {
+		gap: 5px;
+		flex-flow: wrap;
+	}
+
+	.actionbox>div:first-child>div:first-child {
+		flex-basis: 100%;
+	}
+
+	#buttonbar button {
+		font-size: 1.1em;
+		overflow: hidden;
+		padding: 1px 1px;
+	}
+
+}

@@ -57,7 +57,7 @@ void WifiManager::poll() {
         }
     }
 
-#ifndef HAS_USB
+/*
     if (digitalRead(0) == LOW) {
         Serial.println("GPIO0 LOW");
         long starttime = millis();
@@ -88,7 +88,7 @@ void WifiManager::poll() {
             ESP.restart();
         }
     }
-#endif
+*/
 
     pollSerial();
 }
@@ -124,61 +124,65 @@ bool WifiManager::connectToWifi() {
 }
 
 bool WifiManager::connectToWifi(String ssid, String pass, bool savewhensuccessfull) {
-    _ssid = ssid;
-    _pass = pass;
-    _savewhensuccessfull = savewhensuccessfull;
+	_ssid = ssid;
+	_pass = pass;
+	_savewhensuccessfull = savewhensuccessfull;
+	_APstarted = false;
 
-    _APstarted = false;
-    WiFi.disconnect(true, true);
-    delay(100);
-    WiFi.mode(WIFI_MODE_NULL);
-    delay(100);
-    char hostname[32] = "Clock-";
-    uint8_t mac[6];
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    char lastTwoBytes[5];
-    sprintf(lastTwoBytes, "%02X%02X", mac[4], mac[5]);
-    strcat(hostname, lastTwoBytes);
+	// Optimize WiFi reset to avoid unnecessary delays
+	WiFi.disconnect(false, true);
+	WiFi.mode(WIFI_STA);
 
-    WiFi.setHostname(hostname);
-    WiFi.mode(WIFI_STA);
-    WiFi.setSleep(WIFI_PS_MIN_MODEM);
+	// Generate hostname from MAC
+	char hostname[32] = "Clock-";
+	uint8_t mac[6];
+	esp_read_mac(mac, ESP_MAC_WIFI_STA);
+	char lastTwoBytes[5];
+	sprintf(lastTwoBytes, "%02X%02X", mac[4], mac[5]);
+	strcat(hostname, lastTwoBytes);
+	WiFi.setHostname(hostname);
 
-    terminalLog("Connecting to WiFi...");
-    WiFi.persistent(savewhensuccessfull);
-    WiFi.begin(_ssid.c_str(), _pass.c_str());
-    _connected = waitForConnection();
-    return _connected;
+	WiFi.setSleep(false); // Disable sleep for faster connection
+	WiFi.persistent(savewhensuccessfull);
+
+	terminalLog("Connecting to WiFi...");
+
+	WiFi.begin(_ssid.c_str(), _pass.c_str());
+
+	_connected = waitForConnection();
+	return _connected;
 }
 
 bool WifiManager::waitForConnection() {
-    unsigned long timeout = millis() + _connectionTimeout;
-    wifiStatus = WAIT_CONNECTING;
+	unsigned long timeout = millis() + _connectionTimeout;
+	wifiStatus = WAIT_CONNECTING;
 
-    while (WiFi.status() != WL_CONNECTED) {
-        if (millis() > timeout) {
-            terminalLog("!Unable to connect to WiFi");
-            startManagementServer();
-            return false;
-        }
-        vTaskDelay(250 / portTICK_PERIOD_MS);
-    }
+	while (WiFi.status() != WL_CONNECTED) {
+		if (millis() > timeout) {
+			terminalLog("!Unable to connect to WiFi");
+			startManagementServer();
+			return false;
+		}
+		vTaskDelay(100 / portTICK_PERIOD_MS); // Reduce delay for faster retries
+	}
 
-    if (_savewhensuccessfull) {
-        Preferences preferences;
-        preferences.begin("wifi", false);
-        preferences.putString("ssid", _ssid);
-        preferences.putString("pass", _pass);
-        preferences.end();
-        _savewhensuccessfull = false;
-    }
-    WiFi.setAutoReconnect(true);
-    WiFi.persistent(true);
-    IPAddress IP = WiFi.localIP();
-    terminalLog("Connected!");
-    _nextReconnectCheck = millis() + _reconnectIntervalCheck;
-    wifiStatus = CONNECTED;
-    return true;
+	// Save credentials only if successful
+	if (_savewhensuccessfull) {
+		Preferences preferences;
+		preferences.begin("wifi", false);
+		preferences.putString("ssid", _ssid);
+		preferences.putString("pass", _pass);
+		preferences.end();
+		_savewhensuccessfull = false;
+	}
+
+	WiFi.setAutoReconnect(true);
+	WiFi.persistent(true);
+
+	terminalLog("Connected! IP: " + WiFi.localIP().toString());
+	_nextReconnectCheck = millis() + _reconnectIntervalCheck;
+	wifiStatus = CONNECTED;
+	return true;
 }
 
 void WifiManager::startManagementServer() {

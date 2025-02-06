@@ -47,9 +47,10 @@
 
 ## **Fonts**  
 
+### **Truetype Fonts**  
+
 These fonts are licensed under the [Open Font License (OFL)](https://openfontlicense.org/).  
 
-### **Featured Fonts**  
 - **Benne** – Designed by John Harrington  
   [View on Google Fonts](https://fonts.google.com/specimen/Benne)  
 
@@ -88,5 +89,14 @@ These fonts are licensed under the [Open Font License (OFL)](https://openfontlic
 
 - **Yatra One** – Designed by Catherine Leigh Schmidt  
   [View on Google Fonts](https://fonts.google.com/specimen/Yatra+One)  
+
+### **Bitmap digits** 
+
+- **Nixie** - photographer by Danyk (aka DiodeGoneWild)
+  [All digits of Polish Dolam LC-516 nixie tube](https://danyk.cz/digitrony_en.html)
+  License: "Can I copy something from you to my own website? -You can, if you meet two requirements: 1) If you add a bit of your own work (photos of things that you have created using my instructions, and/or describe your own knowledges, you earned, or alterations in the circuit). 2) And cite me as the source (use a link to me on your website) danyk.cz with a specific URL."
+
+
+
 
 ---  

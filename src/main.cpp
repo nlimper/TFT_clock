@@ -170,9 +170,6 @@ void setup(void) {
 	initInterface();
 	initMenu();
 
-	debugTFT("Init sprites");
-	initSprites(false);
-
 	debugTFT("Set clock");
 	setESP32RTCfromDS3231();
 

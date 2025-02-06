@@ -1,120 +1,120 @@
 {
-	"hardware": {
-		"ds3231": 1,
-		"max98357": 1,
-		"lis3d": 1,
-		"bh1750": 1,
-		"solenoid": 0,
-		"rotary": 0,
-		"gps": 0,
-		"buttons": [ 40, 0, 7, 6 ],
-		"invertbacklight": 1
-	},
-	"config": {
-		"alarmclock": 1,
-		"autobrightness": 1,
-		"wifi": 1,
-		"fliporientation": "456",
-		"luxday": 0.15,
-		"luxnight": 0.11,
-		"luxfactor": 5
-	},
-	"menu": [
-		{ "name": "Alarm set", "children": [
-				{ "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Thursday", "function": "setAlarm4", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Friday", "function": "setAlarm5", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Saturday", "function": "setAlarm6", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Sunday", "function": "setAlarm0", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Time set", "children": [
-				{ "name": "Year", "function": "setYear" },
-				{ "name": "Month", "function": "setMonth" },
-				{ "name": "Day", "function": "setDay" },
-				{ "name": "Hour", "function": "setHour" },
-				{ "name": "Minute", "function": "setMinute" },
-				{ "name": "Time zone", "function": "setTimezone" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Font", "function": "selectFont" },
-		{ "name": "Brightness", "function": "setBrightness" },
-		{ "name": "Color", "function": "setColor" },
-		{ "name": "Sound", "children": [
-				{ "name": "Audio volume", "function": "adjustVolume" },
-				{ "name": "Minute sound", "function": "selectMinuteSound" },
-				{ "name": "Hourly sound", "function": "selectHourSound" },
-				{ "name": "Alarm sound", "function": "selectAlarmSound" },
-				{ "name": "Silent from", "function": "selectNightFrom" },
-				{ "name": "Silent until", "function": "selectNightTo" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Settings", "children": [
-				{ "name": "Hour format", "function": "selectHourMode" },
-				{ "name": "Min.brightness", "function": "setMinBrightness", "info": "This brightness is used in total\ndarkness when a light sensor\nis present." },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Exit", "function": "exitMenu" }
-	],
-	"fonts": [
-		[ "Benne", "benne-subset.ttf", 550, -5, 50 ],
-		[ "Bitmap", "bitmap-subset.ttf", 600, -10, 21 ],
-		[ "Bungee", "bungee-subset.ttf", 740, -55, -115 ],
-		[ "Cabin", "cabin-subset.ttf", 530, -7, -12 ],
-		[ "Caveat", "caveat-subset.ttf", 710, -37, -128 ],
-		[ "Cilbirab", "cilbirab-subset.ttf", 670, -10, 40 ],
-		[ "DejaVuSans", "dejavusans-subset.ttf", 580, -15, -35 ],
-		[ "EmilysCandy", "emilyscandy-subset.ttf", 580, -7, -65 ],
-		[ "FellEnglish", "fellenglish-subset.ttf", 550, -7, -120 ],
-		[ "HennyPenny", "hennypenny-subset.ttf", 400, -7, -90 ],
-		[ "Michroma", "michroma-subset.ttf", 360, -12, -110 ],
-		[ "Moiraione", "moiraione-subset.ttf", 510, -7, 5 ],
-		[ "OCR-A", "ocra-subset.ttf", 560, -30, 60 ],
-		[ "Quicksand", "quicksand-subset.ttf", 610, -18, -90 ],
-		[ "Vibur", "vibur-subset.ttf", 570, -7, -40 ],
-		[ "YatraOne", "yatraone-subset.ttf", 570, -12, -90 ]
-	],
-	"colors": [
-		[ "Snow White", 255, 255, 255 ],
-		[ "Sunshine Yellow", 255, 255, 0 ],
-		[ "Tangerine Dream", 255, 128, 0 ],
-		[ "Crimson Red", 255, 0, 0 ],
-		[ "Emerald Green", 0, 255, 0 ],
-		[ "Ocean Blue", 0, 0, 255 ],
-		[ "Coral Blush", 255, 168, 64 ],
-		[ "Mint Green", 128, 255, 128 ],
-		[ "Lavender Mist", 219, 160, 255 ],
-		[ "Peach Fuzz", 255, 200, 100 ]
-	],
-	"sounds": [
-		[ "Rooster", "rooster.mp3" ],
-		[ "Ptarmigan", "ptarmigan.mp3" ],
-		[ "Cowbells", "cowbells.mp3" ],
-		[ "Moldau", "moldau.mp3" ],
-		[ "Wakeup", "wakeup.mp3" ]
-	],
-"timezone": [
-	[ "UTC", "UTC0", "UTC" ],
-	[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
-	[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
-	[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
-	[ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
-	[ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
-	[ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
-	[ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
-	[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
-	[ "BRT", "BRT3", "Sao Paulo" ],
-	[ "GST", "GST-4", "Dubai" ],
-	[ "IST", "IST-5:30", "Mumbai" ],
-	[ "AWST", "AWST-8", "Perth" ],
-	[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
-	[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
-	[ "CST", "CST-8", "Beijing" ],
-	[ "JST", "JST-9", "Tokyo" ]
-],
-	"layout": {
-		"nextalarm": [ 10, 440 ]
-	}
+  "hardware": {
+    "ds3231": 1,
+    "max98357": 1,
+    "lis3d": 1,
+    "bh1750": 1,
+    "solenoid": 0,
+    "rotary": 0,
+    "gps": 0,
+    "buttons": [ 40, 0, 7, 6 ],
+    "invertbacklight": 1
+  },
+  "config": {
+    "alarmclock": 1,
+    "autobrightness": 1,
+    "wifi": 1,
+    "fliporientation": "456",
+    "luxday": 0.15,
+    "luxnight": 0.11,
+    "luxfactor": 5
+  },
+  "menu": [
+    { "name": "Alarm set", "children": [
+        { "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Thursday", "function": "setAlarm4", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Friday", "function": "setAlarm5", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Saturday", "function": "setAlarm6", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Sunday", "function": "setAlarm0", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Time set", "children": [
+        { "name": "Year", "function": "setYear" },
+        { "name": "Month", "function": "setMonth" },
+        { "name": "Day", "function": "setDay" },
+        { "name": "Hour", "function": "setHour" },
+        { "name": "Minute", "function": "setMinute" },
+        { "name": "Time zone", "function": "setTimezone" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Font", "function": "selectFont" },
+    { "name": "Brightness", "function": "setBrightness" },
+    { "name": "Color", "function": "setColor" },
+    { "name": "Sound", "children": [
+        { "name": "Audio volume", "function": "adjustVolume" },
+        { "name": "Minute sound", "function": "selectMinuteSound" },
+        { "name": "Hourly sound", "function": "selectHourSound" },
+        { "name": "Alarm sound", "function": "selectAlarmSound" },
+        { "name": "Silent from", "function": "selectNightFrom" },
+        { "name": "Silent until", "function": "selectNightTo" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Settings", "children": [
+        { "name": "Hour format", "function": "selectHourMode" },
+        { "name": "Min.brightness", "function": "setMinBrightness", "info": "This brightness is used in total\ndarkness when a light sensor\nis present." },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Exit", "function": "exitMenu" }
+  ],
+  "fonts": [
+    [ "Benne", "benne-subset.ttf", 550, -5, 50 ],
+    [ "Bitmap", "bitmap-subset.ttf", 600, -10, 21 ],
+    [ "Bungee", "bungee-subset.ttf", 740, -55, -115 ],
+    [ "Cabin", "cabin-subset.ttf", 530, -7, -12 ],
+    [ "Caveat", "caveat-subset.ttf", 710, -37, -128 ],
+    [ "Cilbirab", "cilbirab-subset.ttf", 670, -10, 40 ],
+    [ "DejaVuSans", "dejavusans-subset.ttf", 580, -15, -35 ],
+    [ "EmilysCandy", "emilyscandy-subset.ttf", 580, -7, -65 ],
+    [ "FellEnglish", "fellenglish-subset.ttf", 550, -7, -120 ],
+    [ "HennyPenny", "hennypenny-subset.ttf", 400, -7, -90 ],
+    [ "Michroma", "michroma-subset.ttf", 360, -12, -110 ],
+    [ "Moiraione", "moiraione-subset.ttf", 510, -7, 5 ],
+    [ "OCR-A", "ocra-subset.ttf", 560, -30, 60 ],
+    [ "Quicksand", "quicksand-subset.ttf", 610, -18, -90 ],
+    [ "Vibur", "vibur-subset.ttf", 570, -7, -40 ],
+    [ "YatraOne", "yatraone-subset.ttf", 570, -12, -90 ]
+  ],
+  "colors": [
+    [ "Snow White", 255, 255, 255 ],
+    [ "Sunshine Yellow", 255, 255, 0 ],
+    [ "Tangerine Dream", 255, 128, 0 ],
+    [ "Crimson Red", 255, 0, 0 ],
+    [ "Emerald Green", 0, 255, 0 ],
+    [ "Ocean Blue", 0, 0, 255 ],
+    [ "Coral Blush", 255, 168, 64 ],
+    [ "Mint Green", 128, 255, 128 ],
+    [ "Lavender Mist", 219, 160, 255 ],
+    [ "Peach Fuzz", 255, 200, 100 ]
+  ],
+  "sounds": [
+    [ "Rooster", "rooster.mp3" ],
+    [ "Ptarmigan", "ptarmigan.mp3" ],
+    [ "Cowbells", "cowbells.mp3" ],
+    [ "Moldau", "moldau.mp3" ],
+    [ "Wakeup", "wakeup.mp3" ]
+  ],
+  "timezone": [
+    [ "UTC", "UTC0", "UTC" ],
+    [ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
+    [ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
+    [ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
+    [ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
+    [ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
+    [ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
+    [ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
+    [ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
+    [ "BRT", "BRT3", "Sao Paulo" ],
+    [ "GST", "GST-4", "Dubai" ],
+    [ "IST", "IST-5:30", "Mumbai" ],
+    [ "AWST", "AWST-8", "Perth" ],
+    [ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
+    [ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
+    [ "CST", "CST-8", "Beijing" ],
+    [ "JST", "JST-9", "Tokyo" ]
+  ],
+  "layout": {
+    "nextalarm": [ 10, 440 ]
+  }
 }

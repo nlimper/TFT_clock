@@ -198,7 +198,7 @@ void handleMenuInput(int button, int stepSize) {
 
 	switch (button) {
 	case 0:
-		// down
+		// up
 		if (!menuActive) break;
 		if (inFunction) {
 			doFunction(currentItem.functionName, -stepSize);
@@ -213,7 +213,7 @@ void handleMenuInput(int button, int stepSize) {
 		break;
 
 	case 1:
-		// up
+		// down
 		if (!menuActive) break;
 		if (inFunction) {
 			doFunction(currentItem.functionName, stepSize);
@@ -329,7 +329,7 @@ String getValue(const String &name) {
 		{"setTime", []() { return ""; }},
 		{"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
 		{"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
-		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 15)); }},
+		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 30)); }},
 		{"showVersion", []() { return ""; }},
 		{"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }},
 		{"setTimezone", []() { return String(timezones[prefs.getUShort("timezone", 1)].name); }}};
@@ -513,7 +513,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 			 }
 		 }},
 		{"setMinBrightness", [](int increment) {
-			 uint16_t brightness = prefs.getULong("minbrightness", 15);
+			 uint16_t brightness = prefs.getULong("minbrightness", 30);
 			 d3 = 10;
 			 if (increment == 0) {
 				 if (inFunction) {

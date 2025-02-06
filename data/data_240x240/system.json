@@ -1,126 +1,128 @@
 {
-	"hardware": {
-		"ds3231": 1,
-		"max98357": 1,
-		"lis3d": 1,
-		"bh1750": 0,
-		"solenoid": 0,
-		"rotary": 0,
-		"gps": 0,
-		"buttons": [ 40, 0, 7, 6 ],
-		"invertbacklight": 0
-	},
-	"config": {
-		"alarmclock": 1,
-		"autobrightness": 1,
-		"wifi": 1,
-		"fliporientation": "5",
-		"luxday": 0.15,
-		"luxnight": 0.11,
-		"luxfactor": 10
-	},
-	"menu": [
-		{ "name": "Alarm set", "children": [
-				{ "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Thursday", "function": "setAlarm4", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Friday", "function": "setAlarm5", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Saturday", "function": "setAlarm6", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Sunday", "function": "setAlarm0", "info": "Long press 'enter'\nto turn off alarm" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Time set", "children": [
-				{ "name": "Year", "function": "setYear" },
-				{ "name": "Month", "function": "setMonth" },
-				{ "name": "Day", "function": "setDay" },
-				{ "name": "Hour", "function": "setHour" },
-				{ "name": "Minute", "function": "setMinute" },
-				{ "name": "Time zone", "function": "setTimezone" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Font", "function": "selectFont" },
-		{ "name": "Brightness", "function": "setBrightness" },
-		{ "name": "Color", "function": "setColor" },
-		{ "name": "Sound", "children": [
-				{ "name": "Audio volume", "function": "adjustVolume" },
-				{ "name": "Minute sound", "function": "selectMinuteSound" },
-				{ "name": "Hourly sound", "function": "selectHourSound" },
-				{ "name": "Alarm sound", "function": "selectAlarmSound" },
-				{ "name": "Silent from", "function": "selectNightFrom" },
-				{ "name": "Silent until", "function": "selectNightTo" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Settings", "children": [
-				{ "name": "Hour format", "function": "selectHourMode" },
-				{ "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
-				{ "name": "Version info", "function": "showVersion" },
-				{ "name": "Exit", "function": "exitMenu" }
-			] },
-		{ "name": "Exit", "function": "exitMenu" }
-	],
-	"fonts": [
-		[ "Benne", "benne-subset.ttf", 265, -5, 27 ],
-		[ "Bitmap", "bitmap-subset.ttf", 275, -5, 14 ],
-		[ "Bungee", "bungee-subset.ttf", 310, -20, -50 ],
-		[ "Cabin", "cabin-subset.ttf", 285, -7, -12 ],
-		[ "Caveat", "caveat-subset.ttf", 310, -17, -60 ],
-		[ "Cilbirab", "cilbirab-subset.ttf", 290, -5, 11 ],
-		[ "DejaVu Sans", "dejavusans-subset.ttf", 260, -7, -17 ],
-		[ "Emilys Candy", "emilyscandy-subset.ttf", 260, -7, -30 ],
-		[ "Fell English", "fellenglish-subset.ttf", 270, -7, -60 ],
-		[ "HennyPenny", "hennypenny-subset.ttf", 200, -7, -40 ],
-		[ "Michroma", "michroma-subset.ttf", 212, -7, -58 ],
-		[ "Moiraione", "moiraione-subset.ttf", 260, -7, 5 ],
-		[ "OCR-A", "ocra-subset.ttf", 235, -15, 25 ],
-		[ "Quicksand", "quicksand-subset.ttf", 270, -7, -40 ],
-		[ "Vibur", "vibur-subset.ttf", 270, -7, -20 ],
-		[ "YatraOne", "yatraone-subset.ttf", 275, -7, -48 ]
-	],
-"colors": [
-	[ "Snow White", 255, 255, 255 ],
-	[ "Sunshine Yellow", 255, 255, 0 ],
-	[ "Pale Lemon", 255, 255, 128 ],
-	[ "Golden Tangerine", 255, 192, 64 ],
-	[ "Burnt Orange", 255, 128, 0 ],
-	[ "Peach Blossom", 255, 215, 180 ],
-	[ "Scarlet Glow", 255, 96, 96 ],
-	[ "Fiery Red", 255, 0, 0 ],
-	[ "Lush Green", 64, 255, 128 ],
-	[ "Neon Lime", 0, 255, 0 ],
-	[ "Sky Lagoon", 64, 192, 255 ],
-	[ "Deep Ocean", 0, 0, 255 ],
-	[ "Soft Lavender", 224, 192, 255 ],
-	[ "Royal Amethyst", 192, 128, 255 ]
-],
-	"sounds": [
-		[ "Rooster", "rooster.mp3" ],
-		[ "Ptarmigan", "ptarmigan.mp3" ],
-		[ "Cowbells", "cowbells.mp3" ],
-		[ "Moldau", "moldau.mp3" ],
-		[ "Wakeup", "wakeup.mp3" ]
-	],
-"timezone": [
-	[ "UTC", "UTC0", "UTC" ],
-	[ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
-	[ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
-	[ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
-	[ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
-	[ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
-	[ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
-	[ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
-	[ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
-	[ "BRT", "BRT3", "Sao Paulo" ],
-	[ "GST", "GST-4", "Dubai" ],
-	[ "IST", "IST-5:30", "Mumbai" ],
-	[ "AWST", "AWST-8", "Perth" ],
-	[ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
-	[ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
-	[ "CST", "CST-8", "Beijing" ],
-	[ "JST", "JST-9", "Tokyo" ]
-],
-	"layout": {
-		"nextalarm": [ 60, 185 ]
-	}
+  "hardware": {
+    "ds3231": 1,
+    "max98357": 1,
+    "lis3d": 1,
+    "bh1750": 0,
+    "solenoid": 0,
+    "gps": 0,
+    "rotary": 0,                // 1 when rotary encoder is present
+    "buttons": [ 40, 0, 7, 6 ], // pins for up, down, enter, back buttons
+    // "rotary": 1,                // 1 when rotary encoder is present
+    // "buttons": [ 6, 7, 40 ], // pins for up, down, enter, back buttons
+    "invertbacklight": 0
+  },
+  "config": {
+    "alarmclock": 1,
+    "autobrightness": 1,
+    "wifi": 1,
+    "fliporientation": "5",     // orientation where display is flipped
+    "luxday": 0.15,
+    "luxnight": 0.11,           // lux reference for night mode
+    "luxfactor": 10             // lux reference for 100% brightness
+  },
+  "menu": [
+    { "name": "Alarm set", "children": [
+        { "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Thursday", "function": "setAlarm4", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Friday", "function": "setAlarm5", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Saturday", "function": "setAlarm6", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Sunday", "function": "setAlarm0", "info": "Long press 'enter'\nto turn off alarm" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Time set", "children": [
+        { "name": "Year", "function": "setYear" },
+        { "name": "Month", "function": "setMonth" },
+        { "name": "Day", "function": "setDay" },
+        { "name": "Hour", "function": "setHour" },
+        { "name": "Minute", "function": "setMinute" },
+        { "name": "Time zone", "function": "setTimezone" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Font", "function": "selectFont" },
+    { "name": "Brightness", "function": "setBrightness" },
+    { "name": "Color", "function": "setColor" },
+    { "name": "Sound", "children": [
+        { "name": "Audio volume", "function": "adjustVolume" },
+        { "name": "Minute sound", "function": "selectMinuteSound" },
+        { "name": "Hourly sound", "function": "selectHourSound" },
+        { "name": "Alarm sound", "function": "selectAlarmSound" },
+        { "name": "Silent from", "function": "selectNightFrom" },
+        { "name": "Silent until", "function": "selectNightTo" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Settings", "children": [
+        { "name": "Hour format", "function": "selectHourMode" },
+        { "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
+        { "name": "Version info", "function": "showVersion" },
+        { "name": "Exit", "function": "exitMenu" }
+      ] },
+    { "name": "Exit", "function": "exitMenu" }
+  ],
+  "fonts": [ // font name, font filename, font size, xPos and yPos adjustment relative to a centered character
+    [ "Benne", "benne-subset.ttf", 265, -5, 27 ],
+    [ "Bitmap", "bitmap-subset.ttf", 275, -5, 14 ],
+    [ "Bungee", "bungee-subset.ttf", 310, -20, -50 ],
+    [ "Cabin", "cabin-subset.ttf", 285, -7, -12 ],
+    [ "Caveat", "caveat-subset.ttf", 310, -17, -60 ],
+    [ "Cilbirab", "cilbirab-subset.ttf", 290, -5, 11 ],
+    [ "DejaVu Sans", "dejavusans-subset.ttf", 260, -7, -17 ],
+    [ "Emilys Candy", "emilyscandy-subset.ttf", 260, -7, -30 ],
+    [ "Fell English", "fellenglish-subset.ttf", 270, -7, -60 ],
+    [ "HennyPenny", "hennypenny-subset.ttf", 200, -7, -40 ],
+    [ "Michroma", "michroma-subset.ttf", 212, -7, -58 ],
+    [ "Moiraione", "moiraione-subset.ttf", 260, -7, 5 ],
+    [ "OCR-A", "ocra-subset.ttf", 235, -15, 25 ],
+    [ "Quicksand", "quicksand-subset.ttf", 270, -7, -40 ],
+    [ "Vibur", "vibur-subset.ttf", 270, -7, -20 ],
+    [ "YatraOne", "yatraone-subset.ttf", 275, -7, -48 ]
+  ],
+  "colors": [
+    [ "Snow White", 255, 255, 255 ],
+    [ "Sunshine Yellow", 255, 255, 0 ],
+    [ "Pale Lemon", 255, 255, 128 ],
+    [ "Golden Tangerine", 255, 192, 64 ],
+    [ "Burnt Orange", 255, 128, 0 ],
+    [ "Peach Blossom", 255, 215, 180 ],
+    [ "Scarlet Glow", 255, 96, 96 ],
+    [ "Fiery Red", 255, 0, 0 ],
+    [ "Lush Green", 64, 255, 128 ],
+    [ "Neon Lime", 0, 255, 0 ],
+    [ "Sky Lagoon", 64, 192, 255 ],
+    [ "Deep Ocean", 0, 0, 255 ],
+    [ "Soft Lavender", 224, 192, 255 ],
+    [ "Royal Amethyst", 192, 128, 255 ]
+  ],
+  "sounds": [
+    [ "Rooster", "rooster.mp3" ],
+    [ "Ptarmigan", "ptarmigan.mp3" ],
+    [ "Cowbells", "cowbells.mp3" ],
+    [ "Moldau", "moldau.mp3" ],
+    [ "Wakeup", "wakeup.mp3" ]
+  ],
+  "timezone": [
+    [ "UTC", "UTC0", "UTC" ],
+    [ "CET", "CET-1CEST,M3.5.0,M10.5.0/3", "Berlin" ],
+    [ "GMT", "GMT0BST,M3.5.0/1,M10.5.0", "London" ],
+    [ "EET", "EET-2EEST,M3.5.0/3,M10.5.0/4", "Athens" ],
+    [ "PST", "PST8PDT,M3.2.0,M11.1.0", "Los Angeles" ],
+    [ "MST", "MST7MDT,M3.2.0,M11.1.0", "Denver" ],
+    [ "CST", "CST6CDT,M3.2.0,M11.1.0", "Chicago" ],
+    [ "EST", "EST5EDT,M3.2.0,M11.1.0", "New York" ],
+    [ "CLT", "CLT4CLST,M9.1.6/24,M4.1.6/24", "Santiago" ],
+    [ "BRT", "BRT3", "Sao Paulo" ],
+    [ "GST", "GST-4", "Dubai" ],
+    [ "IST", "IST-5:30", "Mumbai" ],
+    [ "AWST", "AWST-8", "Perth" ],
+    [ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
+    [ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
+    [ "CST", "CST-8", "Beijing" ],
+    [ "JST", "JST-9", "Tokyo" ]
+  ],
+  "layout": {
+    "nextalarm": [ 60, 185 ]
+  }
 }
 

@@ -52,11 +52,9 @@ uint32_t lastmenuactive = 0;
 int prevMinute = 61, prevHour = 61;
 int d1 = 10, d2 = 10, d3 = 10;
 int hour, minute;
-int curr_menu_time = 0, currmenu = 0;
 int menulevel = 1;
 int time_set[6];
 uint16_t alarm_set[8] = {24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 0};
-int set_value;
 int hourlyChimeTrigger = false, currentChimeCount = 0;
 int alarmActive = 0;
 int timerAlarmFlashId, timerAlarmSoundId;
@@ -118,7 +116,6 @@ void setup(void) {
 
 	initTFT();
 
-	// filesystem
 	if (!LittleFS.begin()) {
 		Serial.println("LittleFS initialisation failed!");
 		haltError("LittleFS Mount Failed");

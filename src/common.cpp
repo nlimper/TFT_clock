@@ -11,7 +11,7 @@ int perc2ledc(int brightness) {
 	avgLux = constrain(avgLux, 0, 1000);
 
 	float exponent = 1.1;
-	uint16_t min_output = prefs.getULong("minbrightness", 15);
+	uint16_t min_output = prefs.getULong("minbrightness", 30);
 	float max_output = 4095;
 
 	float normalized_value = (float)brightness / 20.0;

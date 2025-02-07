@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Webpage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #333;
-        }
-    </style>
+    <title>QuadClock</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/common.js"></script>
 </head>
+
 <body>
-    <h1>Welcome to My Basic Webpage</h1>
+    <header>
+        <div class="logo">My Website</div>
+        <nav>
+            <ul class="menu" id="menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/menu">Settings</a></li>
+                <li><a href="/setup">Wifi</a></li>
+                <li><a href="/edit">Editor</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <h1>QuadClock</h1>
+        <p>Welcome</p>
+        <p>Click the button below to reboot the device.</p>
+        <p><button id="btnReboot">Reboot</button></p>
+    </main>
+
 </body>
+
 </html>

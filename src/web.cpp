@@ -15,8 +15,10 @@
 #include "LittleFS.h"
 #include "SPIFFSEditor.h"
 #include "udp.h"
+#include "menutree.h"
 
 AsyncWebServer server(80);
+extern std::vector<MenuItem> menuItems;
 
 uint32_t lastssidscan = 0;
 
@@ -46,7 +48,11 @@ void init_web() {
         request->send(*contentFS, "/www/setup.html");
     });
 
-    server.on("/get_wifi_config", HTTP_GET, [](AsyncWebServerRequest *request) {
+	server.on("/menu", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(*contentFS, "/www/menu.html");
+	});
+
+	server.on("/get_wifi_config", HTTP_GET, [](AsyncWebServerRequest *request) {
         Preferences preferences;
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         JsonDocument doc;
@@ -87,7 +93,32 @@ void init_web() {
         request->send(response);
     });
 
-    AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/save_wifi_config", [](AsyncWebServerRequest *request, JsonVariant &json) {
+	server.on("/menujson", HTTP_GET, [](AsyncWebServerRequest *request) {
+		AsyncResponseStream *response = request->beginResponseStream("application/json");
+		JsonDocument doc;
+
+		// Create a JSON array for the menu items
+		JsonArray menuArray = doc["menu"].to<JsonArray>();
+
+		for (const auto &item : menuItems) {
+			JsonObject obj = menuArray.add<JsonObject>();
+			Serial.println("menu item: " + item.name);
+			obj["id"] = item.id;
+			obj["name"] = item.name;
+			obj["parentId"] = item.parentId;
+			obj["hasChildren"] = item.hasChildren;
+			obj["functionName"] = item.functionName;
+            if (item.functionName) {
+                obj["value"] = getValue(item.functionName);
+            }
+		}
+
+		// Serialize the JSON document to the response stream
+		serializeJsonPretty(doc, *response);
+		request->send(response);
+	});
+
+	AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/save_wifi_config", [](AsyncWebServerRequest *request, JsonVariant &json) {
         const JsonObject &jsonObj = json.as<JsonObject>();
         Preferences preferences;
         preferences.begin("wifi", false);
@@ -123,4 +154,3 @@ void init_web() {
 
     server.begin();
 }
-

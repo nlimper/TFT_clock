@@ -331,7 +331,7 @@ String getValue(const String &name) {
 		{"setWifi", []() { return prefs.getBool("enablewifi", false) ? "ON":"OFF"; }},
 		{"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
 		{"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
-		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 30)); }},
+		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 40)); }},
 		{"showVersion", []() { return ""; }},
 		{"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }},
 		{"setTimezone", []() { return String(timezones[prefs.getUShort("timezone", 1)].name); }}};
@@ -537,7 +537,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 			 }
 		 }},
 		{"setMinBrightness", [](int increment) {
-			 uint16_t brightness = prefs.getULong("minbrightness", 30);
+			 uint16_t brightness = prefs.getULong("minbrightness", 40);
 			 d3 = 10;
 			 if (increment == 0) {
 				 if (inFunction) {

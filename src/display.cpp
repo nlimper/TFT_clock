@@ -63,38 +63,6 @@ void initTFT() {
 		deselectScreen(i + 1);
 		vTaskDelay(300 / portTICK_PERIOD_MS);
 	}
-
-	// jpeg test
-	/*
-
-	TJpgDec.setJpgScale(1);
-	TJpgDec.setSwapBytes(true);
-	TJpgDec.setCallback(jpgDraw);
-
-	selectScreen(1);
-
-	uint16_t w = 0, h = 0;
-	TJpgDec.getFsJpgSize(&w, &h, "/digit7.jpg", *contentFS);
-	Serial.println("JPG size: " + String(w) + "x" + String(h));
-	if (w == 0 && h == 0) {
-		Serial.println("invalid jpg");
-		return;
-	}
-	time_t t = millis();
-	spr.setColorDepth(16);
-	spr.createSprite(w, h);
-	if (spr.getPointer() == nullptr) {
-		Serial.println("Failed to create sprite in jpg2buffer");
-	} else {
-		spr.fillSprite(TFT_BLACK);
-		TJpgDec.drawFsJpg(0, 0, "/digit7.jpg", *contentFS);
-		spr.pushSprite(0, 0);
-		spr.deleteSprite();
-	}
-	deselectScreen(1);
-	Serial.println("JPG loaded in " + String(millis() - t) + "ms");
-	vTaskDelay(5000 / portTICK_PERIOD_MS);
-	*/
 }
 
 void initTruetype() {
@@ -179,7 +147,7 @@ void initSprites(bool reInit) {
 			}
 		}
 		spr.deleteSprite();
-		
+
 	}
 }
 

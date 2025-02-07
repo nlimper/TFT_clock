@@ -520,9 +520,9 @@
 				leaf.onclick = function (e) {
 					treeRoot.removeChild(treeRoot.childNodes[0]);
 					if (name == "..") {
-						httpGet(treeRoot, "/");
+						httpGet(treeRoot, path === "/" ? "/" : path.substring(0, path.lastIndexOf('/')) || "/");
 					} else {
-						httpGet(treeRoot, "/" + name);
+						httpGet(treeRoot, path + (path != "/" ? "/" : "") + name);
 					}
 				};
 				leaf.oncontextmenu = function (e) {
@@ -548,9 +548,6 @@
 				sortByKey(items, 'name');
 				var list = ce("ul");
 				parent.appendChild(list);
-				if (path != "/") {
-					list.appendChild(createDirLeaf("/", "..", 0));
-				}
 				var ll = items.length;
 				for (var i = 0; i < ll; i++) {
 					if (items[i].type === "file") {
@@ -560,7 +557,9 @@
 						list.insertBefore(createDirLeaf(path, items[i].name, items[i].size), list.firstChild);
 					}
 				}
-
+				if (path != "/") {
+					list.insertBefore(createDirLeaf(path, "..", 0), list.firstChild);
+				}
 			}
 
 			function isTextFile(path) {

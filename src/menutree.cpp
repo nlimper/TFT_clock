@@ -3,6 +3,7 @@
 #include "common.h"
 #include "display.h"
 #include "timefunctions.h"
+#include "web.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <FS.h>
@@ -327,6 +328,7 @@ String getValue(const String &name) {
 		{"setHour", []() { return String(time_set[3]); }},
 		{"setMinute", []() { return String(time_set[4]); }},
 		{"setTime", []() { return ""; }},
+		{"setWifi", []() { return prefs.getBool("enablewifi", false) ? "ON":"OFF"; }},
 		{"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
 		{"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
 		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 30)); }},
@@ -368,6 +370,28 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 			 setSystemTime();
 			 exitmenu();
 		 }},
+		{"setWifi", [](int increment) {
+			 bool wifimode = prefs.getBool("enablewifi", false);
+			 if (increment != 0) wifimode = !wifimode;
+			 String modeStr = (wifimode) ? "ON":"OFF";
+			 if (increment == 0) {
+				 if (inFunction) {
+					 clearScreen(menuLevel + 2);
+					 if (wifimode) {
+						 init_web();
+					 } else {
+						 WiFi.disconnect(false, true);
+						 WiFi.mode(WIFI_OFF);
+					 }
+					 return;
+				 } else {
+					 showValue(modeStr, menuLevel + 1, true);
+				 }
+			 } else {
+				 prefs.putBool("enablewifi", wifimode);
+				 showValue(modeStr, menuLevel + 1);
+			 }
+		 }},
 		{"selectHourMode", [](int increment) {
 			 uint16_t hourMode = prefs.getUShort("hourmode", 0);
 			 increment = std::clamp(increment, -1, 1);
@@ -398,12 +422,12 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 					 clearScreen(menuLevel + 2);
 					 return;
 				 } else {
-					if (hourSound == 1 || hourSound == 2) {
-						audioStart("/sounds/bell.mp3");
-					} else if (hourSound == 3) {
-						audioStart("/sounds/cuckoo.mp3");
-					}						
-					showValue(modeStr, menuLevel + 1, true);
+					 if (hourSound == 1 || hourSound == 2) {
+						 audioStart("/sounds/bell.mp3");
+					 } else if (hourSound == 3) {
+						 audioStart("/sounds/cuckoo.mp3");
+					 }
+					 showValue(modeStr, menuLevel + 1, true);
 				 }
 			 } else {
 				 if (hourSound == 1 || hourSound == 2) {
@@ -634,7 +658,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
 					 clearScreen(menuLevel + 2);
 					 return;
 				 } else {
-					showVersion(menuLevel + 2);
+					 showVersion(menuLevel + 2);
 				 }
 			 } else {
 				 showVersion(menuLevel + 2);
@@ -726,7 +750,7 @@ void printTableRow(const char *label, const String &value, int y) {
 
 	tft.loadFont("/dejavusanscond15", *contentFS);
 	tft.setTextColor(TFT_WHITE, TFT_BLACK);
-	tft.setCursor(85, y);
+	tft.setCursor(80, y);
 	tft.println(value);
 	tft.unloadFont();
 }
@@ -750,12 +774,15 @@ void showVersion(int8_t digitId) {
 	tft.setCursor(50, 25);
 	tft.println("Version");
 	tft.unloadFont();
-	tft.setViewport(50, 50, TFT_WIDTH - 50, TFT_HEIGHT - 50);
+	tft.setViewport(40, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
 
 	int y = 0;
-	int lineHeight = 18;
+	int lineHeight = 17;
 	printTableRow("Serial", generateSerialWord(), y += lineHeight);
 	printTableRow("Firmware", parseDate(__DATE__), y += lineHeight);
+	if (WiFi.localIP().toString() != "0.0.0.0") {
+		printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
+	}
 	y += lineHeight;
 	printTableRow("Chip", String(ESP.getChipModel()), y += lineHeight);
 	printTableRow("Flash", String(ESP.getFlashChipSize() / 1024) + " kB", y += lineHeight);

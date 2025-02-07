@@ -150,7 +150,7 @@ void setup(void) {
 	initAccelerometer();
 	// int timerAccelerometerId = timer.setInterval(1000, accelerometerRun);
 
-	if (true || prefs.getBool("enablewifi", false)) {
+	if (prefs.getBool("enablewifi", false)) {
 		debugTFT("WiFi init");
 		init_web();
 	} else {
@@ -179,7 +179,6 @@ void setup(void) {
 void loop() {
 
 	timer.run();
-	wm.poll();
 	interfaceRun();
 
 	time_t now;
@@ -190,6 +189,7 @@ void loop() {
 	uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
 	if (menustate == OFF) {
+		if (prefs.getBool("enablewifi", false)) wm.poll();
 		accelerometerRun();
 		if (hasLightmeter) {
 			if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();

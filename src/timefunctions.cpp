@@ -55,31 +55,32 @@ extern "C" void time_sync_notification_cb(struct timeval *tv) {
 }
 
 void synchronizeNTP() {
-	sntpCallbackTriggered = false;
+	static bool NTPsynced = false;
+	if (!NTPsynced) {
+		NTPsynced = true;
+		sntpCallbackTriggered = false;
 
-	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+		sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 
-	configTime(0, 0, ntpServer);
-	xTaskCreate([](void *param) {
-		const int timeout_ms = 20000;
-		unsigned long start = millis();
+		String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
+		setenv("TZ", tz.c_str(), 1);
+		tzset();
+		configTime(0, 0, ntpServer);
+		xTaskCreate([](void *param) {
+			while (true) {
+				if (sntpCallbackTriggered) {
+					Serial.println("NTP sync successful");
+					time_t now;
+					time(&now);
+					rtc.adjust(DateTime(now));
 
-		while (!sntpCallbackTriggered && (millis() - start < timeout_ms)) {
-			vTaskDelay(pdMS_TO_TICKS(500));
-		}
-
-		if (sntpCallbackTriggered) {
-			Serial.println("NTP sync successful");
-			time_t now;
-			time(&now);
-			rtc.adjust(DateTime(now));
-		} else {
-			Serial.println("NTP sync timed out");
-		}
-
-		vTaskDelete(nullptr);
-	},
-				"NTP Timeout Task", 4096, nullptr, 1, nullptr);
+					sntpCallbackTriggered = false;
+				}
+				vTaskDelay(pdMS_TO_TICKS(1000));
+			}
+		},
+					"NTP Sync Task", 4096, nullptr, 1, nullptr);
+	}
 }
 
 uint16_t checkNextAlarm(struct tm timeinfo) {

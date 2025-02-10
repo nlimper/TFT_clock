@@ -7,4 +7,3 @@ extern fs::FS *contentFS;
 extern WifiManager wm;
 
 void init_web();
-

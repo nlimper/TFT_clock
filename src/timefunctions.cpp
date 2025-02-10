@@ -51,36 +51,36 @@ void setSystemTime() {
 
 volatile bool sntpCallbackTriggered = false;
 extern "C" void time_sync_notification_cb(struct timeval *tv) {
-	sntpCallbackTriggered = true;
+    sntpCallbackTriggered = true;
 }
 
 void synchronizeNTP() {
-	static bool NTPsynced = false;
-	if (!NTPsynced) {
-		NTPsynced = true;
-		sntpCallbackTriggered = false;
+    static bool NTPsynced = false;
+    if (!NTPsynced) {
+        NTPsynced = true;
+        sntpCallbackTriggered = false;
 
-		sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+        sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 
-		String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
-		setenv("TZ", tz.c_str(), 1);
-		tzset();
-		configTime(0, 0, ntpServer);
-		xTaskCreate([](void *param) {
-			while (true) {
-				if (sntpCallbackTriggered) {
-					Serial.println("NTP sync successful");
-					time_t now;
-					time(&now);
-					rtc.adjust(DateTime(now));
+        String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
+        setenv("TZ", tz.c_str(), 1);
+        tzset();
+        configTime(0, 0, ntpServer);
+        xTaskCreate([](void *param) {
+            while (true) {
+                if (sntpCallbackTriggered) {
+                    Serial.println("NTP sync successful");
+                    time_t now;
+                    time(&now);
+                    rtc.adjust(DateTime(now));
 
-					sntpCallbackTriggered = false;
-				}
-				vTaskDelay(pdMS_TO_TICKS(1000));
-			}
-		},
-					"NTP Sync Task", 4096, nullptr, 1, nullptr);
-	}
+                    sntpCallbackTriggered = false;
+                }
+                vTaskDelay(pdMS_TO_TICKS(1000));
+            }
+        },
+                    "NTP Sync Task", 4096, nullptr, 1, nullptr);
+    }
 }
 
 uint16_t checkNextAlarm(struct tm timeinfo) {
@@ -98,16 +98,16 @@ uint16_t checkNextAlarm(struct tm timeinfo) {
 }
 
 bool isNightMode(int hour) {
-	if (manualNightmode) {
-		return true;
-	}
-	if (hasLightmeter) {
-		if (avgLux <= config.luxnight || (nightmode == true && avgLux < config.luxday)) {
-			return true;
-		}
-	} else {
-		int nightFrom = prefs.getUShort("night_from", 22);
-		int nightTo = prefs.getUShort("night_to", 9);
+    if (manualNightmode) {
+        return true;
+    }
+    if (hasLightmeter) {
+        if (avgLux <= config.luxnight || (nightmode == true && avgLux < config.luxday)) {
+            return true;
+        }
+    } else {
+        int nightFrom = prefs.getUShort("night_from", 22);
+        int nightTo = prefs.getUShort("night_to", 9);
 
         if ((nightFrom <= nightTo && (hour >= nightFrom && hour < nightTo)) ||
             (nightFrom > nightTo && (hour >= nightFrom || hour < nightTo))) {

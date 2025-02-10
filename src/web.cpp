@@ -14,8 +14,8 @@
 #include "AsyncJson.h"
 #include "LittleFS.h"
 #include "SPIFFSEditor.h"
-#include "udp.h"
 #include "menutree.h"
+#include "udp.h"
 
 AsyncWebServer server(80);
 extern std::vector<MenuItem> menuItems;
@@ -48,11 +48,11 @@ void init_web() {
         request->send(*contentFS, "/www/setup.html");
     });
 
-	server.on("/menu", HTTP_GET, [](AsyncWebServerRequest *request) {
-		request->send(*contentFS, "/www/menu.html");
-	});
+    server.on("/menu", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(*contentFS, "/www/menu.html");
+    });
 
-	server.on("/get_wifi_config", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/get_wifi_config", HTTP_GET, [](AsyncWebServerRequest *request) {
         Preferences preferences;
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         JsonDocument doc;
@@ -69,11 +69,11 @@ void init_web() {
 
     server.on("/get_ssid_list", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-		JsonDocument doc;
-		doc["scanstatus"] = WiFi.scanComplete();
-		JsonArray networks = doc["networks"].to<JsonArray>();
+        JsonDocument doc;
+        doc["scanstatus"] = WiFi.scanComplete();
+        JsonArray networks = doc["networks"].to<JsonArray>();
 
-		for (int i = 0; i < (WiFi.scanComplete() > 50 ? 50 : WiFi.scanComplete()); ++i) {
+        for (int i = 0; i < (WiFi.scanComplete() > 50 ? 50 : WiFi.scanComplete()); ++i) {
             if (WiFi.SSID(i) != "") {
                 JsonObject network = networks.add<JsonObject>();
                 network["ssid"] = WiFi.SSID(i);
@@ -93,32 +93,32 @@ void init_web() {
         request->send(response);
     });
 
-	server.on("/menujson", HTTP_GET, [](AsyncWebServerRequest *request) {
-		AsyncResponseStream *response = request->beginResponseStream("application/json");
-		JsonDocument doc;
+    server.on("/menujson", HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        JsonDocument doc;
 
-		// Create a JSON array for the menu items
-		JsonArray menuArray = doc["menu"].to<JsonArray>();
+        // Create a JSON array for the menu items
+        JsonArray menuArray = doc["menu"].to<JsonArray>();
 
-		for (const auto &item : menuItems) {
-			JsonObject obj = menuArray.add<JsonObject>();
-			Serial.println("menu item: " + item.name);
-			obj["id"] = item.id;
-			obj["name"] = item.name;
-			obj["parentId"] = item.parentId;
-			obj["hasChildren"] = item.hasChildren;
-			obj["functionName"] = item.functionName;
+        for (const auto &item : menuItems) {
+            JsonObject obj = menuArray.add<JsonObject>();
+            Serial.println("menu item: " + item.name);
+            obj["id"] = item.id;
+            obj["name"] = item.name;
+            obj["parentId"] = item.parentId;
+            obj["hasChildren"] = item.hasChildren;
+            obj["functionName"] = item.functionName;
             if (item.functionName) {
                 obj["value"] = getValue(item.functionName);
             }
-		}
+        }
 
-		// Serialize the JSON document to the response stream
-		serializeJsonPretty(doc, *response);
-		request->send(response);
-	});
+        // Serialize the JSON document to the response stream
+        serializeJsonPretty(doc, *response);
+        request->send(response);
+    });
 
-	AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/save_wifi_config", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/save_wifi_config", [](AsyncWebServerRequest *request, JsonVariant &json) {
         const JsonObject &jsonObj = json.as<JsonObject>();
         Preferences preferences;
         preferences.begin("wifi", false);
@@ -126,10 +126,10 @@ void init_web() {
         const size_t numKeys = sizeof(keys) / sizeof(keys[0]);
         for (size_t i = 0; i < numKeys; i++) {
             String key = keys[i];
-			if (jsonObj[key].is<String>()) {
-				preferences.putString(key.c_str(), jsonObj[key].as<String>());
-			}
-		}
+            if (jsonObj[key].is<String>()) {
+                preferences.putString(key.c_str(), jsonObj[key].as<String>());
+            }
+        }
         preferences.end();
         Serial.println("config saved");
         request->send(200, "text/plain", "Ok, saved");

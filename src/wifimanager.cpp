@@ -1,9 +1,9 @@
 #include "wifimanager.h"
 
+#include "timefunctions.h"
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
-#include "timefunctions.h"
 
 // #include "udp.h"
 // #include "web.h"
@@ -28,7 +28,8 @@ WifiManager::WifiManager() {
     WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
         Serial.print("WiFi lost connection. Reason: ");
         Serial.println(info.wifi_sta_disconnected.reason);
-    }, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+    },
+                                         WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 }
 
 void WifiManager::terminalLog(String text) {
@@ -58,38 +59,38 @@ void WifiManager::poll() {
         }
     }
 
-/*
-    if (digitalRead(0) == LOW) {
-        Serial.println("GPIO0 LOW");
-        long starttime = millis();
-        while (digitalRead(0) == LOW && millis() - starttime < 5000) {
-        }
+    /*
         if (digitalRead(0) == LOW) {
-            Serial.println("Resetting WIFI settings");
-            Preferences preferences;
-            preferences.begin("wifi", false);
-            preferences.putString("ssid", "");
-            preferences.putString("pw", "");
-            preferences.putString("ip", "");
-            preferences.putString("mask", "");
-            preferences.putString("gw", "");
-            preferences.putString("dns", "");
-            preferences.end();
-
-            wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-            esp_wifi_init(&cfg);
-            delay(2000);
-
-            if (esp_wifi_restore() != ESP_OK) {
-                Serial.println("WiFi is not initialized by esp_wifi_init ");
-            } else {
-                Serial.println("WiFi Configurations Cleared!");
+            Serial.println("GPIO0 LOW");
+            long starttime = millis();
+            while (digitalRead(0) == LOW && millis() - starttime < 5000) {
             }
-            delay(100);
-            ESP.restart();
+            if (digitalRead(0) == LOW) {
+                Serial.println("Resetting WIFI settings");
+                Preferences preferences;
+                preferences.begin("wifi", false);
+                preferences.putString("ssid", "");
+                preferences.putString("pw", "");
+                preferences.putString("ip", "");
+                preferences.putString("mask", "");
+                preferences.putString("gw", "");
+                preferences.putString("dns", "");
+                preferences.end();
+
+                wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+                esp_wifi_init(&cfg);
+                delay(2000);
+
+                if (esp_wifi_restore() != ESP_OK) {
+                    Serial.println("WiFi is not initialized by esp_wifi_init ");
+                } else {
+                    Serial.println("WiFi Configurations Cleared!");
+                }
+                delay(100);
+                ESP.restart();
+            }
         }
-    }
-*/
+    */
 
     pollSerial();
 }
@@ -125,68 +126,68 @@ bool WifiManager::connectToWifi() {
 }
 
 bool WifiManager::connectToWifi(String ssid, String pass, bool savewhensuccessfull) {
-	_ssid = ssid;
-	_pass = pass;
-	_savewhensuccessfull = savewhensuccessfull;
-	_APstarted = false;
+    _ssid = ssid;
+    _pass = pass;
+    _savewhensuccessfull = savewhensuccessfull;
+    _APstarted = false;
 
-	// Optimize WiFi reset to avoid unnecessary delays
-	WiFi.disconnect(false, true);
-	WiFi.mode(WIFI_STA);
+    // Optimize WiFi reset to avoid unnecessary delays
+    WiFi.disconnect(false, true);
+    WiFi.mode(WIFI_STA);
 
-	// Generate hostname from MAC
-	char hostname[32] = "Clock-";
-	uint8_t mac[6];
-	esp_read_mac(mac, ESP_MAC_WIFI_STA);
-	char lastTwoBytes[5];
-	sprintf(lastTwoBytes, "%02X%02X", mac[4], mac[5]);
-	strcat(hostname, lastTwoBytes);
-	WiFi.setHostname(hostname);
+    // Generate hostname from MAC
+    char hostname[32] = "Clock-";
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    char lastTwoBytes[5];
+    sprintf(lastTwoBytes, "%02X%02X", mac[4], mac[5]);
+    strcat(hostname, lastTwoBytes);
+    WiFi.setHostname(hostname);
 
-	WiFi.setSleep(false); // Disable sleep for faster connection
-	WiFi.persistent(savewhensuccessfull);
+    WiFi.setSleep(false); // Disable sleep for faster connection
+    WiFi.persistent(savewhensuccessfull);
 
-	terminalLog("Connecting to WiFi...");
+    terminalLog("Connecting to WiFi...");
 
-	WiFi.begin(_ssid.c_str(), _pass.c_str());
+    WiFi.begin(_ssid.c_str(), _pass.c_str());
 
-	_connected = waitForConnection();
-	return _connected;
+    _connected = waitForConnection();
+    return _connected;
 }
 
 bool WifiManager::waitForConnection() {
-	unsigned long timeout = millis() + _connectionTimeout;
-	wifiStatus = WAIT_CONNECTING;
+    unsigned long timeout = millis() + _connectionTimeout;
+    wifiStatus = WAIT_CONNECTING;
 
-	while (WiFi.status() != WL_CONNECTED) {
-		if (millis() > timeout) {
-			terminalLog("!Unable to connect to WiFi");
-			startManagementServer();
-			return false;
-		}
-		vTaskDelay(100 / portTICK_PERIOD_MS); // Reduce delay for faster retries
-	}
+    while (WiFi.status() != WL_CONNECTED) {
+        if (millis() > timeout) {
+            terminalLog("!Unable to connect to WiFi");
+            startManagementServer();
+            return false;
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS); // Reduce delay for faster retries
+    }
 
-	// Save credentials only if successful
-	if (_savewhensuccessfull) {
-		Preferences preferences;
-		preferences.begin("wifi", false);
-		preferences.putString("ssid", _ssid);
-		preferences.putString("pass", _pass);
-		preferences.end();
-		_savewhensuccessfull = false;
-	}
+    // Save credentials only if successful
+    if (_savewhensuccessfull) {
+        Preferences preferences;
+        preferences.begin("wifi", false);
+        preferences.putString("ssid", _ssid);
+        preferences.putString("pass", _pass);
+        preferences.end();
+        _savewhensuccessfull = false;
+    }
 
-	WiFi.setAutoReconnect(true);
-	WiFi.persistent(true);
+    WiFi.setAutoReconnect(true);
+    WiFi.persistent(true);
 
-	terminalLog("Connected! IP: " + WiFi.localIP().toString());
-	_nextReconnectCheck = millis() + _reconnectIntervalCheck;
-	wifiStatus = CONNECTED;
+    terminalLog("Connected! IP: " + WiFi.localIP().toString());
+    _nextReconnectCheck = millis() + _reconnectIntervalCheck;
+    wifiStatus = CONNECTED;
 
-	synchronizeNTP();
+    synchronizeNTP();
 
-	return true;
+    return true;
 }
 
 void WifiManager::startManagementServer() {
@@ -195,9 +196,9 @@ void WifiManager::startManagementServer() {
         WiFi.disconnect(true, true);
         delay(100);
         WiFi.mode(WIFI_AP);
-		WiFi.softAP("Clock", "", 1, false);
-		WiFi.softAPsetHostname("Clock");
-		IPAddress IP = WiFi.softAPIP();
+        WiFi.softAP("Clock", "", 1, false);
+        WiFi.softAPsetHostname("Clock");
+        IPAddress IP = WiFi.softAPIP();
         terminalLog("Connect to it, visit http://" + String(IP.toString().c_str()) + "/setup");
         _APstarted = true;
         _nextReconnectCheck = millis() + _retryIntervalCheck;
@@ -238,48 +239,48 @@ void WifiManager::pollSerial() {
 
 void WifiManager::WiFiEvent(WiFiEvent_t event) {
     Serial.printf("[WiFi-event %d] ", event);
-    String eventname="";
+    String eventname = "";
 
     switch (event) {
-        case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-            eventname = "Connected to access point";
-            break;
-        case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-            // eventname = "Disconnected from WiFi access point";
-            break;
-        case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
-            eventname = "Authentication mode of access point has changed";
-            break;
-        case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-            eventname = "Obtained IP address: " + String(WiFi.localIP().toString().c_str());
-            break;
-        case ARDUINO_EVENT_WIFI_STA_LOST_IP:
-            eventname = "Lost IP address and IP address is reset to 0";
-            break;
+    case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+        eventname = "Connected to access point";
+        break;
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+        // eventname = "Disconnected from WiFi access point";
+        break;
+    case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
+        eventname = "Authentication mode of access point has changed";
+        break;
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+        eventname = "Obtained IP address: " + String(WiFi.localIP().toString().c_str());
+        break;
+    case ARDUINO_EVENT_WIFI_STA_LOST_IP:
+        eventname = "Lost IP address and IP address is reset to 0";
+        break;
 
-        case ARDUINO_EVENT_WIFI_AP_START:
-            // eventname = "WiFi access point started";
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STOP:
-            // eventname = "WiFi access point stopped";
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
-            apClients++;
-            // eventname = "Client connected";
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
-            apClients--;
-            // eventname = "Client disconnected";
-            break;
-        case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
-            // eventname = "Assigned IP address to client";
-            break;
+    case ARDUINO_EVENT_WIFI_AP_START:
+        // eventname = "WiFi access point started";
+        break;
+    case ARDUINO_EVENT_WIFI_AP_STOP:
+        // eventname = "WiFi access point stopped";
+        break;
+    case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
+        apClients++;
+        // eventname = "Client connected";
+        break;
+    case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
+        apClients--;
+        // eventname = "Client disconnected";
+        break;
+    case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
+        // eventname = "Assigned IP address to client";
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
     if (eventname) terminalLog(eventname);
-	terminalLog("WiFi event [" + String(event) + "]: " + eventname);
+    terminalLog("WiFi event [" + String(event) + "]: " + eventname);
 }
 
 // *** Improv
@@ -307,67 +308,67 @@ void onErrorCallback(improv::Error err) {
 
 bool onCommandCallback(improv::ImprovCommand cmd) {
     switch (cmd.command) {
-        case improv::Command::GET_CURRENT_STATE: {
-            if ((WiFi.status() == WL_CONNECTED)) {
-                set_state(improv::State::STATE_PROVISIONED);
-                std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_CURRENT_STATE, getLocalUrl(), false);
-                send_response(data);
-            } else {
-                set_state(improv::State::STATE_AUTHORIZED);
-            }
-            break;
-        }
-
-        case improv::Command::WIFI_SETTINGS: {
-            if (cmd.ssid.length() == 0) {
-                set_error(improv::Error::ERROR_INVALID_RPC);
-                break;
-            }
-
-            set_state(improv::STATE_PROVISIONING);
-            delay(100);
-            if (wm.connectToWifi(String(cmd.ssid.c_str()), String(cmd.password.c_str()), true)) {
-                Preferences preferences;
-                preferences.begin("wifi", false);
-                preferences.putString("ssid", cmd.ssid.c_str());
-                preferences.putString("pw", cmd.password.c_str());
-                preferences.end();
-
-                set_state(improv::STATE_PROVISIONED);
-                std::vector<uint8_t> data = improv::build_rpc_response(improv::WIFI_SETTINGS, getLocalUrl(), false);
-                send_response(data);
-            } else {
-                set_state(improv::STATE_STOPPED);
-                set_error(improv::Error::ERROR_UNABLE_TO_CONNECT);
-            }
-
-            break;
-        }
-
-        case improv::Command::GET_DEVICE_INFO: {
-			std::vector<std::string> infos = {
-				// Firmware name
-				"Clock",
-				// Firmware version
-				STR(BUILD_VERSION),
-				// Hardware chip/variant
-				STR(BUILD_ENV_NAME),
-				// Device name
-				"Access Point"};
-			std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_DEVICE_INFO, infos, false);
+    case improv::Command::GET_CURRENT_STATE: {
+        if ((WiFi.status() == WL_CONNECTED)) {
+            set_state(improv::State::STATE_PROVISIONED);
+            std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_CURRENT_STATE, getLocalUrl(), false);
             send_response(data);
+        } else {
+            set_state(improv::State::STATE_AUTHORIZED);
+        }
+        break;
+    }
+
+    case improv::Command::WIFI_SETTINGS: {
+        if (cmd.ssid.length() == 0) {
+            set_error(improv::Error::ERROR_INVALID_RPC);
             break;
         }
 
-        case improv::Command::GET_WIFI_NETWORKS: {
-            getAvailableWifiNetworks();
-            break;
+        set_state(improv::STATE_PROVISIONING);
+        delay(100);
+        if (wm.connectToWifi(String(cmd.ssid.c_str()), String(cmd.password.c_str()), true)) {
+            Preferences preferences;
+            preferences.begin("wifi", false);
+            preferences.putString("ssid", cmd.ssid.c_str());
+            preferences.putString("pw", cmd.password.c_str());
+            preferences.end();
+
+            set_state(improv::STATE_PROVISIONED);
+            std::vector<uint8_t> data = improv::build_rpc_response(improv::WIFI_SETTINGS, getLocalUrl(), false);
+            send_response(data);
+        } else {
+            set_state(improv::STATE_STOPPED);
+            set_error(improv::Error::ERROR_UNABLE_TO_CONNECT);
         }
 
-        default: {
-            set_error(improv::ERROR_UNKNOWN_RPC);
-            return false;
-        }
+        break;
+    }
+
+    case improv::Command::GET_DEVICE_INFO: {
+        std::vector<std::string> infos = {
+            // Firmware name
+            "Clock",
+            // Firmware version
+            STR(BUILD_VERSION),
+            // Hardware chip/variant
+            STR(BUILD_ENV_NAME),
+            // Device name
+            "Access Point"};
+        std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_DEVICE_INFO, infos, false);
+        send_response(data);
+        break;
+    }
+
+    case improv::Command::GET_WIFI_NETWORKS: {
+        getAvailableWifiNetworks();
+        break;
+    }
+
+    default: {
+        set_error(improv::ERROR_UNKNOWN_RPC);
+        return false;
+    }
     }
 
     return true;
@@ -440,142 +441,142 @@ void set_error(improv::Error error) {
 
 namespace improv {
 
-ImprovCommand parse_improv_data(const std::vector<uint8_t> &data, bool check_checksum) {
-    return parse_improv_data(data.data(), data.size(), check_checksum);
-}
+    ImprovCommand parse_improv_data(const std::vector<uint8_t> &data, bool check_checksum) {
+        return parse_improv_data(data.data(), data.size(), check_checksum);
+    }
 
-ImprovCommand parse_improv_data(const uint8_t *data, size_t length, bool check_checksum) {
-    ImprovCommand improv_command;
-    Command command = (Command)data[0];
-    uint8_t data_length = data[1];
+    ImprovCommand parse_improv_data(const uint8_t *data, size_t length, bool check_checksum) {
+        ImprovCommand improv_command;
+        Command command = (Command)data[0];
+        uint8_t data_length = data[1];
 
-    if (data_length != length - 2 - check_checksum) {
-        improv_command.command = UNKNOWN;
+        if (data_length != length - 2 - check_checksum) {
+            improv_command.command = UNKNOWN;
+            return improv_command;
+        }
+
+        if (check_checksum) {
+            uint8_t checksum = data[length - 1];
+
+            uint32_t calculated_checksum = 0;
+            for (uint8_t i = 0; i < length - 1; i++) {
+                calculated_checksum += data[i];
+            }
+
+            if ((uint8_t)calculated_checksum != checksum) {
+                improv_command.command = BAD_CHECKSUM;
+                return improv_command;
+            }
+        }
+
+        if (command == WIFI_SETTINGS) {
+            uint8_t ssid_length = data[2];
+            uint8_t ssid_start = 3;
+            size_t ssid_end = ssid_start + ssid_length;
+
+            uint8_t pass_length = data[ssid_end];
+            size_t pass_start = ssid_end + 1;
+            size_t pass_end = pass_start + pass_length;
+
+            std::string ssid(data + ssid_start, data + ssid_end);
+            std::string password(data + pass_start, data + pass_end);
+            return {.command = command, .ssid = ssid, .password = password};
+        }
+
+        improv_command.command = command;
         return improv_command;
     }
 
-    if (check_checksum) {
-        uint8_t checksum = data[length - 1];
+    bool parse_improv_serial_byte(size_t position, uint8_t byte, const uint8_t *buffer,
+                                  std::function<bool(ImprovCommand)> &&callback, std::function<void(Error)> &&on_error) {
+        if (position == 0)
+            return byte == 'I';
+        if (position == 1)
+            return byte == 'M';
+        if (position == 2)
+            return byte == 'P';
+        if (position == 3)
+            return byte == 'R';
+        if (position == 4)
+            return byte == 'O';
+        if (position == 5)
+            return byte == 'V';
 
-        uint32_t calculated_checksum = 0;
-        for (uint8_t i = 0; i < length - 1; i++) {
-            calculated_checksum += data[i];
+        if (position == 6)
+            return byte == IMPROV_SERIAL_VERSION;
+
+        if (position <= 8)
+            return true;
+
+        uint8_t type = buffer[7];
+        uint8_t data_len = buffer[8];
+
+        if (position <= 8 + data_len)
+            return true;
+
+        if (position == 8 + data_len + 1) {
+            uint8_t checksum = 0x00;
+            for (size_t i = 0; i < position; i++)
+                checksum += buffer[i];
+
+            if (checksum != byte) {
+                on_error(ERROR_INVALID_RPC);
+                return false;
+            }
+
+            if (type == TYPE_RPC) {
+                auto command = parse_improv_data(&buffer[9], data_len, false);
+                return callback(command);
+            }
         }
 
-        if ((uint8_t)calculated_checksum != checksum) {
-            improv_command.command = BAD_CHECKSUM;
-            return improv_command;
+        return false;
+    }
+
+    std::vector<uint8_t> build_rpc_response(Command command, const std::vector<std::string> &datum, bool add_checksum) {
+        std::vector<uint8_t> out;
+        uint32_t length = 0;
+        out.push_back(command);
+        for (const auto &str : datum) {
+            uint8_t len = str.length();
+            length += len + 1;
+            out.push_back(len);
+            out.insert(out.end(), str.begin(), str.end());
         }
-    }
+        out.insert(out.begin() + 1, length);
 
-    if (command == WIFI_SETTINGS) {
-        uint8_t ssid_length = data[2];
-        uint8_t ssid_start = 3;
-        size_t ssid_end = ssid_start + ssid_length;
+        if (add_checksum) {
+            uint32_t calculated_checksum = 0;
 
-        uint8_t pass_length = data[ssid_end];
-        size_t pass_start = ssid_end + 1;
-        size_t pass_end = pass_start + pass_length;
-
-        std::string ssid(data + ssid_start, data + ssid_end);
-        std::string password(data + pass_start, data + pass_end);
-        return {.command = command, .ssid = ssid, .password = password};
-    }
-
-    improv_command.command = command;
-    return improv_command;
-}
-
-bool parse_improv_serial_byte(size_t position, uint8_t byte, const uint8_t *buffer,
-                              std::function<bool(ImprovCommand)> &&callback, std::function<void(Error)> &&on_error) {
-    if (position == 0)
-        return byte == 'I';
-    if (position == 1)
-        return byte == 'M';
-    if (position == 2)
-        return byte == 'P';
-    if (position == 3)
-        return byte == 'R';
-    if (position == 4)
-        return byte == 'O';
-    if (position == 5)
-        return byte == 'V';
-
-    if (position == 6)
-        return byte == IMPROV_SERIAL_VERSION;
-
-    if (position <= 8)
-        return true;
-
-    uint8_t type = buffer[7];
-    uint8_t data_len = buffer[8];
-
-    if (position <= 8 + data_len)
-        return true;
-
-    if (position == 8 + data_len + 1) {
-        uint8_t checksum = 0x00;
-        for (size_t i = 0; i < position; i++)
-            checksum += buffer[i];
-
-        if (checksum != byte) {
-            on_error(ERROR_INVALID_RPC);
-            return false;
+            for (uint8_t byte : out) {
+                calculated_checksum += byte;
+            }
+            out.push_back(calculated_checksum);
         }
+        return out;
+    }
 
-        if (type == TYPE_RPC) {
-            auto command = parse_improv_data(&buffer[9], data_len, false);
-            return callback(command);
+    std::vector<uint8_t> build_rpc_response(Command command, const std::vector<String> &datum, bool add_checksum) {
+        std::vector<uint8_t> out;
+        uint32_t length = 0;
+        out.push_back(command);
+        for (const auto &str : datum) {
+            uint8_t len = str.length();
+            length += len;
+            out.push_back(len);
+            out.insert(out.end(), str.begin(), str.end());
         }
-    }
+        out.insert(out.begin() + 1, length);
 
-    return false;
-}
+        if (add_checksum) {
+            uint32_t calculated_checksum = 0;
 
-std::vector<uint8_t> build_rpc_response(Command command, const std::vector<std::string> &datum, bool add_checksum) {
-    std::vector<uint8_t> out;
-    uint32_t length = 0;
-    out.push_back(command);
-    for (const auto &str : datum) {
-        uint8_t len = str.length();
-        length += len + 1;
-        out.push_back(len);
-        out.insert(out.end(), str.begin(), str.end());
-    }
-    out.insert(out.begin() + 1, length);
-
-    if (add_checksum) {
-        uint32_t calculated_checksum = 0;
-
-        for (uint8_t byte : out) {
-            calculated_checksum += byte;
+            for (uint8_t byte : out) {
+                calculated_checksum += byte;
+            }
+            out.push_back(calculated_checksum);
         }
-        out.push_back(calculated_checksum);
+        return out;
     }
-    return out;
-}
 
-std::vector<uint8_t> build_rpc_response(Command command, const std::vector<String> &datum, bool add_checksum) {
-    std::vector<uint8_t> out;
-    uint32_t length = 0;
-    out.push_back(command);
-    for (const auto &str : datum) {
-        uint8_t len = str.length();
-        length += len;
-        out.push_back(len);
-        out.insert(out.end(), str.begin(), str.end());
-    }
-    out.insert(out.begin() + 1, length);
-
-    if (add_checksum) {
-        uint32_t calculated_checksum = 0;
-
-        for (uint8_t byte : out) {
-            calculated_checksum += byte;
-        }
-        out.push_back(calculated_checksum);
-    }
-    return out;
-}
-
-}  // namespace improv
+} // namespace improv

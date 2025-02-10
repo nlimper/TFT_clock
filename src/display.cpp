@@ -60,9 +60,9 @@ void initTFT() {
         tft.println("display " + String(i + 1));
         tft.setRotation(0);
 
-		deselectScreen(i + 1);
-		vTaskDelay(300 / portTICK_PERIOD_MS);
-	}
+        deselectScreen(i + 1);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
+    }
 }
 
 void initTruetype() {
@@ -94,61 +94,60 @@ void initSprites(bool reInit) {
 
     if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
 
-	currentFont = prefs.getUShort("font", 0);
-	Serial.println("font: " + String(currentFont) + " " + String(fonts[currentFont].file));
+    currentFont = prefs.getUShort("font", 0);
+    Serial.println("font: " + String(currentFont) + " " + String(fonts[currentFont].file));
 
-	if (String(fonts[currentFont].file).endsWith(".ttf")) {
+    if (String(fonts[currentFont].file).endsWith(".ttf")) {
 
-		currentColor = prefs.getUShort("color", 0);
-		int fontr = nightmode ? 255 : colors[currentColor].r;
-		int fontg = nightmode ? 0 : colors[currentColor].g;
-		int fontb = nightmode ? 0 : colors[currentColor].b;
+        currentColor = prefs.getUShort("color", 0);
+        int fontr = nightmode ? 255 : colors[currentColor].r;
+        int fontg = nightmode ? 0 : colors[currentColor].g;
+        int fontb = nightmode ? 0 : colors[currentColor].b;
 
-		loadTruetype(fonts[currentFont].file, fonts[currentFont].size);
-		truetype.setFontColor(fontr, fontg, fontb);
-		truetype.setAlignment(Align::Center);
+        loadTruetype(fonts[currentFont].file, fonts[currentFont].size);
+        truetype.setFontColor(fontr, fontg, fontb);
+        truetype.setAlignment(Align::Center);
 
-		int posx = TFT_WIDTH / 2 + fonts[currentFont].posX;
-		int posy = TFT_HEIGHT / 2 + fonts[currentFont].posY - fonts[currentFont].size / 2;
+        int posx = TFT_WIDTH / 2 + fonts[currentFont].posX;
+        int posy = TFT_HEIGHT / 2 + fonts[currentFont].posY - fonts[currentFont].size / 2;
 
-		for (int i = 0; i < 10; i++) {
-			sprites[i].setColorDepth(16);
-			sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
-			if (sprites[i].created()) {
-				sprites[i].fillSprite(TFT_BLACK);
-				truetype.setDrawer(sprites[i]);
-				truetype.setCursor(posx, posy);
-				truetype.printf("%d", i);
+        for (int i = 0; i < 10; i++) {
+            sprites[i].setColorDepth(16);
+            sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
+            if (sprites[i].created()) {
+                sprites[i].fillSprite(TFT_BLACK);
+                truetype.setDrawer(sprites[i]);
+                truetype.setCursor(posx, posy);
+                truetype.printf("%d", i);
 
-			} else {
-				Serial.println("Failed to create sprite " + String(i));
-			}
-		}
-	} else {
+            } else {
+                Serial.println("Failed to create sprite " + String(i));
+            }
+        }
+    } else {
 
-		TJpgDec.setJpgScale(1);
-		TJpgDec.setSwapBytes(true);
-		TJpgDec.setCallback(jpgDraw);
-		spr.setColorDepth(16);
-		spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
-		if (spr.getPointer() == nullptr) {
-			Serial.println("Failed to create sprite in initSprites");
-			return;
-		}
-		for (int i = 0; i < 10; i++) {
-			sprites[i].setColorDepth(16);
-			sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
-			if (sprites[i].created()) {
-				sprites[i].fillSprite(TFT_BLACK);
-				TJpgDec.drawFsJpg(0, 0, fonts[currentFont].file + String(i) + ".jpg", *contentFS);
-				memcpy(sprites[i].getPointer(), spr.getPointer(), spr.width() * spr.height() * 2);
-			} else {
-				Serial.println("Failed to create sprite " + String(i));
-			}
-		}
-		spr.deleteSprite();
-
-	}
+        TJpgDec.setJpgScale(1);
+        TJpgDec.setSwapBytes(true);
+        TJpgDec.setCallback(jpgDraw);
+        spr.setColorDepth(16);
+        spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+        if (spr.getPointer() == nullptr) {
+            Serial.println("Failed to create sprite in initSprites");
+            return;
+        }
+        for (int i = 0; i < 10; i++) {
+            sprites[i].setColorDepth(16);
+            sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
+            if (sprites[i].created()) {
+                sprites[i].fillSprite(TFT_BLACK);
+                TJpgDec.drawFsJpg(0, 0, fonts[currentFont].file + String(i) + ".jpg", *contentFS);
+                memcpy(sprites[i].getPointer(), spr.getPointer(), spr.width() * spr.height() * 2);
+            } else {
+                Serial.println("Failed to create sprite " + String(i));
+            }
+        }
+        spr.deleteSprite();
+    }
 }
 
 void clearScreen(uint8_t digitId, bool enableBacklight) {
@@ -243,48 +242,48 @@ void drawDigit(uint8_t digit, bool useSprite) {
             fontb = 0;
         }
 
-		int fonttemp = prefs.getUShort("font", 0);
-		if (String(fonts[fonttemp].file).endsWith(".ttf")) {
+        int fonttemp = prefs.getUShort("font", 0);
+        if (String(fonts[fonttemp].file).endsWith(".ttf")) {
 
-			int posx = TFT_WIDTH / 2 + fonts[fonttemp].posX;
-			int posy = TFT_HEIGHT / 2 + fonts[fonttemp].posY - fonts[fonttemp].size / 2;
-			TFT_eSprite digitspr = TFT_eSprite(&tft);
-			digitspr.setColorDepth(16);
-			digitspr.createSprite(TFT_WIDTH, TFT_HEIGHT);
-			if (digitspr.created()) {
-				digitspr.fillSprite(TFT_BLACK);
-				truetype.setDrawer(digitspr);
-			} else {
-				tft.fillScreen(TFT_BLACK);
-				truetype.setDrawer(tft);
-			}
-			loadTruetype(fonts[fonttemp].file, fonts[fonttemp].size);
-			truetype.setFontColor(fontr, fontg, fontb);
-			truetype.setAlignment(Align::Center);
-			truetype.setCursor(posx, posy);
-			truetype.printf("%d", digit);
-			if (digitspr.created()) {
-				digitspr.pushSprite(0, 0);
-				digitspr.deleteSprite();
-			}
+            int posx = TFT_WIDTH / 2 + fonts[fonttemp].posX;
+            int posy = TFT_HEIGHT / 2 + fonts[fonttemp].posY - fonts[fonttemp].size / 2;
+            TFT_eSprite digitspr = TFT_eSprite(&tft);
+            digitspr.setColorDepth(16);
+            digitspr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+            if (digitspr.created()) {
+                digitspr.fillSprite(TFT_BLACK);
+                truetype.setDrawer(digitspr);
+            } else {
+                tft.fillScreen(TFT_BLACK);
+                truetype.setDrawer(tft);
+            }
+            loadTruetype(fonts[fonttemp].file, fonts[fonttemp].size);
+            truetype.setFontColor(fontr, fontg, fontb);
+            truetype.setAlignment(Align::Center);
+            truetype.setCursor(posx, posy);
+            truetype.printf("%d", digit);
+            if (digitspr.created()) {
+                digitspr.pushSprite(0, 0);
+                digitspr.deleteSprite();
+            }
 
-		} else {
+        } else {
 
-			TJpgDec.setJpgScale(1);
-			TJpgDec.setSwapBytes(true);
-			TJpgDec.setCallback(jpgDraw);
+            TJpgDec.setJpgScale(1);
+            TJpgDec.setSwapBytes(true);
+            TJpgDec.setCallback(jpgDraw);
 
-			spr.setColorDepth(16);
-			spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
-			if (spr.getPointer() == nullptr) {
-				Serial.println("Failed to create sprite in drawDigit");
-			} else {
-				TJpgDec.drawFsJpg(0, 0, fonts[fonttemp].file + String(digit) + ".jpg", *contentFS);
-				spr.pushSprite(0, 0);
-				spr.deleteSprite();
-			}
-		}
-	}
+            spr.setColorDepth(16);
+            spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+            if (spr.getPointer() == nullptr) {
+                Serial.println("Failed to create sprite in drawDigit");
+            } else {
+                TJpgDec.drawFsJpg(0, 0, fonts[fonttemp].file + String(digit) + ".jpg", *contentFS);
+                spr.pushSprite(0, 0);
+                spr.deleteSprite();
+            }
+        }
+    }
 }
 
 void showAlarmIcon(uint16_t nextAlarm) {
@@ -315,12 +314,12 @@ void showAlarmIcon(uint16_t nextAlarm) {
 }
 
 void debugTFT(String message) {
-	selectScreen(1);
-	tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-	tft.fillRect(0, 105, 240, 26, TFT_BLACK);
-	tft.setCursor(40,110,2);
-	tft.println(message);
-	deselectScreen(1);
+    selectScreen(1);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.fillRect(0, 105, 240, 26, TFT_BLACK);
+    tft.setCursor(40, 110, 2);
+    tft.println(message);
+    deselectScreen(1);
 }
 FT_FILE *OFR_fopen(const char *filename, const char *mode) {
     ttfFile = contentFS->open(filename, mode);

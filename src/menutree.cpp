@@ -299,42 +299,42 @@ void handleMenuHold(int button) {
 }
 
 String getValue(const String &name) {
-	static const std::map<String, std::function<String()>> menuFunctions = {
-		{"setAlarm0", []() { return formatTime(alarm_set[0]); }},
-		{"setAlarm1", []() { return formatTime(alarm_set[1]); }},
-		{"setAlarm2", []() { return formatTime(alarm_set[2]); }},
-		{"setAlarm3", []() { return formatTime(alarm_set[3]); }},
-		{"setAlarm4", []() { return formatTime(alarm_set[4]); }},
-		{"setAlarm5", []() { return formatTime(alarm_set[5]); }},
-		{"setAlarm6", []() { return formatTime(alarm_set[6]); }},
-		{"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
-																																: "0:00 AM"; }},
-		{"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
-		{"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
-																																		: "Loud"; }},
-		{"selectHourSound", []() { 
-			 String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
-			 uint16_t hourSound = prefs.getUShort("hoursound", 0);
-			 String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
-			 return modeStr;
-		 }},
-		{"selectNightFrom", []() { return String(formatTime(prefs.getUShort("night_from", 22) * 60)); }},
-		{"selectNightTo", []() { return String(formatTime(prefs.getUShort("night_to", 9) * 60)); }},
-		{"adjustVolume", []() { return String(prefs.getUShort("volume", 5) * 10) + "%"; }},
-		{"exitMenu", []() { return ""; }},
-		{"setYear", []() { return String(time_set[0]); }},
-		{"setMonth", []() { return String(time_set[1]); }},
-		{"setDay", []() { return String(time_set[2]); }},
-		{"setHour", []() { return String(time_set[3]); }},
-		{"setMinute", []() { return String(time_set[4]); }},
-		{"setTime", []() { return ""; }},
-		{"setWifi", []() { return prefs.getBool("enablewifi", false) ? "ON":"OFF"; }},
-		{"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
-		{"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
-		{"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 40)); }},
-		{"showVersion", []() { return ""; }},
-		{"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }},
-		{"setTimezone", []() { return String(timezones[prefs.getUShort("timezone", 1)].name); }}};
+    static const std::map<String, std::function<String()>> menuFunctions = {
+        {"setAlarm0", []() { return formatTime(alarm_set[0]); }},
+        {"setAlarm1", []() { return formatTime(alarm_set[1]); }},
+        {"setAlarm2", []() { return formatTime(alarm_set[2]); }},
+        {"setAlarm3", []() { return formatTime(alarm_set[3]); }},
+        {"setAlarm4", []() { return formatTime(alarm_set[4]); }},
+        {"setAlarm5", []() { return formatTime(alarm_set[5]); }},
+        {"setAlarm6", []() { return formatTime(alarm_set[6]); }},
+        {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
+                                                                                                                                : "0:00 AM"; }},
+        {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
+        {"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
+                                                                                                                                        : "Loud"; }},
+        {"selectHourSound", []() {
+             String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
+             uint16_t hourSound = prefs.getUShort("hoursound", 0);
+             String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
+             return modeStr;
+         }},
+        {"selectNightFrom", []() { return String(formatTime(prefs.getUShort("night_from", 22) * 60)); }},
+        {"selectNightTo", []() { return String(formatTime(prefs.getUShort("night_to", 9) * 60)); }},
+        {"adjustVolume", []() { return String(prefs.getUShort("volume", 5) * 10) + "%"; }},
+        {"exitMenu", []() { return ""; }},
+        {"setYear", []() { return String(time_set[0]); }},
+        {"setMonth", []() { return String(time_set[1]); }},
+        {"setDay", []() { return String(time_set[2]); }},
+        {"setHour", []() { return String(time_set[3]); }},
+        {"setMinute", []() { return String(time_set[4]); }},
+        {"setTime", []() { return ""; }},
+        {"setWifi", []() { return prefs.getBool("enablewifi", false) ? "ON" : "OFF"; }},
+        {"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
+        {"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
+        {"setMinBrightness", []() { return String(prefs.getULong("minbrightness", 40)); }},
+        {"showVersion", []() { return ""; }},
+        {"setColor", []() { return String(colors[prefs.getUShort("color", 0)].name); }},
+        {"setTimezone", []() { return String(timezones[prefs.getUShort("timezone", 1)].name); }}};
 
     auto it = menuFunctions.find(name);
     if (it != menuFunctions.end()) {
@@ -360,321 +360,321 @@ void updateTime(int index, int increment, int minValue, int maxValue) {
 }
 
 std::map<String, std::function<void(int)>> &getFunctionMap() {
-	static std::map<String, std::function<void(int)>> functionMap = {
-		{"setYear", [](int increment) { updateTime(0, increment, 2020, 2500); }},
-		{"setMonth", [](int increment) { updateTime(1, increment, 1, 12); }},
-		{"setDay", [](int increment) { updateTime(2, increment, 1, 31); }},
-		{"setHour", [](int increment) { updateTime(3, increment, 0, 23); }},
-		{"setMinute", [](int increment) { updateTime(4, increment, 0, 59); }},
-		{"setTime", [](int increment) {
-			 setSystemTime();
-			 exitmenu();
-		 }},
-		{"setWifi", [](int increment) {
-			 bool wifimode = prefs.getBool("enablewifi", false);
-			 if (increment != 0) wifimode = !wifimode;
-			 String modeStr = (wifimode) ? "ON":"OFF";
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 if (wifimode) {
-						 init_web();
-					 } else {
-						 WiFi.disconnect(false, true);
-						 WiFi.mode(WIFI_OFF);
-					 }
-					 return;
-				 } else {
-					 showValue(modeStr, menuLevel + 1, true);
-				 }
-			 } else {
-				 prefs.putBool("enablewifi", wifimode);
-				 showValue(modeStr, menuLevel + 1);
-			 }
-		 }},
-		{"selectHourMode", [](int increment) {
-			 uint16_t hourMode = prefs.getUShort("hourmode", 0);
-			 increment = std::clamp(increment, -1, 1);
-			 hourMode = (hourMode + increment + 3) % 3;
-			 String modeStr = (hourMode == 0) ? "0:00" : (hourMode == 1) ? "00:00"
-																		 : "0:00 AM";
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 showValue(modeStr, menuLevel + 1, true);
-				 }
-			 } else {
-				 showValue(modeStr, menuLevel + 1);
-				 prefs.putUShort("hourmode", hourMode);
-			 }
-		 }},
-		{"selectHourSound", [](int increment) {
-			 uint16_t hourSound = prefs.getUShort("hoursound", 0);
-			 increment = std::clamp(increment, -1, 1);
-			 hourSound = (hourSound + increment + 4) % 4;
-			 String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
-			 String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
-			 if (increment == 0) {
-				 if (inFunction) {
-					 audioStop();
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 if (hourSound == 1 || hourSound == 2) {
-						 audioStart("/sounds/bell.mp3");
-					 } else if (hourSound == 3) {
-						 audioStart("/sounds/cuckoo.mp3");
-					 }
-					 showValue(modeStr, menuLevel + 1, true);
-				 }
-			 } else {
-				 if (hourSound == 1 || hourSound == 2) {
-					 audioStart("/sounds/bell.mp3");
-				 } else if (hourSound == 3) {
-					 audioStart("/sounds/cuckoo.mp3");
-				 }
-				 showValue(modeStr, menuLevel + 1);
-				 prefs.putUShort("hoursound", hourSound);
-			 }
-		 }},
-		{"adjustVolume", [](int increment) {
-			 uint16_t volume = prefs.getUShort("volume", 5);
-			 if (increment == 0) {
-				 if (inFunction) {
-					 audioStop();
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 audioStart("/sounds/bell.mp3");
-					 showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1, true);
-				 }
-			 } else {
-				 increment = std::clamp(increment, -1, 1);
-				 volume = std::clamp(volume + increment, 0, 10);
-				 audioVolume(volume);
-				 audioStart("/sounds/bell.mp3");
-				 showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1);
-				 prefs.putUShort("volume", volume);
-			 }
-		 }},
-		{"selectNightFrom", [](int increment) {
-			 uint16_t nightfrom = prefs.getUShort("night_from", 22);
-			 increment = std::clamp(increment, -1, 1);
-			 nightfrom = (nightfrom + increment + 24) % 24;
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 showValue(formatTime(nightfrom * 60), menuLevel + 1, true);
-				 }
-			 } else {
-				 showValue(formatTime(nightfrom * 60), menuLevel + 1);
-				 prefs.putUShort("night_from", nightfrom);
-			 }
-		 }},
-		{"selectNightTo", [](int increment) {
-			 uint16_t nightto = prefs.getUShort("night_to", 9);
-			 increment = std::clamp(increment, -1, 1);
-			 nightto = (nightto + increment + 24) % 24;
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 showValue(formatTime(nightto * 60), menuLevel + 1, true);
-				 }
-			 } else {
-				 showValue(formatTime(nightto * 60), menuLevel + 1);
-				 prefs.putUShort("night_to", nightto);
-			 }
-		 }},
-		{"selectMinuteSound", [](int increment) {
-			 uint16_t minuteSound = prefs.getUShort("minutesound", 0);
+    static std::map<String, std::function<void(int)>> functionMap = {
+        {"setYear", [](int increment) { updateTime(0, increment, 2020, 2500); }},
+        {"setMonth", [](int increment) { updateTime(1, increment, 1, 12); }},
+        {"setDay", [](int increment) { updateTime(2, increment, 1, 31); }},
+        {"setHour", [](int increment) { updateTime(3, increment, 0, 23); }},
+        {"setMinute", [](int increment) { updateTime(4, increment, 0, 59); }},
+        {"setTime", [](int increment) {
+             setSystemTime();
+             exitmenu();
+         }},
+        {"setWifi", [](int increment) {
+             bool wifimode = prefs.getBool("enablewifi", false);
+             if (increment != 0) wifimode = !wifimode;
+             String modeStr = (wifimode) ? "ON" : "OFF";
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     if (wifimode) {
+                         init_web();
+                     } else {
+                         WiFi.disconnect(false, true);
+                         WiFi.mode(WIFI_OFF);
+                     }
+                     return;
+                 } else {
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 prefs.putBool("enablewifi", wifimode);
+                 showValue(modeStr, menuLevel + 1);
+             }
+         }},
+        {"selectHourMode", [](int increment) {
+             uint16_t hourMode = prefs.getUShort("hourmode", 0);
+             increment = std::clamp(increment, -1, 1);
+             hourMode = (hourMode + increment + 3) % 3;
+             String modeStr = (hourMode == 0) ? "0:00" : (hourMode == 1) ? "00:00"
+                                                                         : "0:00 AM";
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 showValue(modeStr, menuLevel + 1);
+                 prefs.putUShort("hourmode", hourMode);
+             }
+         }},
+        {"selectHourSound", [](int increment) {
+             uint16_t hourSound = prefs.getUShort("hoursound", 0);
+             increment = std::clamp(increment, -1, 1);
+             hourSound = (hourSound + increment + 4) % 4;
+             String modeStrs[] = {"OFF", "Once", "Count", "Cuckoo"};
+             String modeStr = (hourSound >= 0 && hourSound < 4) ? modeStrs[hourSound] : "?";
+             if (increment == 0) {
+                 if (inFunction) {
+                     audioStop();
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     if (hourSound == 1 || hourSound == 2) {
+                         audioStart("/sounds/bell.mp3");
+                     } else if (hourSound == 3) {
+                         audioStart("/sounds/cuckoo.mp3");
+                     }
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 if (hourSound == 1 || hourSound == 2) {
+                     audioStart("/sounds/bell.mp3");
+                 } else if (hourSound == 3) {
+                     audioStart("/sounds/cuckoo.mp3");
+                 }
+                 showValue(modeStr, menuLevel + 1);
+                 prefs.putUShort("hoursound", hourSound);
+             }
+         }},
+        {"adjustVolume", [](int increment) {
+             uint16_t volume = prefs.getUShort("volume", 5);
+             if (increment == 0) {
+                 if (inFunction) {
+                     audioStop();
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     audioStart("/sounds/bell.mp3");
+                     showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1, true);
+                 }
+             } else {
+                 increment = std::clamp(increment, -1, 1);
+                 volume = std::clamp(volume + increment, 0, 10);
+                 audioVolume(volume);
+                 audioStart("/sounds/bell.mp3");
+                 showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1);
+                 prefs.putUShort("volume", volume);
+             }
+         }},
+        {"selectNightFrom", [](int increment) {
+             uint16_t nightfrom = prefs.getUShort("night_from", 22);
+             increment = std::clamp(increment, -1, 1);
+             nightfrom = (nightfrom + increment + 24) % 24;
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(formatTime(nightfrom * 60), menuLevel + 1, true);
+                 }
+             } else {
+                 showValue(formatTime(nightfrom * 60), menuLevel + 1);
+                 prefs.putUShort("night_from", nightfrom);
+             }
+         }},
+        {"selectNightTo", [](int increment) {
+             uint16_t nightto = prefs.getUShort("night_to", 9);
+             increment = std::clamp(increment, -1, 1);
+             nightto = (nightto + increment + 24) % 24;
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(formatTime(nightto * 60), menuLevel + 1, true);
+                 }
+             } else {
+                 showValue(formatTime(nightto * 60), menuLevel + 1);
+                 prefs.putUShort("night_to", nightto);
+             }
+         }},
+        {"selectMinuteSound", [](int increment) {
+             uint16_t minuteSound = prefs.getUShort("minutesound", 0);
 
-			 increment = std::clamp(increment, -1, 1);
-			 minuteSound = (minuteSound + increment + 3) % 3;
-			 String modeStr = (minuteSound == 0) ? "OFF" : (minuteSound == 1) ? "Soft"
-																		  : "Loud";
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 showValue(modeStr, menuLevel + 1, true);
-				 }
-			 } else {
-				 showValue(modeStr, menuLevel + 1);
-				 prefs.putUShort("minutesound", minuteSound);
-			 }
-		 }},
-		{"setBrightness", [](int increment) {
-			 uint16_t brightness = prefs.getUShort("brightness", 15);
-			 d3 = 10;
-			 if (increment == 0) {
-				 if (inFunction) {
-					 menustate = MENU;
-					 ledcWrite(1, hardware.invertbacklight?1000:3000);
-					 clearScreen(menuLevel + 2);
-					 clearScreen(3);
-					 clearScreen(4);
-					 return;
-				 } else {
-					 menustate = PREVIEW;
-					 showValue(String(brightness * 5) + "%", menuLevel + 1, true);
-				 }
-			 } else {
-				 increment = std::clamp(increment, -1, 1);
-				 brightness = std::clamp(brightness + increment, 0, hasLightmeter ? 40 : 20);
-				 avgLux = config.luxfactor;
-				 int ledc = perc2ledc(brightness);
-				 ledcWrite(1, ledc);
-				 vTaskDelay(10 / portTICK_PERIOD_MS);
-				 showValue(String(brightness * 5) + "%", menuLevel + 1);
-				 prefs.putUShort("brightness", brightness);
-			 }
-		 }},
-		{"setMinBrightness", [](int increment) {
-			 uint16_t brightness = prefs.getULong("minbrightness", 40);
-			 d3 = 10;
-			 if (increment == 0) {
-				 if (inFunction) {
-					 menustate = MENU;
-					 clearScreen(menuLevel + 2);
-					 clearScreen(3);
-					 clearScreen(4);
-					 return;
-				 } else {
-					 menustate = MENU;
-					 selectScreen(4);
-					 drawDigit(0, false);
-					 deselectScreen(4);
-					 int digitId = 4;
-					 uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
-			 		 ledcAttachPin(backlight[screenId], 2);
-					 ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
-					 showValue(String(brightness), menuLevel + 1, true);
-				 }
-			 } else {
-				 brightness = std::clamp(brightness + increment, 0, 4095);
-				 ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
-				 vTaskDelay(10 / portTICK_PERIOD_MS);
-				 showValue(String(brightness), menuLevel + 1);
-				 prefs.putULong("minbrightness", brightness);
-			 }
-		 }},
-		{"setColor", [](int increment) {
-			 uint16_t color = prefs.getUShort("color", 0);
-			 increment = std::clamp(increment, -1, 1);
-			 color = (color + increment + colorCount) % colorCount;
-			 if (increment == 0) {
-				 if (inFunction) {
-					 menustate = MENU;
-					 clearScreen(menuLevel + 2);
-					 clearScreen(3);
-					 clearScreen(4);
-					 return;
-				 } else {
-					 menustate = PREVIEW;
-					 d3 = 10;
-					 prevMinute = -1;
-					 showValue(colors[color].name, menuLevel + 1, true);
-				 }
-			 } else {
-				 d3 = 10;
-				 prevMinute = -1;
-				 showValue(colors[color].name, menuLevel + 1);
-				 prefs.putUShort("color", color);
-			 }
-		 }},
-		{"selectFont", [](int increment) {
-			 uint16_t font = prefs.getUShort("font", 0);
-			 if (increment == 0) {
-				 if (inFunction) {
-					 menustate = MENU;
-					 clearScreen(menuLevel + 2);
-					 clearScreen(3);
-					 clearScreen(4);
-					 return;
-				 } else {
-					 menustate = PREVIEW;
-					 prevMinute = -1;
-					 d3 = 10;
-					 showValue(fonts[font].name, menuLevel + 1, true);
-				 }
-			 } else {
-				 prevMinute = -1;
-				 d3 = 10;
-				 increment = std::clamp(increment, -1, 1);
-				 font = (font + increment + fontCount) % fontCount;
-				 showValue(fonts[font].name, menuLevel + 1);
-				 prefs.putUShort("font", font);
-			 }
-		 }},
-		{"selectAlarmSound", [](int increment) {
-			 uint16_t soundid = prefs.getUShort("alarmsound", 0);
-			 if (increment == 0) {
-				 if (inFunction) {
-					 audioStop();
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 audioStart("/sounds/" + sounds[soundid].filename);
-					 showValue(sounds[soundid].name, menuLevel + 1, true);
-				 }
-			 } else {
-				 increment = std::clamp(increment, -1, 1);
-				 soundid = (soundid + increment + soundCount) % soundCount;
-				 audioStart("/sounds/" + sounds[soundid].filename);
-				 showValue(sounds[soundid].name, menuLevel + 1);
-				 prefs.putUShort("alarmsound", soundid);
-			 }
-		 }},
-		{"setTimezone", [](int increment) {
-			 uint16_t tzid = prefs.getUShort("timezone", 1);
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 String tz = timezones[tzid].tzstring;
-					 setenv("TZ", tz.c_str(), 1);
-					 tzset();
-					 return;
-				 } else {
-					 showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1, true);
-				 }
-			 } else {
-				 increment = std::clamp(increment, -1, 1);
-				 tzid = (tzid + increment + timeZoneCount) % timeZoneCount;
-				 showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1);
-				 prefs.putUShort("timezone", tzid);
-			 }
-		 }},
-		{"showVersion", [](int increment) {
-			 increment = std::clamp(increment, -1, 1);
-			 if (increment == 0) {
-				 if (inFunction) {
-					 clearScreen(menuLevel + 2);
-					 return;
-				 } else {
-					 showVersion(menuLevel + 2);
-				 }
-			 } else {
-				 showVersion(menuLevel + 2);
-			 }
-		 }},
-		{"exitMenu", [](int increment) {
-			 inFunction = true;
-			 if (menuLevel > 0) {
-				 activeItemId = currentMenuId;
-				 currentMenuId = menuItems[currentMenuId].parentId;
-				 clearScreen(menuLevel + 1);
-				 menuLevel--;
-			 } else {
-				 exitmenu();
-			 }
-		 }}};
+             increment = std::clamp(increment, -1, 1);
+             minuteSound = (minuteSound + increment + 3) % 3;
+             String modeStr = (minuteSound == 0) ? "OFF" : (minuteSound == 1) ? "Soft"
+                                                                              : "Loud";
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 showValue(modeStr, menuLevel + 1);
+                 prefs.putUShort("minutesound", minuteSound);
+             }
+         }},
+        {"setBrightness", [](int increment) {
+             uint16_t brightness = prefs.getUShort("brightness", 15);
+             d3 = 10;
+             if (increment == 0) {
+                 if (inFunction) {
+                     menustate = MENU;
+                     ledcWrite(1, hardware.invertbacklight ? 1000 : 3000);
+                     clearScreen(menuLevel + 2);
+                     clearScreen(3);
+                     clearScreen(4);
+                     return;
+                 } else {
+                     menustate = PREVIEW;
+                     showValue(String(brightness * 5) + "%", menuLevel + 1, true);
+                 }
+             } else {
+                 increment = std::clamp(increment, -1, 1);
+                 brightness = std::clamp(brightness + increment, 0, hasLightmeter ? 40 : 20);
+                 avgLux = config.luxfactor;
+                 int ledc = perc2ledc(brightness);
+                 ledcWrite(1, ledc);
+                 vTaskDelay(10 / portTICK_PERIOD_MS);
+                 showValue(String(brightness * 5) + "%", menuLevel + 1);
+                 prefs.putUShort("brightness", brightness);
+             }
+         }},
+        {"setMinBrightness", [](int increment) {
+             uint16_t brightness = prefs.getULong("minbrightness", 40);
+             d3 = 10;
+             if (increment == 0) {
+                 if (inFunction) {
+                     menustate = MENU;
+                     clearScreen(menuLevel + 2);
+                     clearScreen(3);
+                     clearScreen(4);
+                     return;
+                 } else {
+                     menustate = MENU;
+                     selectScreen(4);
+                     drawDigit(0, false);
+                     deselectScreen(4);
+                     int digitId = 4;
+                     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
+                     ledcAttachPin(backlight[screenId], 2);
+                     ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                     showValue(String(brightness), menuLevel + 1, true);
+                 }
+             } else {
+                 brightness = std::clamp(brightness + increment, 0, 4095);
+                 ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                 vTaskDelay(10 / portTICK_PERIOD_MS);
+                 showValue(String(brightness), menuLevel + 1);
+                 prefs.putULong("minbrightness", brightness);
+             }
+         }},
+        {"setColor", [](int increment) {
+             uint16_t color = prefs.getUShort("color", 0);
+             increment = std::clamp(increment, -1, 1);
+             color = (color + increment + colorCount) % colorCount;
+             if (increment == 0) {
+                 if (inFunction) {
+                     menustate = MENU;
+                     clearScreen(menuLevel + 2);
+                     clearScreen(3);
+                     clearScreen(4);
+                     return;
+                 } else {
+                     menustate = PREVIEW;
+                     d3 = 10;
+                     prevMinute = -1;
+                     showValue(colors[color].name, menuLevel + 1, true);
+                 }
+             } else {
+                 d3 = 10;
+                 prevMinute = -1;
+                 showValue(colors[color].name, menuLevel + 1);
+                 prefs.putUShort("color", color);
+             }
+         }},
+        {"selectFont", [](int increment) {
+             uint16_t font = prefs.getUShort("font", 0);
+             if (increment == 0) {
+                 if (inFunction) {
+                     menustate = MENU;
+                     clearScreen(menuLevel + 2);
+                     clearScreen(3);
+                     clearScreen(4);
+                     return;
+                 } else {
+                     menustate = PREVIEW;
+                     prevMinute = -1;
+                     d3 = 10;
+                     showValue(fonts[font].name, menuLevel + 1, true);
+                 }
+             } else {
+                 prevMinute = -1;
+                 d3 = 10;
+                 increment = std::clamp(increment, -1, 1);
+                 font = (font + increment + fontCount) % fontCount;
+                 showValue(fonts[font].name, menuLevel + 1);
+                 prefs.putUShort("font", font);
+             }
+         }},
+        {"selectAlarmSound", [](int increment) {
+             uint16_t soundid = prefs.getUShort("alarmsound", 0);
+             if (increment == 0) {
+                 if (inFunction) {
+                     audioStop();
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     audioStart("/sounds/" + sounds[soundid].filename);
+                     showValue(sounds[soundid].name, menuLevel + 1, true);
+                 }
+             } else {
+                 increment = std::clamp(increment, -1, 1);
+                 soundid = (soundid + increment + soundCount) % soundCount;
+                 audioStart("/sounds/" + sounds[soundid].filename);
+                 showValue(sounds[soundid].name, menuLevel + 1);
+                 prefs.putUShort("alarmsound", soundid);
+             }
+         }},
+        {"setTimezone", [](int increment) {
+             uint16_t tzid = prefs.getUShort("timezone", 1);
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     String tz = timezones[tzid].tzstring;
+                     setenv("TZ", tz.c_str(), 1);
+                     tzset();
+                     return;
+                 } else {
+                     showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1, true);
+                 }
+             } else {
+                 increment = std::clamp(increment, -1, 1);
+                 tzid = (tzid + increment + timeZoneCount) % timeZoneCount;
+                 showValue(timezones[tzid].name + " " + timezones[tzid].tzcity, menuLevel + 1);
+                 prefs.putUShort("timezone", tzid);
+             }
+         }},
+        {"showVersion", [](int increment) {
+             increment = std::clamp(increment, -1, 1);
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showVersion(menuLevel + 2);
+                 }
+             } else {
+                 showVersion(menuLevel + 2);
+             }
+         }},
+        {"exitMenu", [](int increment) {
+             inFunction = true;
+             if (menuLevel > 0) {
+                 activeItemId = currentMenuId;
+                 currentMenuId = menuItems[currentMenuId].parentId;
+                 clearScreen(menuLevel + 1);
+                 menuLevel--;
+             } else {
+                 exitmenu();
+             }
+         }}};
 
     constexpr int totalMinutes = 24 * 60 + 5;
     for (int i = 0; i <= 6; ++i) {
@@ -748,11 +748,11 @@ void printTableRow(const char *label, const String &value, int y) {
     tft.setCursor(0, y, 2);
     tft.print(label);
 
-	tft.loadFont("/dejavusanscond15", *contentFS);
-	tft.setTextColor(TFT_WHITE, TFT_BLACK);
-	tft.setCursor(80, y);
-	tft.println(value);
-	tft.unloadFont();
+    tft.loadFont("/dejavusanscond15", *contentFS);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.setCursor(80, y);
+    tft.println(value);
+    tft.unloadFont();
 }
 
 String parseDate(const char *dateStr) {
@@ -767,28 +767,28 @@ String parseDate(const char *dateStr) {
 }
 
 void showVersion(int8_t digitId) {
-	selectScreen(digitId);
-	tft.fillScreen(TFT_BLACK);
-	tft.loadFont("/dejavusanscond24", *contentFS);
-	tft.setTextColor(tft.color565(200, 200, 200), TFT_BLACK);
-	tft.setCursor(50, 25);
-	tft.println("Version");
-	tft.unloadFont();
-	tft.setViewport(40, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
+    selectScreen(digitId);
+    tft.fillScreen(TFT_BLACK);
+    tft.loadFont("/dejavusanscond24", *contentFS);
+    tft.setTextColor(tft.color565(200, 200, 200), TFT_BLACK);
+    tft.setCursor(50, 25);
+    tft.println("Version");
+    tft.unloadFont();
+    tft.setViewport(40, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
 
-	int y = 0;
-	int lineHeight = 17;
-	printTableRow("Serial", generateSerialWord(), y += lineHeight);
-	printTableRow("Firmware", parseDate(__DATE__), y += lineHeight);
-	if (WiFi.localIP().toString() != "0.0.0.0") {
-		printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
-	}
-	y += lineHeight;
-	printTableRow("Chip", String(ESP.getChipModel()), y += lineHeight);
-	printTableRow("Flash", String(ESP.getFlashChipSize() / 1024) + " kB", y += lineHeight);
-	printTableRow("PSRAM", String(ESP.getPsramSize() / 1024) + " kB", y += lineHeight);
-	printTableRow("Free PSRAM", String(ESP.getFreePsram() / 1024) + " kB", y += lineHeight);
-	printTableRow("Free Heap", String(ESP.getFreeHeap() / 1024) + " kB", y += lineHeight);
+    int y = 0;
+    int lineHeight = 17;
+    printTableRow("Serial", generateSerialWord(), y += lineHeight);
+    printTableRow("Firmware", parseDate(__DATE__), y += lineHeight);
+    if (WiFi.localIP().toString() != "0.0.0.0") {
+        printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
+    }
+    y += lineHeight;
+    printTableRow("Chip", String(ESP.getChipModel()), y += lineHeight);
+    printTableRow("Flash", String(ESP.getFlashChipSize() / 1024) + " kB", y += lineHeight);
+    printTableRow("PSRAM", String(ESP.getPsramSize() / 1024) + " kB", y += lineHeight);
+    printTableRow("Free PSRAM", String(ESP.getFreePsram() / 1024) + " kB", y += lineHeight);
+    printTableRow("Free Heap", String(ESP.getFreeHeap() / 1024) + " kB", y += lineHeight);
 
     tft.resetViewport();
     deselectScreen(digitId);

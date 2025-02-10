@@ -17,8 +17,8 @@
 #include "interface.h"
 #include "menutree.h"
 #include "timefunctions.h"
-#include "wifimanager.h"
 #include "web.h"
+#include "wifimanager.h"
 #include <SimpleTimer.h>
 
 int timerId = 0;
@@ -101,79 +101,79 @@ void setup(void) {
     pinMode(TING_PIN, OUTPUT);
     digitalWrite(TING_PIN, LOW);
 
-	Serial.begin(115200);
-	// Serial.setDebugOutput(true);
-	Serial.setTxTimeoutMs(0);
+    Serial.begin(115200);
+    // Serial.setDebugOutput(true);
+    Serial.setTxTimeoutMs(0);
 
     initTFT();
 
-	debugTFT("File system starting");
-	if (!LittleFS.begin()) {
-		Serial.println("LittleFS initialisation failed!");
-		haltError("LittleFS Mount Failed");
-	} else {
-		contentFS = &LittleFS;
-	}
+    debugTFT("File system starting");
+    if (!LittleFS.begin()) {
+        Serial.println("LittleFS initialisation failed!");
+        haltError("LittleFS Mount Failed");
+    } else {
+        contentFS = &LittleFS;
+    }
 
-	debugTFT("Read configuration");
-	initConfig();
+    debugTFT("Read configuration");
+    initConfig();
 
     prefs.begin("clock", false);
     prefs.getBytes("alarm_set", alarm_set, sizeof(alarm_set));
 
-	debugTFT("I2C starting");
-	Wire.begin(PIN_SDA, PIN_SCL, 400000);
+    debugTFT("I2C starting");
+    Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
-	debugTFT("Light sensor init");
-	if (hardware.bh1750) {
-		if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
-			lightMeter.setMTreg(254);
-			Serial.println(F("BH1750 found"));
-			hasLightmeter = true;
-			timer.setInterval(1000, displayLux);
-		} else {
-			Serial.println(F("BH1750 not found"));
-		}
-	}
+    debugTFT("Light sensor init");
+    if (hardware.bh1750) {
+        if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
+            lightMeter.setMTreg(254);
+            Serial.println(F("BH1750 found"));
+            hasLightmeter = true;
+            timer.setInterval(1000, displayLux);
+        } else {
+            Serial.println(F("BH1750 not found"));
+        }
+    }
 
-	debugTFT("Real time clock init");
-	if (!rtc.begin()) {
-		Serial.println("Couldn't find RTC");
-	}
+    debugTFT("Real time clock init");
+    if (!rtc.begin()) {
+        Serial.println("Couldn't find RTC");
+    }
 
     if (rtc.lostPower()) {
         Serial.println("RTC lost power, let's set the time!");
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
 
-	debugTFT("Accelerometer init");
-	initAccelerometer();
-	// int timerAccelerometerId = timer.setInterval(1000, accelerometerRun);
+    debugTFT("Accelerometer init");
+    initAccelerometer();
+    // int timerAccelerometerId = timer.setInterval(1000, accelerometerRun);
 
-	if (prefs.getBool("enablewifi", false)) {
-		debugTFT("WiFi init");
-		init_web();
-	} else {
-		WiFi.mode(WIFI_OFF);
-	}
+    if (prefs.getBool("enablewifi", false)) {
+        debugTFT("WiFi init");
+        init_web();
+    } else {
+        WiFi.mode(WIFI_OFF);
+    }
 
-	debugTFT("Audio init");
-	initAudio();
-	audioStart("/sounds/bell.mp3");
+    debugTFT("Audio init");
+    initAudio();
+    audioStart("/sounds/bell.mp3");
 
-	debugTFT("Init interfaces");
+    debugTFT("Init interfaces");
 
-	String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
-	setenv("TZ", tz.c_str(), 1);
-	tzset();
+    String tz = timezones[prefs.getUShort("timezone", 1)].tzstring;
+    setenv("TZ", tz.c_str(), 1);
+    tzset();
 
-	initInterface();
-	initMenu();
+    initInterface();
+    initMenu();
 
-	debugTFT("Set clock");
-	setESP32RTCfromDS3231();
+    debugTFT("Set clock");
+    setESP32RTCfromDS3231();
 
-	debugTFT("Finished!");
+    debugTFT("Finished!");
 }
 
 void loop() {
@@ -188,17 +188,17 @@ void loop() {
     int timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
     uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
-	if (menustate == OFF) {
-		if (prefs.getBool("enablewifi", false)) wm.poll();
-		accelerometerRun();
-		if (hasLightmeter) {
-			if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
-		} else {
-			lux = nightmode ? 25 : 75;
-		}
-		avgLux = 0.98 * avgLux + 0.02 * lux;
-		int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
-		if (alarmActive == 0) ledcWrite(1, ledc);
+    if (menustate == OFF) {
+        if (prefs.getBool("enablewifi", false)) wm.poll();
+        accelerometerRun();
+        if (hasLightmeter) {
+            if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
+        } else {
+            lux = nightmode ? 25 : 75;
+        }
+        avgLux = 0.98 * avgLux + 0.02 * lux;
+        int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
+        if (alarmActive == 0) ledcWrite(1, ledc);
 
         int nightTo = prefs.getUShort("night_to", 9);
         if (manualNightmode && prevHour == (nightTo - 1 + 24) % 24 && timeinfo.tm_hour == nightTo) {

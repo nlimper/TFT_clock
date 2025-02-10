@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include <BH1750.h>
 #include <FS.h>
-#include <SD.h>
 #include <LittleFS.h>
+#include <SD.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
 
@@ -30,8 +30,8 @@ WifiManager wm;
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprites[10] = {
-	TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft),
-	TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft)};
+    TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft),
+    TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft)};
 OpenFontRender truetype;
 
 BH1750 lightMeter(0x23); // 0x5C
@@ -54,58 +54,58 @@ bool hasLightmeter = false, hasAccelerometer = false;
 fs::FS *contentFS = nullptr;
 
 void doChime() {
-	if (hardware.solenoid) {
-		digitalWrite(TING_PIN, HIGH);
-		vTaskDelay(prefs.getUShort("chime_delay", 20) / portTICK_PERIOD_MS);
-		digitalWrite(TING_PIN, LOW);
-	} else if (alarmActive == 0) {
-		audioStart("/sounds/bell.mp3");
-	}
+    if (hardware.solenoid) {
+        digitalWrite(TING_PIN, HIGH);
+        vTaskDelay(prefs.getUShort("chime_delay", 20) / portTICK_PERIOD_MS);
+        digitalWrite(TING_PIN, LOW);
+    } else if (alarmActive == 0) {
+        audioStart("/sounds/bell.mp3");
+    }
 }
 
 void doCuckoo() {
-	if (alarmActive == 0) {
-		audioStart("/sounds/cuckoo.mp3");
-	}
+    if (alarmActive == 0) {
+        audioStart("/sounds/cuckoo.mp3");
+    }
 }
 
 void alarmFlash() {
-	if (millis() % 1000 >= 500) {
-		ledcWrite(1, 200);
-	} else {
-		ledcWrite(1, 4095);
-	}
+    if (millis() % 1000 >= 500) {
+        ledcWrite(1, 200);
+    } else {
+        ledcWrite(1, 4095);
+    }
 }
 
 void alarmSound() {
-	doChime();
+    doChime();
 }
 
 void alarmAck() {
-	if (alarmActive) {
-		audioStop();
-		alarmActive = 0;
-		timer.deleteTimer(timerAlarmSoundId);
-		timer.deleteTimer(timerAlarmFlashId);
-		ledcWrite(1, perc2ledc(prefs.getUShort("brightness", 15)));
-		d1 = 10;
-		prevMinute = -1;
-	}
+    if (alarmActive) {
+        audioStop();
+        alarmActive = 0;
+        timer.deleteTimer(timerAlarmSoundId);
+        timer.deleteTimer(timerAlarmFlashId);
+        ledcWrite(1, perc2ledc(prefs.getUShort("brightness", 15)));
+        d1 = 10;
+        prevMinute = -1;
+    }
 }
 
 void displayLux() {
-	Serial.println("Lux: " + String(lux) + " avg: " + String(avgLux));
+    Serial.println("Lux: " + String(lux) + " avg: " + String(avgLux));
 }
 
 void setup(void) {
-	pinMode(TING_PIN, OUTPUT);
-	digitalWrite(TING_PIN, LOW);
+    pinMode(TING_PIN, OUTPUT);
+    digitalWrite(TING_PIN, LOW);
 
 	Serial.begin(115200);
 	// Serial.setDebugOutput(true);
 	Serial.setTxTimeoutMs(0);
 
-	initTFT();
+    initTFT();
 
 	debugTFT("File system starting");
 	if (!LittleFS.begin()) {
@@ -118,8 +118,8 @@ void setup(void) {
 	debugTFT("Read configuration");
 	initConfig();
 
-	prefs.begin("clock", false);
-	prefs.getBytes("alarm_set", alarm_set, sizeof(alarm_set));
+    prefs.begin("clock", false);
+    prefs.getBytes("alarm_set", alarm_set, sizeof(alarm_set));
 
 	debugTFT("I2C starting");
 	Wire.begin(PIN_SDA, PIN_SCL, 400000);
@@ -141,10 +141,10 @@ void setup(void) {
 		Serial.println("Couldn't find RTC");
 	}
 
-	if (rtc.lostPower()) {
-		Serial.println("RTC lost power, let's set the time!");
-		rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-	}
+    if (rtc.lostPower()) {
+        Serial.println("RTC lost power, let's set the time!");
+        rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    }
 
 	debugTFT("Accelerometer init");
 	initAccelerometer();
@@ -178,15 +178,15 @@ void setup(void) {
 
 void loop() {
 
-	timer.run();
-	interfaceRun();
+    timer.run();
+    interfaceRun();
 
-	time_t now;
-	struct tm timeinfo;
-	time(&now);
-	localtime_r(&now, &timeinfo);
-	int timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
-	uint16_t nextAlarm = checkNextAlarm(timeinfo);
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    int timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
+    uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
 	if (menustate == OFF) {
 		if (prefs.getBool("enablewifi", false)) wm.poll();
@@ -200,150 +200,150 @@ void loop() {
 		int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
 		if (alarmActive == 0) ledcWrite(1, ledc);
 
-		int nightTo = prefs.getUShort("night_to", 9);
-		if (manualNightmode && prevHour == (nightTo - 1 + 24) % 24 && timeinfo.tm_hour == nightTo) {
-			Serial.println("Manual nightmode off");
-			manualNightmode = false;
-			nightmode = false;
-			initSprites(true);
-		}
-		prevHour = timeinfo.tm_hour;
+        int nightTo = prefs.getUShort("night_to", 9);
+        if (manualNightmode && prevHour == (nightTo - 1 + 24) % 24 && timeinfo.tm_hour == nightTo) {
+            Serial.println("Manual nightmode off");
+            manualNightmode = false;
+            nightmode = false;
+            initSprites(true);
+        }
+        prevHour = timeinfo.tm_hour;
 
-		if (isNightMode(timeinfo.tm_hour) && !nightmode) {
-			Serial.println("Nightmode on");
-			nightmode = true;
-			initSprites(true);
-		}
-		if (!isNightMode(timeinfo.tm_hour) && nightmode && (nextAlarm == 24 * 60 || timevalue >= alarm_set[timeinfo.tm_wday])) { 
-			Serial.println("Nightmode off");
-			nightmode = false;
-			initSprites(true);
-		}
-	}
+        if (isNightMode(timeinfo.tm_hour) && !nightmode) {
+            Serial.println("Nightmode on");
+            nightmode = true;
+            initSprites(true);
+        }
+        if (!isNightMode(timeinfo.tm_hour) && nightmode && (nextAlarm == 24 * 60 || timevalue >= alarm_set[timeinfo.tm_wday])) {
+            Serial.println("Nightmode off");
+            nightmode = false;
+            initSprites(true);
+        }
+    }
 
-	if (millis() - lastmenuactive > 60000 && menustate != OFF) {
-		exitmenu();
-	}
+    if (millis() - lastmenuactive > 60000 && menustate != OFF) {
+        exitmenu();
+    }
 
-	if (menustate == PREVIEW) {
-		hour = timeinfo.tm_hour;
-		minute = timeinfo.tm_sec;
-	} else {
-		if (prefs.getUShort("hourmode", 0) == 2) {
-			hour = timeinfo.tm_hour % 12;
-			if (hour == 0) hour = 12;
-		} else {
-			hour = timeinfo.tm_hour;
-		}
-		minute = timeinfo.tm_min;
-	}
+    if (menustate == PREVIEW) {
+        hour = timeinfo.tm_hour;
+        minute = timeinfo.tm_sec;
+    } else {
+        if (prefs.getUShort("hourmode", 0) == 2) {
+            hour = timeinfo.tm_hour % 12;
+            if (hour == 0) hour = 12;
+        } else {
+            hour = timeinfo.tm_hour;
+        }
+        minute = timeinfo.tm_min;
+    }
 
-	if (minute != prevMinute && menustate != MENU) {
+    if (minute != prevMinute && menustate != MENU) {
 
-		if (alarmActive == 0 && timevalue == alarm_set[timeinfo.tm_wday] - 1) {
-			alarmActive = 1;
-		}
-		if (alarmActive == 1 && timevalue == alarm_set[timeinfo.tm_wday]) {
-			alarmActive = 2;
-			timerAlarmFlashId = timer.setInterval(500, alarmFlash);
-			uint16_t soundid = prefs.getUShort("alarmsound", 0);
-			if (nightmode) {
-				manualNightmode = false;
-				nightmode = false;
-				initSprites(true);
-			}
-			audioStart("/sounds/" + sounds[soundid].filename);
-		}
-		if (alarmActive == 2 && audioRunning() == false) {
-			alarmActive = 3;
-			doChime();
-			timerAlarmSoundId = timer.setInterval(5000, alarmSound);
-		}
-		if (alarmActive == 3 && timevalue > alarm_set[timeinfo.tm_wday] + 15) {
-			timer.deleteTimer(timerAlarmSoundId);
-			timerAlarmSoundId = timer.setInterval(1000, alarmSound);
-			alarmActive = 4;
-		}
-		if (alarmActive == 4 && timevalue > alarm_set[timeinfo.tm_wday] + 20) {
-			alarmAck();
-		}
+        if (alarmActive == 0 && timevalue == alarm_set[timeinfo.tm_wday] - 1) {
+            alarmActive = 1;
+        }
+        if (alarmActive == 1 && timevalue == alarm_set[timeinfo.tm_wday]) {
+            alarmActive = 2;
+            timerAlarmFlashId = timer.setInterval(500, alarmFlash);
+            uint16_t soundid = prefs.getUShort("alarmsound", 0);
+            if (nightmode) {
+                manualNightmode = false;
+                nightmode = false;
+                initSprites(true);
+            }
+            audioStart("/sounds/" + sounds[soundid].filename);
+        }
+        if (alarmActive == 2 && audioRunning() == false) {
+            alarmActive = 3;
+            doChime();
+            timerAlarmSoundId = timer.setInterval(5000, alarmSound);
+        }
+        if (alarmActive == 3 && timevalue > alarm_set[timeinfo.tm_wday] + 15) {
+            timer.deleteTimer(timerAlarmSoundId);
+            timerAlarmSoundId = timer.setInterval(1000, alarmSound);
+            alarmActive = 4;
+        }
+        if (alarmActive == 4 && timevalue > alarm_set[timeinfo.tm_wday] + 20) {
+            alarmAck();
+        }
 
-		if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && prevMinute != -1) {
-			uint16_t volume = prefs.getUShort("volume", 5);
-			audioStart("/sounds/flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
-		}
+        if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && prevMinute != -1) {
+            uint16_t volume = prefs.getUShort("volume", 5);
+            audioStart("/sounds/flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
+        }
 
-		// hourly chime
-		if (timeinfo.tm_min > 0) hourlyChimeTrigger = false;
-		if (timeinfo.tm_min == 0 && !hourlyChimeTrigger &&
-			!isNightMode(timeinfo.tm_hour) &&
-			(nextAlarm == 24 * 60 || timevalue > alarm_set[timeinfo.tm_wday])) {
+        // hourly chime
+        if (timeinfo.tm_min > 0) hourlyChimeTrigger = false;
+        if (timeinfo.tm_min == 0 && !hourlyChimeTrigger &&
+            !isNightMode(timeinfo.tm_hour) &&
+            (nextAlarm == 24 * 60 || timevalue > alarm_set[timeinfo.tm_wday])) {
 
-			hourlyChimeTrigger = true;
-			currentChimeCount = (timeinfo.tm_hour - 1) % 12;
+            hourlyChimeTrigger = true;
+            currentChimeCount = (timeinfo.tm_hour - 1) % 12;
 
-			switch (prefs.getUShort("hoursound", 0)) {
-			case 1: // "once"
-				doChime();
-				break;
+            switch (prefs.getUShort("hoursound", 0)) {
+            case 1: // "once"
+                doChime();
+                break;
 
-			case 2: // "count"
-				doChime();
-				if (currentChimeCount > 0) {
-					timer.setTimer(1200, doChime, currentChimeCount);
-				}
-				break;
+            case 2: // "count"
+                doChime();
+                if (currentChimeCount > 0) {
+                    timer.setTimer(1200, doChime, currentChimeCount);
+                }
+                break;
 
-			case 3: // "cuckoo"
-				doCuckoo();
-				if (currentChimeCount > 0) {
-					timer.setTimer(1200, doCuckoo, currentChimeCount);
-				}
-				break;
-			}
-		}
+            case 3: // "cuckoo"
+                doCuckoo();
+                if (currentChimeCount > 0) {
+                    timer.setTimer(1200, doCuckoo, currentChimeCount);
+                }
+                break;
+            }
+        }
 
-		if ((currentFont != prefs.getUShort("font", 0) || currentColor != prefs.getUShort("color", 0)) && (menustate == OFF)) {
-			initSprites(true);
-		}
+        if ((currentFont != prefs.getUShort("font", 0) || currentColor != prefs.getUShort("color", 0)) && (menustate == OFF)) {
+            initSprites(true);
+        }
 
-		if (d1 != int(hour / 10) && (menustate == OFF)) {
-			d1 = int(hour / 10);
-			if (d1 > 0 || prefs.getUShort("hourmode", 0) == 1) {
-				selectScreen(1);
-				drawDigit(d1);
-			} else {
-				clearScreen(1);
-			}
+        if (d1 != int(hour / 10) && (menustate == OFF)) {
+            d1 = int(hour / 10);
+            if (d1 > 0 || prefs.getUShort("hourmode", 0) == 1) {
+                selectScreen(1);
+                drawDigit(d1);
+            } else {
+                clearScreen(1);
+            }
 
-			if (nextAlarm != 24 * 60) {
-				selectScreen(1);
-				showAlarmIcon(nextAlarm);
-			}
+            if (nextAlarm != 24 * 60) {
+                selectScreen(1);
+                showAlarmIcon(nextAlarm);
+            }
 
-			deselectScreen(1);
-		}
+            deselectScreen(1);
+        }
 
-		if (d2 != hour % 10 && (menustate == OFF)) {
-			d2 = hour % 10;
-			selectScreen(2);
-			drawDigit(d2);
-			deselectScreen(2);
-		}
+        if (d2 != hour % 10 && (menustate == OFF)) {
+            d2 = hour % 10;
+            selectScreen(2);
+            drawDigit(d2);
+            deselectScreen(2);
+        }
 
-		if (menustate == OFF || menustate == PREVIEW) {
-			if (d3 != int(minute / 10)) {
-				d3 = int(minute / 10);
-				selectScreen(3);
-				drawDigit(d3, menustate == PREVIEW ? false : true);
-				deselectScreen(3);
-			}
+        if (menustate == OFF || menustate == PREVIEW) {
+            if (d3 != int(minute / 10)) {
+                d3 = int(minute / 10);
+                selectScreen(3);
+                drawDigit(d3, menustate == PREVIEW ? false : true);
+                deselectScreen(3);
+            }
 
-			selectScreen(4);
-			drawDigit(minute % 10, menustate == PREVIEW ? false : true);
-			deselectScreen(4);
-		}
+            selectScreen(4);
+            drawDigit(minute % 10, menustate == PREVIEW ? false : true);
+            deselectScreen(4);
+        }
 
-		prevMinute = minute;
-	}
+        prevMinute = minute;
+    }
 }

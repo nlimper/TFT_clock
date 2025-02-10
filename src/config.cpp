@@ -1,11 +1,11 @@
 #include "config.h"
+#include "common.h"
+#include "display.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <FS.h>
 #include <TFT_eSPI.h>
 #include <map>
-#include "common.h"
-#include "display.h"
 
 Config config;
 Hardware hardware;
@@ -25,128 +25,128 @@ uint16_t layoutNextalarmX = 0;
 uint16_t layoutNextalarmY = 0;
 
 bool readConfig() {
-	File configFile = contentFS->open(JSON_FILE_PATH, "r");
-	if (!configFile) {
-		Serial.println("Failed to open config file");
-		return false;
-	}
+    File configFile = contentFS->open(JSON_FILE_PATH, "r");
+    if (!configFile) {
+        Serial.println("Failed to open config file");
+        return false;
+    }
 
-	JsonDocument doc;
-	DeserializationError error = deserializeJson(doc, configFile);
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, configFile);
 
-	if (error) {
-		Serial.print("Failed to parse config file: ");
-		Serial.println(error.f_str());
-		return false;
-	}
+    if (error) {
+        Serial.print("Failed to parse config file: ");
+        Serial.println(error.f_str());
+        return false;
+    }
 
-	JsonObject configObj = doc["config"];
-	config.alarmclock = configObj["alarmclock"];
-	config.autobrightness = configObj["autobrightness"];
-	config.wifi = configObj["wifi"];
-	config.fliporientation = configObj["fliporientation"].as<String>();
-	config.luxday = configObj["luxday"];
-	config.luxnight = configObj["luxnight"];
-	config.luxfactor = configObj["luxfactor"];
+    JsonObject configObj = doc["config"];
+    config.alarmclock = configObj["alarmclock"];
+    config.autobrightness = configObj["autobrightness"];
+    config.wifi = configObj["wifi"];
+    config.fliporientation = configObj["fliporientation"].as<String>();
+    config.luxday = configObj["luxday"];
+    config.luxnight = configObj["luxnight"];
+    config.luxfactor = configObj["luxfactor"];
 
-	JsonObject hardwareObj = doc["hardware"];
-	hardware.ds3231 = hardwareObj["ds3231"];
-	hardware.max98357 = hardwareObj["max98357"];
-	hardware.lis3d = hardwareObj["lis3d"];
-	hardware.bh1750 = hardwareObj["bh1750"];
-	hardware.solenoid = hardwareObj["solenoid"];
-	hardware.rotary = hardwareObj["rotary"];
-	hardware.invertbacklight = hardwareObj["invertbacklight"];
-	
-	JsonArray buttonPinsArray = hardwareObj["buttons"];
-	buttonCount = buttonPinsArray.size();
-	for (int i = 0; i < buttonCount; i++) {
-		buttons[i].pin = buttonPinsArray[i];
-	}
+    JsonObject hardwareObj = doc["hardware"];
+    hardware.ds3231 = hardwareObj["ds3231"];
+    hardware.max98357 = hardwareObj["max98357"];
+    hardware.lis3d = hardwareObj["lis3d"];
+    hardware.bh1750 = hardwareObj["bh1750"];
+    hardware.solenoid = hardwareObj["solenoid"];
+    hardware.rotary = hardwareObj["rotary"];
+    hardware.invertbacklight = hardwareObj["invertbacklight"];
 
-	// Parse 'fonts'
-	JsonArray fontsArray = doc["fonts"];
-	fontCount = fontsArray.size();
-	for (int i = 0; i < fontCount; i++) {
-		JsonArray font = fontsArray[i];
-		fonts[i].name = font[0].as<String>();
-		fonts[i].file = font[1].as<String>();
-		fonts[i].size = font[2].as<int>();
-		fonts[i].posX = font[3].as<int>();
-		fonts[i].posY = font[4].as<int>();
-	}
-	if (fontCount == 0) {
-		Serial.println("No fonts found in config file");
-		return false;
-	}
+    JsonArray buttonPinsArray = hardwareObj["buttons"];
+    buttonCount = buttonPinsArray.size();
+    for (int i = 0; i < buttonCount; i++) {
+        buttons[i].pin = buttonPinsArray[i];
+    }
 
-	// Parse 'colors'
-	JsonArray colorsArray = doc["colors"];
-	colorCount = colorsArray.size();
-	for (int i = 0; i < colorCount; i++) {
-		JsonArray color = colorsArray[i];
-		colors[i].name = color[0].as<String>();
-		colors[i].r = color[1];
-		colors[i].g = color[2];
-		colors[i].b = color[3];
-	}
+    // Parse 'fonts'
+    JsonArray fontsArray = doc["fonts"];
+    fontCount = fontsArray.size();
+    for (int i = 0; i < fontCount; i++) {
+        JsonArray font = fontsArray[i];
+        fonts[i].name = font[0].as<String>();
+        fonts[i].file = font[1].as<String>();
+        fonts[i].size = font[2].as<int>();
+        fonts[i].posX = font[3].as<int>();
+        fonts[i].posY = font[4].as<int>();
+    }
+    if (fontCount == 0) {
+        Serial.println("No fonts found in config file");
+        return false;
+    }
 
-	// Parse 'sounds'
-	JsonArray soundsArray = doc["sounds"];
-	soundCount = soundsArray.size();
-	for (int i = 0; i < soundCount; i++) {
-		JsonArray sound = soundsArray[i];
-		sounds[i].name = sound[0].as<String>();
-		sounds[i].filename = sound[1].as<String>();
-	}
+    // Parse 'colors'
+    JsonArray colorsArray = doc["colors"];
+    colorCount = colorsArray.size();
+    for (int i = 0; i < colorCount; i++) {
+        JsonArray color = colorsArray[i];
+        colors[i].name = color[0].as<String>();
+        colors[i].r = color[1];
+        colors[i].g = color[2];
+        colors[i].b = color[3];
+    }
 
-	// Parse 'timezone'
-	JsonArray timezoneArray = doc["timezone"];
-	timeZoneCount = timezoneArray.size();
+    // Parse 'sounds'
+    JsonArray soundsArray = doc["sounds"];
+    soundCount = soundsArray.size();
+    for (int i = 0; i < soundCount; i++) {
+        JsonArray sound = soundsArray[i];
+        sounds[i].name = sound[0].as<String>();
+        sounds[i].filename = sound[1].as<String>();
+    }
 
-	if (timeZoneCount < 2) {
-		timeZoneCount = 2;
-		timezones[0].name = "UTC";
-		timezones[0].tzstring = "UTC0";
-		timezones[0].tzcity = "UTC";
-		timezones[1].name = "CET";
-		timezones[1].tzstring = "CET-1CEST,M3.5.0,M10.5.0/3";
-		timezones[1].tzcity = "Berlin";
-	}
+    // Parse 'timezone'
+    JsonArray timezoneArray = doc["timezone"];
+    timeZoneCount = timezoneArray.size();
 
-	for (int i = 0; i < timeZoneCount; i++) {
-		JsonArray tz = timezoneArray[i];
-		timezones[i].name = tz[0].as<String>();
-		timezones[i].tzstring = tz[1].as<String>();
-		timezones[i].tzcity = tz[2].as<String>();
-	}
+    if (timeZoneCount < 2) {
+        timeZoneCount = 2;
+        timezones[0].name = "UTC";
+        timezones[0].tzstring = "UTC0";
+        timezones[0].tzcity = "UTC";
+        timezones[1].name = "CET";
+        timezones[1].tzstring = "CET-1CEST,M3.5.0,M10.5.0/3";
+        timezones[1].tzcity = "Berlin";
+    }
 
-	// Parse 'layout'
-	JsonObject layoutObject = doc["layout"];
-	if (!layoutObject.isNull()) {
-		layoutNextalarmX = layoutObject["nextalarm"][0];
-		layoutNextalarmY = layoutObject["nextalarm"][1];
-	} else {
-		Serial.println("Invalid layout object");
-	}
-	return true;
+    for (int i = 0; i < timeZoneCount; i++) {
+        JsonArray tz = timezoneArray[i];
+        timezones[i].name = tz[0].as<String>();
+        timezones[i].tzstring = tz[1].as<String>();
+        timezones[i].tzcity = tz[2].as<String>();
+    }
+
+    // Parse 'layout'
+    JsonObject layoutObject = doc["layout"];
+    if (!layoutObject.isNull()) {
+        layoutNextalarmX = layoutObject["nextalarm"][0];
+        layoutNextalarmY = layoutObject["nextalarm"][1];
+    } else {
+        Serial.println("Invalid layout object");
+    }
+    return true;
 }
 
 void initConfig() {
-	if (!readConfig()) {
-		haltError("Failed to read config file");
-	}
+    if (!readConfig()) {
+        haltError("Failed to read config file");
+    }
 }
 
 void haltError(String message) {
-	Serial.println(message);
-	digitalWrite(DIGIT1, LOW);
-	tft.fillScreen(TFT_RED);
-	tft.setTextColor(TFT_YELLOW, TFT_RED);
-	tft.setCursor(50, 50, 2);
-	tft.println(message);
-	digitalWrite(DIGIT1, HIGH);
-	ledcWrite(1, 2048);
-	while (1)
-		delay(1000);
+    Serial.println(message);
+    digitalWrite(DIGIT1, LOW);
+    tft.fillScreen(TFT_RED);
+    tft.setTextColor(TFT_YELLOW, TFT_RED);
+    tft.setCursor(50, 50, 2);
+    tft.println(message);
+    digitalWrite(DIGIT1, HIGH);
+    ledcWrite(1, 2048);
+    while (1)
+        delay(1000);
 }

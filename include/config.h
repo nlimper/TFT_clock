@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <LittleFS.h>
 #include <FS.h>
+#include <LittleFS.h>
 #include <TFT_eSPI.h>
 #include <map>
 
@@ -13,56 +13,56 @@ extern TFT_eSPI tft;
 #define CONFIGH
 
 struct Config {
-	bool alarmclock;
-	bool autobrightness;
-	bool wifi;
-	String fliporientation;
-	float luxday;
-	float luxnight;
-	float luxfactor;
+    bool alarmclock;
+    bool autobrightness;
+    bool wifi;
+    String fliporientation;
+    float luxday;
+    float luxnight;
+    float luxfactor;
 };
 
 struct Hardware {
-	bool ds3231;
-	bool max98357;
-	bool lis3d;
-	bool bh1750;
-	bool solenoid;
-	bool rotary;
-	bool invertbacklight;
+    bool ds3231;
+    bool max98357;
+    bool lis3d;
+    bool bh1750;
+    bool solenoid;
+    bool rotary;
+    bool invertbacklight;
 };
 
 struct Font {
-	String name;
-	String file;
-	int size;
-	int posX;
-	int posY;
+    String name;
+    String file;
+    int size;
+    int posX;
+    int posY;
 };
 
 struct Color {
-	String name;
-	uint8_t r, g, b;
+    String name;
+    uint8_t r, g, b;
 };
 
 struct Sound {
-	String name;
-	String filename;
+    String name;
+    String filename;
 };
 
 struct TimeZone {
-	String name;
-	String tzstring;
-	String tzcity;
+    String name;
+    String tzstring;
+    String tzcity;
 };
 
 struct Button {
-	int pin;
-	int lastState;
-	bool pressed;
-	unsigned long lastDebounceTime;
-	unsigned long pressStartTime;
-	unsigned long lastRepeatTime;
+    int pin;
+    int lastState;
+    bool pressed;
+    unsigned long lastDebounceTime;
+    unsigned long pressStartTime;
+    unsigned long lastRepeatTime;
 };
 
 #endif

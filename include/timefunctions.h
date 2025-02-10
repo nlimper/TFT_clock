@@ -1,5 +1,5 @@
-#include <Arduino.h>
 #include "RTClib.h"
+#include <Arduino.h>
 
 #ifndef TIME_COMMON
 #define TIME_COMMON

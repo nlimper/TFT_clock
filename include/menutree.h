@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <LittleFS.h>
 #include <FS.h>
+#include <LittleFS.h>
 #include <Preferences.h>
 #include <TFT_eSPI.h>
 #include <functional>
@@ -19,18 +19,18 @@ extern bool nightmode, manualNightmode;
 #ifndef MENUTREEH
 #define MENUTREEH
 struct MenuItem {
-	uint16_t id;					   // Unique ID of the menu item
-	String name;			   // Display name of the item
-	uint16_t parentId;			   // ID of the parent item (-1 for root)
-	bool hasChildren;		   // True if item has children (is a submenu)
-	String functionName;
-	String infoTxt;
+    uint16_t id;       // Unique ID of the menu item
+    String name;       // Display name of the item
+    uint16_t parentId; // ID of the parent item (-1 for root)
+    bool hasChildren;  // True if item has children (is a submenu)
+    String functionName;
+    String infoTxt;
 };
 
 enum MenuState {
-	OFF = 0,
-	PREVIEW = 1,
-	MENU = 2
+    OFF = 0,
+    PREVIEW = 1,
+    MENU = 2
 };
 #endif
 

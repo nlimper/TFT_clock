@@ -1,10 +1,10 @@
 #include "OpenFontRender.h"
+#include "config.h"
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <Preferences.h>
 #include <TFT_eSPI.h>
-#include "config.h"
 
 extern TFT_eSprite spr;
 extern fs::FS *contentFS;
@@ -40,4 +40,3 @@ void OFR_fclose(FT_FILE *stream);
 size_t OFR_fread(void *ptr, size_t size, size_t nmemb, FT_FILE *stream);
 int OFR_fseek(FT_FILE *stream, long int offset, int whence);
 long int OFR_ftell(FT_FILE *stream);
-

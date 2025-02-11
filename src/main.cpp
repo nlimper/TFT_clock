@@ -2,7 +2,6 @@
 #include "Wire.h"
 #include "time.h"
 #include <Arduino.h>
-#include <BH1750.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <SD.h>
@@ -31,7 +30,6 @@ TFT_eSprite sprites[10] = {
     TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft)};
 OpenFontRender truetype;
 
-BH1750 lightMeter(0x23); // 0x5C
 RTC_DS3231 rtc;
 
 int currentFont = -1, currentColor = -1;
@@ -99,7 +97,7 @@ void setup(void) {
     digitalWrite(TING_PIN, LOW);
 
     Serial.begin(115200);
-    Serial.setDebugOutput(true);
+    Serial.setTxTimeoutMs(0);
 
     initTFT();
 
@@ -117,14 +115,8 @@ void setup(void) {
 
     Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
-    if (hardware.bh1750 && lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
-        lightMeter.setMTreg(254);
-        Serial.println(F("BH1750 found"));
-        hasLightmeter = true;
-        timer.setInterval(1000, displayLux);
-    } else {
-        Serial.println(F("BH1750 not found"));
-    }
+    initLightmeter();
+    if (hasLightmeter) timer.setInterval(1000, displayLux);
 
     if (!rtc.begin()) {
         Serial.println("Couldn't find RTC");
@@ -175,11 +167,7 @@ void loop() {
 
     if (menustate == OFF) {
         accelerometerRun();
-        if (hasLightmeter) {
-            if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
-        } else {
-            lux = nightmode ? 25 : 75;
-        }
+        lux = lightsensorRun();
         avgLux = 0.98 * avgLux + 0.02 * lux;
         int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
         if (alarmActive == 0) ledcWrite(1, ledc);

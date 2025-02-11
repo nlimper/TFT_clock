@@ -1,11 +1,16 @@
 #include "common.h"
+#include "Wire.h"
 #include "config.h"
 #include "esp_system.h"
 #include <Arduino.h>
+#include <BH1750.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <Preferences.h>
+#include <esp_adc_cal.h>
 #include <math.h>
+
+BH1750 lightMeter(0x23); // 0x5C
 
 int perc2ledc(int brightness) {
     avgLux = constrain(avgLux, 0, 1000);
@@ -94,10 +99,10 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels) {
     }
 }
 
-const char vowels[] = "aeiouy";                    // 6 vowels
-const char consonants[] = "bcdfghjklmnpqrstvwxyz"; // 20 consonants
-const int BASE = 120;                              // 6 vowels * 20 consonants
-const int WORD_LENGTH = 5;                         // Required for uniqueness with 32-bit input
+const char vowels[] = "aeiouy";
+const char consonants[] = "bcdfghjklmnpqrstvwxyz";
+const int BASE = 120;
+const int WORD_LENGTH = 5;
 
 String generateSerialWord() {
 
@@ -114,12 +119,86 @@ String generateSerialWord() {
 
     // Convert to base-120 pairs (consonant + vowel)
     for (int i = 0; i < WORD_LENGTH; i++) {
-        int index = macValue % BASE; // Get remainder
-        macValue /= BASE;            // Reduce value
+        int index = macValue % BASE;
+        macValue /= BASE;
 
-        word += consonants[index % 20]; // Pick a consonant
-        word += vowels[index / 20];     // Pick a vowel
+        word += consonants[index % 20];
+        word += vowels[index / 20];
     }
 
     return word;
+}
+
+
+#define PHOTODIODE_ADC ((adc1_channel_t)(PHOTODIODE_PIN - 1))
+
+void initLightmeter() {
+    if (hardware.bh1750 && lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
+        lightMeter.setMTreg(254);
+        Serial.println(F("BH1750 found"));
+        hasLightmeter = true;
+    } else {
+        Serial.println(F("BH1750 NOT found"));
+    }
+    if (hardware.photodiode) {
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        adc1_config_channel_atten(PHOTODIODE_ADC, ADC_ATTEN_DB_12);
+
+        pinMode(PHOTODIODE_PIN, INPUT_PULLDOWN);
+        delay(10);
+        uint16_t pulldownValue = adc1_get_raw(PHOTODIODE_ADC);
+        pinMode(PHOTODIODE_PIN, INPUT_PULLUP);
+        delay(10);
+        uint16_t pullupValue = adc1_get_raw(PHOTODIODE_ADC);
+        pinMode(PHOTODIODE_PIN, INPUT);
+        if (pulldownValue < 5 && pullupValue > 4090) {
+            Serial.println(F("Photodiode NOT found"));
+        } else {
+            Serial.println(F("Photodiode found"));
+            hasLightmeter = true;
+        }
+    }
+}
+
+// Function to read ADC with automatic attenuation and smoothing
+struct AttenuationSetting {
+    adc_atten_t atten;
+    float vFullScale;
+};
+
+const AttenuationSetting attenuationLevels[] = {
+    {ADC_ATTEN_DB_0, 0.75},
+    {ADC_ATTEN_DB_2_5, 1.5},
+    {ADC_ATTEN_DB_6, 2.2},
+    {ADC_ATTEN_DB_12, 3.3}};
+
+float readPhotodiode(adc1_channel_t channel) {
+    int rawValue;
+    float vFullScale;
+
+    // Loop through attenuation levels from lowest to highest
+    for (int i = 0; i < 4; i++) {
+        adc1_config_channel_atten(channel, attenuationLevels[i].atten);
+        rawValue = adc1_get_raw(channel);
+        vFullScale = attenuationLevels[i].vFullScale;
+
+        if (rawValue < 3800) { // Stop if value is within range
+            break;
+        }
+    }
+
+    // Convert raw ADC reading to voltage
+    return (rawValue / 4095.0) * vFullScale;
+}
+
+float lightsensorRun() {
+    float lux;
+    if (hasLightmeter && hardware.bh1750) {
+        if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
+    } else if (hasLightmeter && hardware.photodiode) {
+        lux = readPhotodiode(PHOTODIODE_ADC) / 0.2115;  // approximation volt to lux
+    } else {
+        lux = nightmode ? 25 : 75;
+    }
+    return lux;
 }

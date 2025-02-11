@@ -54,6 +54,7 @@ bool readConfig() {
     hardware.max98357 = hardwareObj["max98357"];
     hardware.lis3d = hardwareObj["lis3d"];
     hardware.bh1750 = hardwareObj["bh1750"];
+    hardware.photodiode = hardwareObj["photodiode"];
     hardware.solenoid = hardwareObj["solenoid"];
     hardware.rotary = hardwareObj["rotary"];
     hardware.invertbacklight = hardwareObj["invertbacklight"];
@@ -147,6 +148,8 @@ void haltError(String message) {
     tft.println(message);
     digitalWrite(DIGIT1, HIGH);
     ledcWrite(1, 2048);
-    while (1)
-        delay(1000);
+    while (1) {
+        delay(5000);
+        Serial.println(message);
+    }
 }

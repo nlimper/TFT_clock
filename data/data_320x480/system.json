@@ -4,6 +4,7 @@
     "max98357": 1,
     "lis3d": 1,
     "bh1750": 1,
+    "photodiode": 0,
     "solenoid": 0,
     "rotary": 0,
     "gps": 0,

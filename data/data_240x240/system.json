@@ -4,6 +4,7 @@
     "max98357": 1,
     "lis3d": 1,
     "bh1750": 0,
+    "photodiode": 1,
     "solenoid": 0,
     "gps": 0,
     "rotary": 0,                // 1 when rotary encoder is present

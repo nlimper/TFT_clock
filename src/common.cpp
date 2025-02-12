@@ -150,11 +150,12 @@ void initLightmeter() {
         pinMode(PHOTODIODE_PIN, INPUT_PULLUP);
         delay(10);
         uint16_t pullupValue = adc1_get_raw(PHOTODIODE_ADC);
-        pinMode(PHOTODIODE_PIN, INPUT);
         if (pulldownValue < 5 && pullupValue > 4090) {
             Serial.println(F("Photodiode NOT found"));
+            pinMode(PHOTODIODE_PIN, INPUT);
         } else {
             Serial.println(F("Photodiode found"));
+            pinMode(PHOTODIODE_PIN, INPUT_PULLDOWN);
             hasLightmeter = true;
         }
     }

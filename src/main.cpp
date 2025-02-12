@@ -318,4 +318,22 @@ void loop() {
 
         prevMinute = minute;
     }
+
+    if (menustate == DEBUG) {
+        uint8_t side = accelerometerRun(false);
+        lux = lightsensorRun();
+        lastmenuactive = millis();
+
+        selectScreen(4);
+        tft.loadFont("/dejavusanscond15", *contentFS);
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.fillRect(85 + 50, 50 + 18, 50, 18, TFT_BLACK);
+        tft.setCursor(85 + 50, 50 + 18);
+        tft.println(hasLightmeter ? String(lux) : "N/A");
+        tft.fillRect(85 + 50, 50 + 2 * 18, 50, 18, TFT_BLACK);
+        tft.setCursor(85 + 50, 50 + 2 * 18);
+        tft.println(side);
+        tft.unloadFont();
+        deselectScreen(4);
+    }
 }

@@ -631,9 +631,12 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              increment = std::clamp(increment, -1, 1);
              if (increment == 0) {
                  if (inFunction) {
+                     menustate = MENU;
                      clearScreen(menuLevel + 2);
+                     clearScreen(menuLevel + 3);
                      return;
                  } else {
+                     menustate = DEBUG;
                      showVersion(menuLevel + 2);
                  }
              } else {
@@ -765,6 +768,23 @@ void showVersion(int8_t digitId) {
 
     tft.resetViewport();
     deselectScreen(digitId);
+
+    selectScreen(digitId + 1);
+    tft.fillScreen(TFT_BLACK);
+    tft.loadFont("/dejavusanscond24", *contentFS);
+    tft.setTextColor(tft.color565(200, 200, 200), TFT_BLACK);
+    tft.setCursor(50, 25);
+    tft.println("Debug info");
+    tft.unloadFont();
+    tft.setViewport(50, 50, TFT_WIDTH - 50, TFT_HEIGHT - 50);
+
+    y = 0;
+    printTableRow("Lightmeter", "0", y += lineHeight);
+    printTableRow("Orientation", "0", y += lineHeight);
+    y += lineHeight;
+
+    tft.resetViewport();
+    deselectScreen(digitId + 1);
 
     Serial.println("===== System Info =====");
     Serial.println("Compiled: " + String(__DATE__) + " " + String(__TIME__));

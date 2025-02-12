@@ -156,9 +156,9 @@ void initAccelerometer() {
         hasAccelerometer = true;
     }
 }
-void accelerometerRun(bool active) {
-    if (!hasAccelerometer) return;
-
+uint8_t accelerometerRun(bool active) {
+    if (!hasAccelerometer) return 0;
+    
     uint8_t click = lis.getClick();
     if (click & 0x30) {
         Serial.print("Click detected (0x");
@@ -206,4 +206,6 @@ void accelerometerRun(bool active) {
             prevMinute = -1;
         }
     }
+
+    return side;
 }

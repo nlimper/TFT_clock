@@ -27,6 +27,7 @@ struct Hardware {
     bool max98357;
     bool lis3d;
     bool bh1750;
+    bool photodiode;
     bool solenoid;
     bool rotary;
     bool invertbacklight;

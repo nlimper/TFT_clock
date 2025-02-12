@@ -6,4 +6,5 @@ extern bool hasAccelerometer;
 void interfaceRun();
 void initInterface();
 void initAccelerometer();
-void accelerometerRun();
+uint8_t accelerometerRun(bool active = true);
+

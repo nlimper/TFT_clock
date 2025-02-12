@@ -30,7 +30,8 @@ struct MenuItem {
 enum MenuState {
     OFF = 0,
     PREVIEW = 1,
-    MENU = 2
+    MENU = 2,
+    DEBUG = 3
 };
 #endif
 

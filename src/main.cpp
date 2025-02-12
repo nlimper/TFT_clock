@@ -2,7 +2,6 @@
 #include "Wire.h"
 #include "time.h"
 #include <Arduino.h>
-#include <BH1750.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <SD.h>
@@ -34,7 +33,6 @@ TFT_eSprite sprites[10] = {
     TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft)};
 OpenFontRender truetype;
 
-BH1750 lightMeter(0x23); // 0x5C
 RTC_DS3231 rtc;
 
 int currentFont = -1, currentColor = -1;
@@ -102,7 +100,6 @@ void setup(void) {
     digitalWrite(TING_PIN, LOW);
 
     Serial.begin(115200);
-    // Serial.setDebugOutput(true);
     Serial.setTxTimeoutMs(0);
 
     initTFT();
@@ -124,17 +121,8 @@ void setup(void) {
     debugTFT("I2C starting");
     Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
-    debugTFT("Light sensor init");
-    if (hardware.bh1750) {
-        if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
-            lightMeter.setMTreg(254);
-            Serial.println(F("BH1750 found"));
-            hasLightmeter = true;
-            timer.setInterval(1000, displayLux);
-        } else {
-            Serial.println(F("BH1750 not found"));
-        }
-    }
+    initLightmeter();
+    if (hasLightmeter) timer.setInterval(1000, displayLux);
 
     debugTFT("Real time clock init");
     if (!rtc.begin()) {
@@ -191,11 +179,7 @@ void loop() {
     if (menustate == OFF) {
         if (prefs.getBool("enablewifi", false)) wm.poll();
         accelerometerRun();
-        if (hasLightmeter) {
-            if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
-        } else {
-            lux = nightmode ? 25 : 75;
-        }
+        lux = lightsensorRun();
         avgLux = 0.98 * avgLux + 0.02 * lux;
         int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
         if (alarmActive == 0) ledcWrite(1, ledc);
@@ -345,5 +329,23 @@ void loop() {
         }
 
         prevMinute = minute;
+    }
+
+    if (menustate == DEBUG) {
+        uint8_t side = accelerometerRun(false);
+        lux = lightsensorRun();
+        lastmenuactive = millis();
+
+        selectScreen(4);
+        tft.loadFont("/dejavusanscond15", *contentFS);
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.fillRect(85 + 50, 50 + 18, 50, 18, TFT_BLACK);
+        tft.setCursor(85 + 50, 50 + 18);
+        tft.println(hasLightmeter ? String(lux) : "N/A");
+        tft.fillRect(85 + 50, 50 + 2 * 18, 50, 18, TFT_BLACK);
+        tft.setCursor(85 + 50, 50 + 2 * 18);
+        tft.println(side);
+        tft.unloadFont();
+        deselectScreen(4);
     }
 }

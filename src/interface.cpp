@@ -156,9 +156,9 @@ void initAccelerometer() {
         hasAccelerometer = true;
     }
 }
-void accelerometerRun() {
-    if (!hasAccelerometer) return;
-
+uint8_t accelerometerRun(bool active) {
+    if (!hasAccelerometer) return 0;
+    
     uint8_t click = lis.getClick();
     if (click & 0x30) {
         Serial.print("Click detected (0x");
@@ -187,7 +187,7 @@ void accelerometerRun() {
         side = (z > 0) ? 5 : 6; // 5: Bottom side up, 6: Top side up
     }
 
-    if (side != currOrientation) {
+    if (active && side != currOrientation) {
         alarmAck();
         currOrientation = side;
         Serial.print("Orientation: ");
@@ -206,4 +206,6 @@ void accelerometerRun() {
             prevMinute = -1;
         }
     }
+
+    return side;
 }

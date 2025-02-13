@@ -49,6 +49,10 @@ bool readConfig() {
     config.luxnight = configObj["luxnight"];
     config.luxfactor = configObj["luxfactor"];
 
+    JsonObject identityObj = doc["identity"];
+    config.deviceName = identityObj["deviceName"].as<String>();
+    config.firmwareName = identityObj["firmwareName"].as<String>();
+
     JsonObject hardwareObj = doc["hardware"];
     hardware.ds3231 = hardwareObj["ds3231"];
     hardware.max98357 = hardwareObj["max98357"];

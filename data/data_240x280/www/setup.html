@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuadClock</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/common.js"></script>
+    <style>
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+pre {
+    text-align: left;
+    font-family: monospace;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Fix input size issues */
+.window {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.window input {
+    width: 180px; /* Fixed width to prevent overflow */
+    padding: 6px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Buttons and Select Elements */
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Align inputs in a grid layout */
+.input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.input-row label {
+    width: 120px;
+    font-weight: bold;
+}
+
+.input-row input {
+    flex-grow: 1;
+}
+
+option, select {
+    font-family: monospace, 'Lucida Console', 'Courier New', Courier;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+    .container {
+        max-width: 95%;
+    }
+
+    .window input {
+        width: 100%; /* Make inputs responsive on smaller screens */
+    }
+}
+
+
+    </style>
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+    
+    <div class="container">
+        <div class="window">
+            <h1>Setup WiFi settings</h1>
+            <p>WiFi mac address: <span id="mac">-</span></p>
+            <pre>
+SSID            <input type="text" id="ssid"> <button id="listssid">find SSID</button>
+Password        <input type="password" id="pw">
+            </pre>
+            <p>Fill in fields below for static IP. Otherwise, leave empty.<br></p>
+            <pre>
+Static IP       <input type="text" id="ip">
+Subnet mask     <input type="text" id="mask">
+Gateway         <input type="text" id="gw">
+DNS             <input type="text" id="dns">
+            </pre>
+            <button id="connect">Save WiFi settings and reboot</button><br>
+
+        </div>
+    </div>
+    <script src="setup.js"></script>
+
+</body>
+
+</html>

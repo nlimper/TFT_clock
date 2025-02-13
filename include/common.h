@@ -15,5 +15,6 @@ void fadeLEDC(int channel, int from, int to, int duration_ms = 500);
 String formatTime(uint16_t x);
 void listDir(fs::FS &fs, const char *dirname, uint8_t levels);
 String generateSerialWord();
+String parseDate(const char *dateStr);
 void initLightmeter();
 float lightsensorRun();

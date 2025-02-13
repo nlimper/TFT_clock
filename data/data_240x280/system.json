@@ -4,7 +4,7 @@
     "max98357": 1,
     "lis3d": 1,
     "bh1750": 1,
-    "photodiode": 0,
+    "photodiode": 1,
     "solenoid": 0,
     "gps": 0,
     "rotary": 1,
@@ -57,6 +57,7 @@
     { "name": "Settings", "children": [
         { "name": "Hour format", "function": "selectHourMode" },
         { "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
+        { "name": "WiFi enable", "function": "setWifi" },
         { "name": "Version info", "function": "showVersion" },
         { "name": "Exit", "function": "exitMenu" }
       ] },
@@ -101,7 +102,8 @@
     [ "Ptarmigan", "ptarmigan.mp3" ],
     [ "Cowbells", "cowbells.mp3" ],
     [ "Moldau", "moldau.mp3" ],
-    [ "Wakeup", "wakeup.mp3" ]
+    [ "Wakeup", "wakeup.mp3" ],
+    [ "Radio 2", "http://icecast.omroep.nl/radio2-bb-mp3" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],
@@ -124,5 +126,9 @@
   ],
   "layout": {
     "nextalarm": [ 60, 202 ]
+  },
+  "identity": {
+    "deviceName": "Clock",
+    "firmwareName": "TFT_Clock 240x280 1.69"
   }
 }

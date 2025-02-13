@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuadClock</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/common.js"></script>
+
+    <style>
+        .settings {
+            list-style: none;
+            padding: 0;
+            max-width: 350px;
+        }
+
+        .settings-item {
+            margin: 8px 0;
+        }
+
+        .settings-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 20px;
+        }
+
+        .name {
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .value {
+            color: #666;
+            font-style: italic;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .children {
+            padding-left: 30px;
+            border-left: 2px solid #eee;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+
+    <main>
+        <h1>Device Menu</h1>
+        <ul id="settings-root" class="settings"></ul>
+    </main>
+
+    <script>
+        async function fetchAndRenderMenu() {
+            try {
+                const response = await fetch("/menujson");
+                const data = await response.json();
+                renderMenu(data.menu);
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        function renderMenu(menuItems) {
+            const rootElement = document.getElementById("settings-root");
+
+            // Build hierarchical menu structure
+            function buildTree(items, parentId = 65535) {
+                return items
+                    .filter(item => item.parentId === parentId)
+                    .map(item => ({
+                        ...item,
+                        children: buildTree(items, item.id)
+                    }));
+            }
+
+            // Recursive render function
+            function renderMenuItem(item) {
+                const container = document.createElement("li");
+                container.className = "settings-item";
+
+                // Header (name + value)
+                const header = document.createElement("div");
+                header.className = "settings-item-header";
+
+                const name = document.createElement("span");
+                name.className = "name";
+                name.textContent = item.name;
+
+                const value = document.createElement("span");
+                value.className = "value";
+                value.textContent = item.value || ""; // Handle empty values
+
+                header.append(name, value);
+                container.append(header);
+
+                // Children (if any)
+                if (item.children.length > 0) {
+                    const childrenContainer = document.createElement("div");
+                    childrenContainer.className = "children";
+
+                    item.children.forEach(child => {
+                        childrenContainer.append(renderMenuItem(child));
+                    });
+
+                    container.append(childrenContainer);
+                }
+
+                return container;
+            }
+
+            // Build and render tree
+            const menuTree = buildTree(menuItems);
+            menuTree.forEach(item => {
+                rootElement.append(renderMenuItem(item));
+            });
+        }
+
+        // Initial load
+        fetchAndRenderMenu();
+    </script>
+</body>
+
+</html>

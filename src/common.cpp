@@ -129,6 +129,16 @@ String generateSerialWord() {
     return word;
 }
 
+String parseDate(const char *dateStr) {
+    const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+    char monthStr[4];
+    int day, year, monthIndex;
+    sscanf(dateStr, "%s %d %d", monthStr, &day, &year);
+    monthIndex = (strstr(months, monthStr) - months) / 3 + 1;
+    char formattedDate[7];
+    snprintf(formattedDate, sizeof(formattedDate), "%02d%02d%02d", year % 100, monthIndex, day);
+    return String(formattedDate);
+}
 
 #define PHOTODIODE_ADC ((adc1_channel_t)(PHOTODIODE_PIN - 1))
 
@@ -139,23 +149,24 @@ void initLightmeter() {
         hasLightmeter = true;
     } else {
         Serial.println(F("BH1750 NOT found"));
+        hardware.bh1750 = false;
     }
     if (hardware.photodiode) {
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(PHOTODIODE_ADC, ADC_ATTEN_DB_12);
 
         pinMode(PHOTODIODE_PIN, INPUT_PULLDOWN);
-        delay(10);
+        delay(5);
         uint16_t pulldownValue = adc1_get_raw(PHOTODIODE_ADC);
         pinMode(PHOTODIODE_PIN, INPUT_PULLUP);
-        delay(10);
+        delay(5);
         uint16_t pullupValue = adc1_get_raw(PHOTODIODE_ADC);
-        if (pulldownValue < 5 && pullupValue > 4090) {
+        pinMode(PHOTODIODE_PIN, INPUT);
+        if (pulldownValue < 2 && pullupValue > 4093) {
             Serial.println(F("Photodiode NOT found"));
-            pinMode(PHOTODIODE_PIN, INPUT);
+            hardware.photodiode = false;
         } else {
             Serial.println(F("Photodiode found"));
-            pinMode(PHOTODIODE_PIN, INPUT_PULLDOWN);
             hasLightmeter = true;
         }
     }
@@ -197,7 +208,7 @@ float lightsensorRun() {
     if (hasLightmeter && hardware.bh1750) {
         if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
     } else if (hasLightmeter && hardware.photodiode) {
-        lux = readPhotodiode(PHOTODIODE_ADC) / 0.2115;  // approximation volt to lux
+        lux = readPhotodiode(PHOTODIODE_ADC) * 100; 
     } else {
         lux = nightmode ? 25 : 75;
     }

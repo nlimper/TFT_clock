@@ -126,6 +126,10 @@
   ],
   "layout": {
     "nextalarm": [ 60, 185 ]
+  },
+  "identity": {
+    "deviceName": "Clock",
+    "firmwareName": "TFT_Clock 240x240 round"
   }
 }
 

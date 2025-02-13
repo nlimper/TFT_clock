@@ -334,16 +334,17 @@ void loop() {
     if (menustate == DEBUG) {
         uint8_t side = accelerometerRun(false);
         lux = lightsensorRun();
+        avgLux = 0.98 * avgLux + 0.02 * lux;
         lastmenuactive = millis();
 
         selectScreen(4);
         tft.loadFont("/dejavusanscond15", *contentFS);
         tft.setTextColor(TFT_WHITE, TFT_BLACK);
-        tft.fillRect(80 + 35, 40 + 17, 50, 16, TFT_BLACK);
-        tft.setCursor(80 + 35, 40 + 17);
-        tft.println(hasLightmeter ? String(lux) : "N/A");
-        tft.fillRect(80 + 35, 40 + 2 * 17, 50, 16, TFT_BLACK);
-        tft.setCursor(80 + 35, 40 + 2 * 17);
+        tft.fillRect(80 + 30, 40 + 17, 50, 16, TFT_BLACK);
+        tft.setCursor(80 + 30, 40 + 17);
+        tft.println(hasLightmeter ? String(avgLux) : "N/A");
+        tft.fillRect(80 + 30, 40 + 2 * 17, 50, 16, TFT_BLACK);
+        tft.setCursor(80 + 30, 40 + 2 * 17);
         tft.println(side);
         tft.unloadFont();
         deselectScreen(4);

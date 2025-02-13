@@ -758,17 +758,6 @@ void printTableRow(const char *label, const String &value, int y) {
     tft.unloadFont();
 }
 
-String parseDate(const char *dateStr) {
-    const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
-    char monthStr[4];
-    int day, year, monthIndex;
-    sscanf(dateStr, "%s %d %d", monthStr, &day, &year);
-    monthIndex = (strstr(months, monthStr) - months) / 3 + 1;
-    char formattedDate[7];
-    snprintf(formattedDate, sizeof(formattedDate), "%02d%02d%02d", year % 100, monthIndex, day);
-    return String(formattedDate);
-}
-
 void showVersion(int8_t digitId) {
     selectScreen(digitId);
     tft.fillScreen(TFT_BLACK);
@@ -777,7 +766,7 @@ void showVersion(int8_t digitId) {
     tft.setCursor(50, 25);
     tft.println("Version");
     tft.unloadFont();
-    tft.setViewport(35, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
+    tft.setViewport(30, 40, TFT_WIDTH - 30, TFT_HEIGHT - 50);
 
     int y = 0;
     int lineHeight = 17;
@@ -800,7 +789,7 @@ void showVersion(int8_t digitId) {
     tft.setCursor(50, 25);
     tft.println("Debug info");
     tft.unloadFont();
-    tft.setViewport(35, 40, TFT_WIDTH - 50, TFT_HEIGHT - 50);
+    tft.setViewport(30, 40, TFT_WIDTH - 30, TFT_HEIGHT - 50);
 
     y = 0;
     printTableRow("Lightmeter", "0", y += lineHeight);

@@ -20,6 +20,8 @@ struct Config {
     float luxday;
     float luxnight;
     float luxfactor;
+    String deviceName;
+    String firmwareName;
 };
 
 struct Hardware {

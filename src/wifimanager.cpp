@@ -1,12 +1,11 @@
 #include "wifimanager.h"
 
+#include "common.h"
+#include "config.h"
 #include "timefunctions.h"
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
-
-// #include "udp.h"
-// #include "web.h"
 
 uint8_t WifiManager::apClients = 0;
 uint8_t x_buffer[100];
@@ -131,11 +130,9 @@ bool WifiManager::connectToWifi(String ssid, String pass, bool savewhensuccessfu
     _savewhensuccessfull = savewhensuccessfull;
     _APstarted = false;
 
-    // Optimize WiFi reset to avoid unnecessary delays
     WiFi.disconnect(false, true);
     WiFi.mode(WIFI_STA);
 
-    // Generate hostname from MAC
     char hostname[32] = "Clock-";
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
@@ -144,7 +141,7 @@ bool WifiManager::connectToWifi(String ssid, String pass, bool savewhensuccessfu
     strcat(hostname, lastTwoBytes);
     WiFi.setHostname(hostname);
 
-    WiFi.setSleep(false); // Disable sleep for faster connection
+    WiFi.setSleep(false);
     WiFi.persistent(savewhensuccessfull);
 
     terminalLog("Connecting to WiFi...");
@@ -165,10 +162,9 @@ bool WifiManager::waitForConnection() {
             startManagementServer();
             return false;
         }
-        vTaskDelay(100 / portTICK_PERIOD_MS); // Reduce delay for faster retries
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
-    // Save credentials only if successful
     if (_savewhensuccessfull) {
         Preferences preferences;
         preferences.begin("wifi", false);
@@ -292,12 +288,6 @@ void WifiManager::WiFiEvent(WiFiEvent_t event) {
 #ifndef BUILD_ENV_NAME
 #define BUILD_ENV_NAME unknown
 #endif
-#ifndef BUILD_TIME
-#define BUILD_TIME 0
-#endif
-#ifndef BUILD_VERSION
-#define BUILD_VERSION custom
-#endif
 
 std::vector<std::string> getLocalUrl() {
     return {String("http://" + WiFi.localIP().toString()).c_str()};
@@ -348,13 +338,13 @@ bool onCommandCallback(improv::ImprovCommand cmd) {
     case improv::Command::GET_DEVICE_INFO: {
         std::vector<std::string> infos = {
             // Firmware name
-            "Clock",
+            config.deviceName.c_str(),
             // Firmware version
-            STR(BUILD_VERSION),
+            parseDate(__DATE__).c_str(),
             // Hardware chip/variant
             STR(BUILD_ENV_NAME),
             // Device name
-            "Access Point"};
+            config.firmwareName.c_str()};
         std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_DEVICE_INFO, infos, false);
         send_response(data);
         break;

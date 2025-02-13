@@ -102,6 +102,7 @@ void init_web() {
 
         for (const auto &item : menuItems) {
             JsonObject obj = menuArray.add<JsonObject>();
+            if (item.functionName == "exitMenu") continue;
             Serial.println("menu item: " + item.name);
             obj["id"] = item.id;
             obj["name"] = item.name;

@@ -57,13 +57,13 @@ void doChime() {
         vTaskDelay(prefs.getUShort("chime_delay", 20) / portTICK_PERIOD_MS);
         digitalWrite(TING_PIN, LOW);
     } else if (alarmActive == 0) {
-        audioStart("/sounds/bell.mp3");
+        audioStart("bell.mp3");
     }
 }
 
 void doCuckoo() {
     if (alarmActive == 0) {
-        audioStart("/sounds/cuckoo.mp3");
+        audioStart("cuckoo.mp3");
     }
 }
 
@@ -147,7 +147,7 @@ void setup(void) {
 
     debugTFT("Audio init");
     initAudio();
-    audioStart("/sounds/bell.mp3");
+    audioStart("bell.mp3");
 
     debugTFT("Init interfaces");
 
@@ -236,7 +236,7 @@ void loop() {
                 nightmode = false;
                 initSprites(true);
             }
-            audioStart("/sounds/" + sounds[soundid].filename);
+            audioStart(sounds[soundid].filename);
         }
         if (alarmActive == 2 && audioRunning() == false) {
             alarmActive = 3;
@@ -254,7 +254,7 @@ void loop() {
 
         if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && prevMinute != -1) {
             uint16_t volume = prefs.getUShort("volume", 5);
-            audioStart("/sounds/flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
+            audioStart("flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
         }
 
         // hourly chime
@@ -339,11 +339,11 @@ void loop() {
         selectScreen(4);
         tft.loadFont("/dejavusanscond15", *contentFS);
         tft.setTextColor(TFT_WHITE, TFT_BLACK);
-        tft.fillRect(85 + 50, 50 + 18, 50, 18, TFT_BLACK);
-        tft.setCursor(85 + 50, 50 + 18);
+        tft.fillRect(80 + 35, 40 + 17, 50, 16, TFT_BLACK);
+        tft.setCursor(80 + 35, 40 + 17);
         tft.println(hasLightmeter ? String(lux) : "N/A");
-        tft.fillRect(85 + 50, 50 + 2 * 18, 50, 18, TFT_BLACK);
-        tft.setCursor(85 + 50, 50 + 2 * 18);
+        tft.fillRect(80 + 35, 40 + 2 * 17, 50, 16, TFT_BLACK);
+        tft.setCursor(80 + 35, 40 + 2 * 17);
         tft.println(side);
         tft.unloadFont();
         deselectScreen(4);

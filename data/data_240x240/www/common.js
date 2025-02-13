@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    fetch("header.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("header-container").innerHTML = html;
+        })
+        .catch(error => console.error("Error loading header:", error));
+
     document.getElementById('btnReboot')?.addEventListener('click', async () => {
         fetch('/reboot', { method: 'POST' })
             .then(response => {

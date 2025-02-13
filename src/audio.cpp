@@ -11,15 +11,23 @@ TaskHandle_t audioTaskHandle = NULL;
 const char *startFilePath = "/";
 const char *ext = "mp3";
 AudioSourceLittleFS source(startFilePath, ext);
+URLStream streamSource;
 I2SStream i2sStream;
 MP3DecoderHelix decoder;
+EncodedAudioStream dec(&i2sStream, &decoder);
+StreamCopy streamCopier(dec, streamSource);
 AudioPlayer audioPlayer(source, i2sStream, decoder);
 extern Preferences prefs;
+bool isStreaming = false;
 
 void audioTask(void *pvParameters) {
     while (true) {
         if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-            audioPlayer.copy();
+            if (isStreaming) {
+                streamCopier.copy();
+            } else {
+                audioPlayer.copy();
+            }
             xSemaphoreGive(audioMutex);
         }
         vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -57,8 +65,19 @@ void audioStart(String filename, int volume) {
         if (audioPlayer.isActive()) audioPlayer.end();
         audioPlayer.begin(-1, false);
         audioPlayer.setAutoNext(false);
-        if (filename != "") audioPlayer.setPath(filename.c_str());
-        audioPlayer.play();
+        if (filename != "") {
+            Serial.println("Playing " + filename);
+            isStreaming = filename.startsWith("http");
+            if (isStreaming) {
+                streamSource.setReadBufferSize(2048);
+                streamSource.begin(filename.c_str(), "audio/mp3");
+            } else {
+                filename = "/sounds/" + filename;
+                audioPlayer.setPath(filename.c_str());
+                audioPlayer.play();
+            }
+        }
+
         xSemaphoreGive(audioMutex);
     }
 }

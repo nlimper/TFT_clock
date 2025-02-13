@@ -4,40 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expanded Menu</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <title>QuadClock</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/common.js"></script>
 
-        /* Menu container */
-        .menu {
+    <style>
+        .settings {
             list-style: none;
             padding: 0;
+            max-width: 350px;
         }
 
-        /* Individual menu items */
-        .menu-item {
+        .settings-item {
             margin: 8px 0;
         }
 
-        /* Header (name + value) */
-        .menu-item-header {
+        .settings-item-header {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
             gap: 20px;
-            padding: 4px 0;
         }
 
-        /* Name styling */
         .name {
             font-weight: bold;
             flex-shrink: 0;
         }
 
-        /* Value styling */
         .value {
             color: #666;
             font-style: italic;
@@ -45,7 +38,6 @@
             word-break: break-word;
         }
 
-        /* Nested children indentation */
         .children {
             padding-left: 30px;
             border-left: 2px solid #eee;
@@ -55,8 +47,13 @@
 </head>
 
 <body>
-    <h1>Device Menu</h1>
-    <ul id="menu-root" class="menu"></ul>
+
+    <div id="header-container"></div>
+
+    <main>
+        <h1>Device Menu</h1>
+        <ul id="settings-root" class="settings"></ul>
+    </main>
 
     <script>
         async function fetchAndRenderMenu() {
@@ -70,7 +67,7 @@
         }
 
         function renderMenu(menuItems) {
-            const rootElement = document.getElementById("menu-root");
+            const rootElement = document.getElementById("settings-root");
 
             // Build hierarchical menu structure
             function buildTree(items, parentId = 65535) {
@@ -85,11 +82,11 @@
             // Recursive render function
             function renderMenuItem(item) {
                 const container = document.createElement("li");
-                container.className = "menu-item";
+                container.className = "settings-item";
 
                 // Header (name + value)
                 const header = document.createElement("div");
-                header.className = "menu-item-header";
+                header.className = "settings-item-header";
 
                 const name = document.createElement("span");
                 name.className = "name";

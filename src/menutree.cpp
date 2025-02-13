@@ -423,17 +423,17 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      return;
                  } else {
                      if (hourSound == 1 || hourSound == 2) {
-                         audioStart("/sounds/bell.mp3");
+                         audioStart("bell.mp3");
                      } else if (hourSound == 3) {
-                         audioStart("/sounds/cuckoo.mp3");
+                         audioStart("cuckoo.mp3");
                      }
                      showValue(modeStr, menuLevel + 1, true);
                  }
              } else {
                  if (hourSound == 1 || hourSound == 2) {
-                     audioStart("/sounds/bell.mp3");
+                     audioStart("bell.mp3");
                  } else if (hourSound == 3) {
-                     audioStart("/sounds/cuckoo.mp3");
+                     audioStart("cuckoo.mp3");
                  }
                  showValue(modeStr, menuLevel + 1);
                  prefs.putUShort("hoursound", hourSound);
@@ -447,14 +447,14 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
-                     audioStart("/sounds/bell.mp3");
+                     audioStart("bell.mp3");
                      showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1, true);
                  }
              } else {
                  increment = std::clamp(increment, -1, 1);
                  volume = std::clamp(volume + increment, 0, 10);
                  audioVolume(volume);
-                 audioStart("/sounds/bell.mp3");
+                 audioStart("bell.mp3");
                  showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1);
                  prefs.putUShort("volume", volume);
              }
@@ -621,13 +621,13 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
-                     audioStart("/sounds/" + sounds[soundid].filename);
+                     audioStart(sounds[soundid].filename);
                      showValue(sounds[soundid].name, menuLevel + 1, true);
                  }
              } else {
                  increment = std::clamp(increment, -1, 1);
                  soundid = (soundid + increment + soundCount) % soundCount;
-                 audioStart("/sounds/" + sounds[soundid].filename);
+                 audioStart(sounds[soundid].filename);
                  showValue(sounds[soundid].name, menuLevel + 1);
                  prefs.putUShort("alarmsound", soundid);
              }
@@ -777,15 +777,12 @@ void showVersion(int8_t digitId) {
     tft.setCursor(50, 25);
     tft.println("Version");
     tft.unloadFont();
-    tft.setViewport(40, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
+    tft.setViewport(35, 40, TFT_WIDTH - 40, TFT_HEIGHT - 50);
 
     int y = 0;
     int lineHeight = 17;
     printTableRow("Serial", generateSerialWord(), y += lineHeight);
     printTableRow("Firmware", parseDate(__DATE__), y += lineHeight);
-    if (WiFi.localIP().toString() != "0.0.0.0") {
-        printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
-    }
     y += lineHeight;
     printTableRow("Chip", String(ESP.getChipModel()), y += lineHeight);
     printTableRow("Flash", String(ESP.getFlashChipSize() / 1024) + " kB", y += lineHeight);
@@ -803,13 +800,16 @@ void showVersion(int8_t digitId) {
     tft.setCursor(50, 25);
     tft.println("Debug info");
     tft.unloadFont();
-    tft.setViewport(50, 50, TFT_WIDTH - 50, TFT_HEIGHT - 50);
+    tft.setViewport(35, 40, TFT_WIDTH - 50, TFT_HEIGHT - 50);
 
     y = 0;
     printTableRow("Lightmeter", "0", y += lineHeight);
     printTableRow("Orientation", "0", y += lineHeight);
     y += lineHeight;
-
+    if (WiFi.localIP().toString() != "0.0.0.0") {
+        printTableRow("SSID", WiFi.SSID(), y += lineHeight);
+        printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
+    }
     tft.resetViewport();
     deselectScreen(digitId + 1);
 

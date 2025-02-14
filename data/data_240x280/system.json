@@ -18,9 +18,9 @@
     "autobrightness": 1,
     "wifi": 1,
     "fliporientation": "3",     // orientation where display is flipped
-    "luxday": 0.15,
-    "luxnight": 0.11,           // lux reference for night mode
-    "luxfactor": 10             // lux reference for 100% brightness
+    "luxday": 1,                // lux reference for switching to day mode
+    "luxnight": 0.5,              // lux reference for switching to night mode
+    "luxfactor": 50             // lux reference for 100% brightness
   },
   "menu": [
     { "name": "Alarm set", "children": [
@@ -80,8 +80,11 @@
     [ "OCR-A", "ocra-subset.ttf", 310, -15, 30 ],
     [ "Quicksand", "quicksand-subset.ttf", 345, -7, -55 ],
     [ "Vibur", "vibur-subset.ttf", 320, -7, -25 ],
-    [ "YatraOne", "yatraone-subset.ttf", 345, -7, -62 ]
-  ],
+    [ "YatraOne", "yatraone-subset.ttf", 345, -7, -62 ],
+    [ "Animals", "/bitmap/animals/", 0, 0, 0 ],
+    [ "Balloons", "/bitmap/balloons/", 0, 0, 0 ],
+    [ "Wood", "/bitmap/wood/", 0, 0, 0 ]
+],
   "colors": [
     [ "Snow White", 255, 255, 255 ],
     [ "Sunshine Yellow", 255, 255, 0 ],

@@ -17,6 +17,7 @@
 #include "menutree.h"
 #include "timefunctions.h"
 #include "udp.h"
+#include "audio.h"
 
 AsyncWebServer server(80);
 extern std::vector<MenuItem> menuItems;
@@ -51,6 +52,10 @@ void init_web() {
 
     server.on("/menu", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(*contentFS, "/www/menu.html");
+    });
+
+    server.on("/radio", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(*contentFS, "/www/radio.html");
     });
 
     server.on("/get_wifi_config", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -150,6 +155,27 @@ void init_web() {
     server.on("/getalarm", HTTP_GET, [](AsyncWebServerRequest *request) {
         uint16_t nextAlarm = getDailyAlarm();
         request->send(200, "text/plain", String(nextAlarm));
+    });
+
+    server.on("/playradio", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if (request->hasParam("url", true)) {
+            String url = request->getParam("url", true)->value();
+            audioStart(url);
+        }
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.on("/setvolume", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if (request->hasParam("volume", true)) {
+            int volume = request->getParam("volume", true)->value().toInt();
+            audioVolume(volume);
+        }
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.on("/audiostop", HTTP_POST, [](AsyncWebServerRequest *request) {
+        audioStop();
+        request->send(200, "text/plain", "OK");
     });
 
     server.addHandler(handler);

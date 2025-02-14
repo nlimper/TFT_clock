@@ -15,7 +15,7 @@ extern Preferences prefs;
 
 extern int currentFont, currentColor;
 extern bool nightmode, flipOrientation;
-extern int prevMinute, d1, d2, d3;
+extern volatile int d1, d2, d3, prevMinute;
 
 extern uint8_t digits[];
 extern uint8_t backlight[];

@@ -7,18 +7,186 @@
     <title>QuadClock</title>
     <link rel="stylesheet" href="/style.css">
     <script src="/common.js"></script>
+
+    <style>
+
+    </style>
+
 </head>
 
 <body>
 
     <div id="header-container"></div>
-    
+
     <main>
         <h1>QuadClock</h1>
-        <p>Welcome</p>
-        <p>Click the button below to reboot the device.</p>
-        <p><button id="btnReboot">Reboot</button></p>
+
+        <section>
+            <h2>Next Alarm</h2>
+            <p id="next-alarm">No alarm set</p>
+
+            <h2>Set Alarm</h2>
+
+            <!-- Time Picker Display -->
+            <div class="time-picker" id="alarm-time" onclick="showTimePicker()">12:00</div>
+
+            <!-- Modal -->
+            <div class="modal-overlay" id="time-overlay" onclick="hideTimePicker()"></div>
+            <div class="time-modal" id="time-modal">
+                <h3>Select Time</h3>
+                <div class="time-selection">
+                    <div class="time-grid" id="hour-grid"></div>
+                    <div class="time-grid" id="minute-grid"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="time-option" onclick="resetTime()">Alarm OFF</button>
+                    <button class="confirm-btn" onclick="confirmTime()">Set</button>
+                </div>
+            </div>
+
+        </section>
     </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            getNextAlarm();
+        });
+
+        function getNextAlarm() {
+            fetch('/getalarm')
+                .then(response => response.text())
+                .then(data => {
+                    const alarmTimeValue = parseInt(data, 10);
+                    if (!isNaN(alarmTimeValue)) {
+                        const hour = Math.floor(alarmTimeValue / 60).toString().padStart(2, '0');
+                        const minute = (alarmTimeValue % 60).toString().padStart(2, '0');
+                        const formattedTime = `${hour}:${minute}`;
+                        document.getElementById('next-alarm').textContent = alarmTimeValue === 24 * 60 ? "No alarm set" : `Next alarm: ${document.getElementById('alarm-time').value}`;
+                        document.getElementById('alarm-time').value = formattedTime;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function setAlarm(alarmTimeValue = null) {
+            if (alarmTimeValue === null) {
+                const alarmInput = document.getElementById('alarm-time').value;
+                if (!alarmInput) return;
+
+                let [hour, minute] = alarmInput.split(':').map(Number);
+                minute = Math.round(minute / 5) * 5;
+                if (minute === 60) {
+                    minute = 0;
+                    hour = (hour + 1) % 24;
+                }
+
+                const formattedTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                document.getElementById('alarm-time').value = formattedTime;
+
+                alarmTimeValue = hour * 60 + minute;
+            }
+
+            fetch('/setalarm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `alarmtime=${alarmTimeValue}`
+            })
+                .then(response => response.text())
+                .then(() => {
+                    document.getElementById('next-alarm').textContent =
+                        alarmTimeValue === 24 * 60 ? "No alarm set" : `Next alarm: ${document.getElementById('alarm-time').value}`;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        let selectedHour = 9, selectedMinute = 0;
+
+        function showTimePicker() {
+            document.getElementById("time-overlay").style.display = "block";
+            document.getElementById("time-modal").style.display = "block";
+            populateTimeGrids();
+        }
+
+        function hideTimePicker() {
+            document.getElementById("time-overlay").style.display = "none";
+            document.getElementById("time-modal").style.display = "none";
+        }
+
+        function populateTimeGrids() {
+            const hourGrid = document.getElementById("hour-grid");
+            const minuteGrid = document.getElementById("minute-grid");
+            hourGrid.innerHTML = "";
+            minuteGrid.innerHTML = "";
+
+            for (let h = 0; h < 24; h++) {
+                createGridItem(hourGrid, h, h === selectedHour, (val) => {
+                    selectedHour = val;
+                    updateSelection(hourGrid, val);
+                });
+            }
+
+            for (let m = 0; m < 60; m += 5) {
+                createGridItem(minuteGrid, m, m === selectedMinute, (val) => {
+                    selectedMinute = val;
+                    updateSelection(minuteGrid, val);
+                });
+            }
+        }
+
+        function createGridItem(grid, value, isSelected, onClick) {
+            const option = document.createElement("div");
+            option.className = "time-option" + (isSelected ? " selected" : "");
+            option.textContent = value.toString().padStart(2, "0");
+            option.onclick = () => {
+                onClick(value);
+            };
+            grid.appendChild(option);
+        }
+
+        function updateSelection(grid, value) {
+            [...grid.children].forEach(child => child.classList.remove("selected"));
+            [...grid.children].find(child => child.textContent === value.toString().padStart(2, "0"))
+                ?.classList.add("selected");
+        }
+
+        function confirmTime() {
+            if (selectedHour === null || selectedMinute === null) {
+                document.getElementById("alarm-time").textContent = "OFF";
+                document.getElementById("alarm-time").dataset.value = "24:00";
+            } else {
+                const time = `${selectedHour.toString().padStart(2, "0")}:${selectedMinute.toString().padStart(2, "0")}`;
+                document.getElementById("alarm-time").textContent = time;
+                document.getElementById("alarm-time").dataset.value = time;
+            }
+            setAlarm();
+            hideTimePicker();
+        }
+
+        function resetTime() {
+            document.getElementById("alarm-time").textContent = "OFF";
+            document.getElementById("alarm-time").dataset.value = "24:00";
+            document.querySelectorAll('.time-grid .selected').forEach(el => el.classList.remove('selected'));
+            [selectedHour, selectedMinute] = [null, null];
+        }
+
+        // Mimic <input type="time">
+        Object.defineProperty(HTMLDivElement.prototype, "value", {
+            get() {
+                return this.dataset.value || 24 * 60;
+            },
+            set(value) {
+                this.dataset.value = value;
+                if (value === '24:00') {
+                    this.textContent = "OFF";
+                    document.querySelectorAll('.time-grid .selected').forEach(el => el.classList.remove('selected'));
+                    return;
+                }
+                this.textContent = value;
+                [selectedHour, selectedMinute] = value.split(":").map(Number);
+            }
+        });
+
+    </script>
 
 </body>
 

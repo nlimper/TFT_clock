@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include <functional>
+#include <timefunctions.h>
 
 extern RTC_DS3231 rtc;
 const char *ntpServer = "pool.ntp.org";
@@ -84,17 +85,22 @@ void synchronizeNTP() {
 }
 
 uint16_t checkNextAlarm(struct tm timeinfo) {
-    // check today
     uint8_t dow = timeinfo.tm_wday;
     uint16_t timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
+    uint16_t nextAlarm = 24 * 60; 
+
     if (alarm_set[dow] != 24 * 60 && alarm_set[dow] > timevalue) {
-        // alarm vandaag
-        return alarm_set[dow];
-    } else if (timevalue >= 18 * 60 && alarm_set[(dow + 1) % 7] != 24 * 60 && alarm_set[(dow + 1) % 7] < timevalue) {
-        // alarm morgen
-        return alarm_set[(dow + 1) % 7];
+        nextAlarm = alarm_set[dow];
     }
-    return 24 * 60;
+    else if (timevalue >= 18 * 60 && alarm_set[(dow + 1) % 7] != 24 * 60 && alarm_set[(dow + 1) % 7] < timevalue) {
+        nextAlarm = alarm_set[(dow + 1) % 7];
+    }
+
+    if (alarm_set[7] != 24 * 60 && alarm_set[7] < nextAlarm) {
+        nextAlarm = alarm_set[7];
+    }
+
+    return nextAlarm;
 }
 
 bool isNightMode(int hour) {
@@ -115,4 +121,17 @@ bool isNightMode(int hour) {
         }
     }
     return false;
+}
+
+void setDailyAlarm(uint16_t alarmTime) {
+    Serial.println("Setting daily alarm to " + String(alarmTime));
+    alarm_set[7] = alarmTime;
+    prefs.putBytes("alarm_set", alarm_set, sizeof(alarm_set));
+    d1 = 10;
+    prevMinute = -1;
+}
+
+uint16_t getDailyAlarm() {
+    Serial.println("Getting daily alarm: " + String(alarm_set[7]));
+    return alarm_set[7];
 }

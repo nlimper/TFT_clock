@@ -307,6 +307,7 @@ String getValue(const String &name) {
         {"setAlarm4", []() { return formatTime(alarm_set[4]); }},
         {"setAlarm5", []() { return formatTime(alarm_set[5]); }},
         {"setAlarm6", []() { return formatTime(alarm_set[6]); }},
+        {"setAlarm7", []() { return formatTime(alarm_set[7]); }},
         {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
                                                                                                                                 : "0:00 AM"; }},
         {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
@@ -680,7 +681,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
          }}};
 
     constexpr int totalMinutes = 24 * 60 + 5;
-    for (int i = 0; i <= 6; ++i) {
+    for (int i = 0; i <= 7; ++i) {
         functionMap["setAlarm" + String(i)] = [i](int increment) {
             if (increment == 0) {
                 if (inFunction) {

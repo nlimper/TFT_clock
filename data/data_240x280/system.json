@@ -24,6 +24,7 @@
   },
   "menu": [
     { "name": "Alarm set", "children": [
+        { "name": "Daily", "function": "setAlarm7", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },

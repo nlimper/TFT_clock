@@ -70,6 +70,7 @@ void audioStart(String filename, int volume) {
             isStreaming = filename.startsWith("http");
             if (isStreaming) {
                 streamSource.setReadBufferSize(2048);
+                streamSource.setTimeout(5000);
                 streamSource.begin(filename.c_str(), "audio/mp3");
             } else {
                 filename = "/sounds/" + filename;

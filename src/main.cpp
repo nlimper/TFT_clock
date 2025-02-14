@@ -37,12 +37,12 @@ RTC_DS3231 rtc;
 
 int currentFont = -1, currentColor = -1;
 uint32_t lastmenuactive = 0;
-int prevMinute = 61, prevHour = 61;
-int d1 = 10, d2 = 10, d3 = 10;
+volatile int prevMinute = -1, prevHour = -1;
+volatile int d1 = 10, d2 = 10, d3 = 10;
 int hour, minute;
 int menulevel = 1;
 int time_set[6];
-uint16_t alarm_set[8] = {24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 0};
+uint16_t alarm_set[8] = {24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60, 24 * 60};
 int hourlyChimeTrigger = false, currentChimeCount = 0;
 int alarmActive = 0;
 int timerAlarmFlashId, timerAlarmSoundId;
@@ -222,7 +222,7 @@ void loop() {
         minute = timeinfo.tm_min;
     }
 
-    if (minute != prevMinute && menustate != MENU) {
+    if ((minute != prevMinute || d1 == 10 || d2 == 10 || d3 == 10) && menustate != MENU) {
 
         if (alarmActive == 0 && timevalue == alarm_set[timeinfo.tm_wday] - 1) {
             alarmActive = 1;
@@ -334,7 +334,7 @@ void loop() {
     if (menustate == DEBUG) {
         uint8_t side = accelerometerRun(false);
         lux = lightsensorRun();
-        avgLux = 0.98 * avgLux + 0.02 * lux;
+        avgLux = 0.95 * avgLux + 0.05 * lux;
         lastmenuactive = millis();
 
         selectScreen(4);

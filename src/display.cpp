@@ -2,6 +2,7 @@
 #include "OpenFontRender.h"
 #include "common.h"
 #include <Arduino.h>
+#include <algorithm>
 #include <TFT_eSPI.h>
 #include <TJpg_Decoder.h>
 
@@ -35,6 +36,7 @@ void initTFT() {
     vTaskDelay(1 / portTICK_PERIOD_MS);
     tft.init();
     vTaskDelay(1 / portTICK_PERIOD_MS);
+    tft.initDMA();
     tft.setRotation(0);
     tft.fillScreen(TFT_DARKGREEN);
     for (int pin : {DIGIT1, DIGIT2, DIGIT3, DIGIT4}) {
@@ -231,10 +233,8 @@ void drawDigit(uint8_t digit, bool useSprite) {
     if (sprites[digit].created() && useSprite) {
         sprites[digit].pushSprite(0, 0);
     } else {
-        currentColor = prefs.getUShort("color", 0);
-        int fontr = colors[currentColor].r;
-        int fontg = colors[currentColor].g;
-        int fontb = colors[currentColor].b;
+        auto &c = colors[prefs.getUShort("color", 0)];
+        int fontr = c.r, fontg = c.g, fontb = c.b;
 
         if (nightmode && useSprite) {
             fontr = 255;
@@ -287,13 +287,12 @@ void drawDigit(uint8_t digit, bool useSprite) {
 }
 
 void showAlarmIcon(uint16_t nextAlarm) {
-    currentColor = prefs.getUShort("color", 0);
-    int fontr = colors[currentColor].r / 1.2;
-    int fontg = colors[currentColor].g / 1.2;
-    int fontb = colors[currentColor].b / 1.2;
+    int fontr = std::clamp(static_cast<int>(colors[currentColor].r * 1.5), 0, 255);
+    int fontg = std::clamp(static_cast<int>(colors[currentColor].g * 1.5), 0, 255);
+    int fontb = std::clamp(static_cast<int>(colors[currentColor].b * 1.5), 0, 255);
 
     if (nightmode) {
-        fontr = 255 / 1.5;
+        fontr = 255;
         fontg = 0;
         fontb = 0;
     }

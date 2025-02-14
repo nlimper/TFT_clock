@@ -15,6 +15,7 @@
 #include "LittleFS.h"
 #include "SPIFFSEditor.h"
 #include "menutree.h"
+#include "timefunctions.h"
 #include "udp.h"
 
 AsyncWebServer server(80);
@@ -137,11 +138,25 @@ void init_web() {
         delay(100);
         ESP.restart();
     });
+
+    server.on("/setalarm", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if (request->hasParam("alarmtime", true)) {
+            uint16_t alarmTime = request->getParam("alarmtime", true)->value().toInt();
+            setDailyAlarm(alarmTime);
+        }
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.on("/getalarm", HTTP_GET, [](AsyncWebServerRequest *request) {
+        uint16_t nextAlarm = getDailyAlarm();
+        request->send(200, "text/plain", String(nextAlarm));
+    });
+
     server.addHandler(handler);
 
     server.onNotFound([](AsyncWebServerRequest *request) {
         if (request->url() == "/" || request->url() == "index.htm") {
-            request->send(200, "text/html", "index.html not found. Did you forget to upload the littlefs partition?");
+            request->send(200, "text/html", "index.html not found. Did you forget to upload the file system partition?");
             return;
         }
         request->send(404);

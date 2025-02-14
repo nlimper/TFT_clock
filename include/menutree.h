@@ -10,7 +10,7 @@
 extern TFT_eSPI tft;
 extern TFT_eSprite spr;
 extern fs::FS *contentFS;
-extern int d1, d2, d3, prevMinute;
+extern volatile int d1, d2, d3, prevMinute;
 extern uint32_t lastmenuactive;
 extern uint16_t alarm_set[8];
 extern Preferences prefs;

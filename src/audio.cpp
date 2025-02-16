@@ -34,10 +34,6 @@ void audioTask(void *pvParameters) {
     }
 }
 
-void audioTask() {
-    audioPlayer.copy();
-}
-
 void initAudio() {
     AudioLogger::instance().begin(Serial, AudioLogger::Error);
     auto config = i2sStream.defaultConfig(TX_MODE);
@@ -103,5 +99,9 @@ void audioVolume(int volume) {
 }
 
 bool audioRunning() {
-    return audioPlayer.isActive();
+    return isStreaming || audioPlayer.isActive();
+}
+
+bool audioStreaming() {
+    return isStreaming;
 }

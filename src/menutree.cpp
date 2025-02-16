@@ -189,6 +189,27 @@ std::tuple<int, int, std::vector<int>> getSiblingInfo(
     return {siblingCount, siblingIndex, childIds};
 }
 
+void handleRotaryOutsideMenu(int increment) {
+    if (hardware.rotary) {
+        if (audioStreaming()) {
+            // adjust volume
+            uint16_t volume = prefs.getUShort("volume", 5);
+            volume = std::clamp(volume + increment, 0, 10);
+            audioVolume(volume);
+            prefs.putUShort("volume", volume);
+            Serial.println("Volume: " + String(volume * 10) + "%");
+            showNotification("Volume: " + String(volume * 10) + "%");
+        } else {
+            // adjust brightness
+            uint16_t brightness = prefs.getUShort("brightness", 15);
+            brightness = std::clamp(brightness + increment, 0, hasLightmeter ? 40 : 20);
+            prefs.putUShort("brightness", brightness);
+            Serial.println("Brightness: " + String(brightness * 5) + "%");
+            showNotification("Brightness: " + String(brightness * 5) + "%");
+        }
+    }
+}
+
 void handleMenuInput(int button) {
     handleMenuInput(button, 1);
 }
@@ -200,7 +221,10 @@ void handleMenuInput(int button, int stepSize) {
     switch (button) {
     case 0:
         // up
-        if (!menuActive) break;
+        if (!menuActive) {
+            handleRotaryOutsideMenu(-1);
+            break;
+        };
         if (inFunction) {
             doFunction(currentItem.functionName, -stepSize);
         } else {
@@ -215,7 +239,10 @@ void handleMenuInput(int button, int stepSize) {
 
     case 1:
         // down
-        if (!menuActive) break;
+        if (!menuActive) {
+            handleRotaryOutsideMenu(1);
+            break;
+        };
         if (inFunction) {
             doFunction(currentItem.functionName, stepSize);
         } else {
@@ -513,7 +540,6 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
          }},
         {"setBrightness", [](int increment) {
              uint16_t brightness = prefs.getUShort("brightness", 15);
-             d3 = 10;
              if (increment == 0) {
                  if (inFunction) {
                      menustate = MENU;
@@ -524,6 +550,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      return;
                  } else {
                      menustate = PREVIEW;
+                     d3 = 10;
                      showValue(String(brightness * 5) + "%", menuLevel + 1, true);
                  }
              } else {
@@ -539,7 +566,6 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
          }},
         {"setMinBrightness", [](int increment) {
              uint16_t brightness = prefs.getULong("minbrightness", 40);
-             d3 = 10;
              if (increment == 0) {
                  if (inFunction) {
                      menustate = MENU;

@@ -89,7 +89,7 @@ uint16_t checkNextAlarm(struct tm timeinfo) {
     uint16_t timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
     uint16_t nextAlarm = 24 * 60; 
 
-    if (alarm_set[dow] != 24 * 60 && alarm_set[dow] > timevalue) {
+    if (alarm_set[dow] != 24 * 60 && alarm_set[dow] >= timevalue) {
         nextAlarm = alarm_set[dow];
     }
     else if (timevalue >= 18 * 60 && alarm_set[(dow + 1) % 7] != 24 * 60 && alarm_set[(dow + 1) % 7] < timevalue) {
@@ -127,8 +127,6 @@ void setDailyAlarm(uint16_t alarmTime) {
     Serial.println("Setting daily alarm to " + String(alarmTime));
     alarm_set[7] = alarmTime;
     prefs.putBytes("alarm_set", alarm_set, sizeof(alarm_set));
-    d1 = 10;
-    prevMinute = -1;
 }
 
 uint16_t getDailyAlarm() {

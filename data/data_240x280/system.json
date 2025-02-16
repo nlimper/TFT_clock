@@ -20,7 +20,7 @@
     "fliporientation": "3",     // orientation where display is flipped
     "luxday": 1,                // lux reference for switching to day mode
     "luxnight": 0.5,              // lux reference for switching to night mode
-    "luxfactor": 50             // lux reference for 100% brightness
+    "luxfactor": 40             // lux reference for 100% brightness
   },
   "menu": [
     { "name": "Alarm set", "children": [

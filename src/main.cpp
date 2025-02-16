@@ -174,6 +174,7 @@ void loop() {
     time(&now);
     localtime_r(&now, &timeinfo);
     int timevalue = timeinfo.tm_hour * 60 + timeinfo.tm_min;
+    static uint16_t oldNextAlarm = 24 * 60;
     uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
     if (menustate == OFF) {
@@ -193,12 +194,13 @@ void loop() {
         }
         prevHour = timeinfo.tm_hour;
 
-        if (isNightMode(timeinfo.tm_hour) && !nightmode) {
+        bool alarmPassed = (timevalue >= alarm_set[timeinfo.tm_wday] || timevalue >= alarm_set[7]);
+        if (isNightMode(timeinfo.tm_hour) && !nightmode && !alarmPassed) {
             Serial.println("Nightmode on");
             nightmode = true;
             initSprites(true);
         }
-        if (!isNightMode(timeinfo.tm_hour) && nightmode && (nextAlarm == 24 * 60 || timevalue >= alarm_set[timeinfo.tm_wday])) {
+        if ((!isNightMode(timeinfo.tm_hour) || alarmPassed) && nightmode) {
             Serial.println("Nightmode off");
             nightmode = false;
             initSprites(true);
@@ -222,13 +224,15 @@ void loop() {
         minute = timeinfo.tm_min;
     }
 
-    if ((minute != prevMinute || d1 == 10 || d2 == 10 || d3 == 10) && menustate != MENU) {
+    if ((minute != prevMinute || ((d1 == 10 || d2 == 10) && menustate == OFF) || d3 == 10 || nextAlarm != oldNextAlarm) && menustate != MENU) {
 
-        if (alarmActive == 0 && timevalue == alarm_set[timeinfo.tm_wday] - 1) {
+        uint16_t alarmStarted = 24 * 60;
+        if (alarmActive == 0 && timevalue == nextAlarm - 1) {
             alarmActive = 1;
         }
-        if (alarmActive == 1 && timevalue == alarm_set[timeinfo.tm_wday]) {
+        if (alarmActive == 1 && timevalue == nextAlarm) {
             alarmActive = 2;
+            alarmStarted = timevalue;
             timerAlarmFlashId = timer.setInterval(500, alarmFlash);
             uint16_t soundid = prefs.getUShort("alarmsound", 0);
             if (nightmode) {
@@ -243,12 +247,12 @@ void loop() {
             doChime();
             timerAlarmSoundId = timer.setInterval(5000, alarmSound);
         }
-        if (alarmActive == 3 && timevalue > alarm_set[timeinfo.tm_wday] + 15) {
+        if (alarmActive == 3 && timevalue > alarmStarted + 15) {
             timer.deleteTimer(timerAlarmSoundId);
             timerAlarmSoundId = timer.setInterval(1000, alarmSound);
             alarmActive = 4;
         }
-        if (alarmActive == 4 && timevalue > alarm_set[timeinfo.tm_wday] + 20) {
+        if (alarmActive == 4 && timevalue > alarmStarted + 20) {
             alarmAck();
         }
 
@@ -291,7 +295,9 @@ void loop() {
             initSprites(true);
         }
 
-        if (d1 != int(hour / 10) && (menustate == OFF)) {
+        if (oldNextAlarm != nextAlarm && nextAlarm == 24 * 60) d1 = 10;
+
+        if (d1 != int(hour / 10) && menustate == OFF) {
             d1 = int(hour / 10);
             if (d1 > 0 || prefs.getUShort("hourmode", 0) == 1) {
                 selectScreen(1);
@@ -299,13 +305,16 @@ void loop() {
             } else {
                 clearScreen(1);
             }
+            deselectScreen(1);
+        }
 
+        if (oldNextAlarm != nextAlarm && menustate == OFF) {
             if (nextAlarm != 24 * 60) {
                 selectScreen(1);
                 showAlarmIcon(nextAlarm);
+                deselectScreen(1);
             }
-
-            deselectScreen(1);
+            oldNextAlarm = nextAlarm;
         }
 
         if (d2 != hour % 10 && (menustate == OFF)) {

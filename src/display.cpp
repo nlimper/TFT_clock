@@ -1,3 +1,4 @@
+
 #include "display.h"
 #include "OpenFontRender.h"
 #include "common.h"
@@ -11,6 +12,7 @@ TFT_eSprite spr = TFT_eSprite(&tft);
 
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 uint8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
+int timerNotificationId;
 
 bool jpgDraw(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
     spr.pushImage(x, y, w, h, bitmap);
@@ -97,14 +99,14 @@ void initSprites(bool reInit) {
     if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
 
     currentFont = prefs.getUShort("font", 0);
+    currentColor = prefs.getUShort("color", 0);
+    int fontr = nightmode ? 255 : colors[currentColor].r;
+    int fontg = nightmode ? 0 : colors[currentColor].g;
+    int fontb = nightmode ? 0 : colors[currentColor].b;
+
     Serial.println("font: " + String(currentFont) + " " + String(fonts[currentFont].file));
-
+    time_t t = millis();
     if (String(fonts[currentFont].file).endsWith(".ttf")) {
-
-        currentColor = prefs.getUShort("color", 0);
-        int fontr = nightmode ? 255 : colors[currentColor].r;
-        int fontg = nightmode ? 0 : colors[currentColor].g;
-        int fontb = nightmode ? 0 : colors[currentColor].b;
 
         loadTruetype(fonts[currentFont].file, fonts[currentFont].size);
         truetype.setFontColor(fontr, fontg, fontb);
@@ -150,6 +152,7 @@ void initSprites(bool reInit) {
         }
         spr.deleteSprite();
     }
+    Serial.println("Sprites loaded in " + String(millis() - t) + "ms");
 }
 
 void clearScreen(uint8_t digitId, bool enableBacklight) {
@@ -287,15 +290,10 @@ void drawDigit(uint8_t digit, bool useSprite) {
 }
 
 void showAlarmIcon(uint16_t nextAlarm) {
-    int fontr = std::clamp(static_cast<int>(colors[currentColor].r * 1.5), 0, 255);
-    int fontg = std::clamp(static_cast<int>(colors[currentColor].g * 1.5), 0, 255);
-    int fontb = std::clamp(static_cast<int>(colors[currentColor].b * 1.5), 0, 255);
+    int fontr = nightmode ? 255 : std::clamp(static_cast<int>(colors[currentColor].r * 1.5), 0, 255);
+    int fontg = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].g * 1.5), 0, 255);
+    int fontb = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].b * 1.5), 0, 255);
 
-    if (nightmode) {
-        fontr = 255;
-        fontg = 0;
-        fontb = 0;
-    }
     // https://www.iconsdb.com/black-icons/alarm-clock-icon.html
     // https://notisrac.github.io/FileToCArray/
     const unsigned char alarmIcon[] PROGMEM =
@@ -310,6 +308,37 @@ void showAlarmIcon(uint16_t nextAlarm) {
     tft.loadFont("/dejavusanscond24", *contentFS);
     tft.drawString(formatTime(nextAlarm), layoutNextalarmX + 40, layoutNextalarmY + 5);
     tft.unloadFont();
+}
+
+void showNotification(String text) {
+    Serial.println("showNotification: " + text);
+    int fontr = nightmode ? 255 : std::clamp(static_cast<int>(colors[currentColor].r * 1.5), 0, 255);
+    int fontg = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].g * 1.5), 0, 255);
+    int fontb = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].b * 1.5), 0, 255);
+
+    // https://www.iconsdb.com/black-icons/info-2-icon.html (24x24 bitmap)
+    // https://notisrac.github.io/FileToCArray/
+    const unsigned char infoIcon[] PROGMEM = {
+        0xff, 0x81, 0xff, 0xfc, 0x00, 0x3f, 0xf8, 0x1c, 0x1f, 0xf1, 0xff, 0x8f, 0xe3, 0xff, 0xc7, 0xc7, 0xe7, 0xe3, 0x8f, 0xc3, 0xf1, 0x8f, 0xc3, 0xf9, 0x9f, 0xe7, 0xf9, 0x1f, 0xff, 0xf8, 0x1f, 0xff, 0xfc, 0x1f, 0xc3, 0xfc, 0x1f, 0xc3, 0xfc, 0x1f, 0xc3, 0xfc, 0x1f, 0xc3, 0xf8, 0x9f, 0xc3, 0xf9, 0x8f, 0xc3, 0xf9, 0xcf, 0xc3, 0xf1, 0xc7, 0xef, 0xe3, 0xe3, 0xff, 0xc7, 0xf1, 0xff, 0x8f, 0xf8, 0x3c, 0x1f, 0xfc, 0x00, 0x3f, 0xff, 0x81, 0xff};
+    uint16_t labelBG = tft.color565(15, 10, 5);
+    selectScreen(1);
+    tft.fillSmoothRoundRect(5, TFT_HEIGHT / 2 - 15, TFT_WIDTH - 10, 30, 5, labelBG, TFT_BLACK);
+    tft.drawSmoothRoundRect(5, TFT_HEIGHT / 2 - 15, 5, 5, TFT_WIDTH - 10, 30, tft.color565(fontr, fontg, fontb), TFT_BLACK);
+    tft.drawBitmap(5 + 5, TFT_HEIGHT / 2 - 15 + 4, infoIcon, 24, 24, labelBG, tft.color565(fontr, fontg, fontb));
+    tft.setTextColor(tft.color565(fontr, fontg, fontb), labelBG);
+    tft.setTextDatum(TC_DATUM);
+    tft.loadFont("/dejavusanscond24", *contentFS);
+    tft.drawString(text, TFT_WIDTH / 2 + 14, TFT_HEIGHT / 2 - 15 + 5);
+    tft.unloadFont();
+    deselectScreen(1);
+    if (timerNotificationId) timer.deleteTimer(timerNotificationId);
+    timerNotificationId = timer.setTimer(1000, resetNotification, 1);
+}
+
+void resetNotification() {
+    Serial.println("resetNotification");
+    d1 = 10;
+    prevMinute = -1;
 }
 
 void debugTFT(String message) {

@@ -28,7 +28,7 @@
             <h2>Set Alarm</h2>
 
             <!-- Time Picker Display -->
-            <div class="time-picker" id="alarm-time" onclick="showTimePicker()">12:00</div>
+            <div class="time-picker" id="alarm-time" onclick="showTimePicker()">--:--</div>
 
             <!-- Modal -->
             <div class="modal-overlay" id="time-overlay" onclick="hideTimePicker()"></div>
@@ -99,7 +99,7 @@
                 .catch(error => console.error('Error:', error));
         }
 
-        let selectedHour = 9, selectedMinute = 0;
+        let selectedHour, selectedMinute;
 
         function showTimePicker() {
             document.getElementById("time-overlay").style.display = "block";

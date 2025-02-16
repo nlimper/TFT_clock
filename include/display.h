@@ -4,6 +4,7 @@
 #include <FS.h>
 #include <LittleFS.h>
 #include <Preferences.h>
+#include <SimpleTimer.h>
 #include <TFT_eSPI.h>
 
 extern TFT_eSprite spr;
@@ -12,6 +13,7 @@ extern TFT_eSPI tft;
 extern OpenFontRender truetype;
 extern TFT_eSprite sprites[10];
 extern Preferences prefs;
+extern SimpleTimer timer;
 
 extern int currentFont, currentColor;
 extern bool nightmode, flipOrientation;
@@ -34,6 +36,8 @@ void showRaster();
 void showColors();
 void drawDigit(uint8_t digit, bool useSprite = true);
 void showAlarmIcon(uint16_t nextAlarm);
+void showNotification(String text);
+void resetNotification();
 void debugTFT(String message);
 
 FT_FILE *OFR_fopen(const char *filename, const char *mode);

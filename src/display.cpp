@@ -3,20 +3,44 @@
 #include "OpenFontRender.h"
 #include "common.h"
 #include <Arduino.h>
-#include <algorithm>
+#include <JPEGDEC.h>
 #include <TFT_eSPI.h>
-#include <TJpg_Decoder.h>
+#include <algorithm>
 
 fs::File ttfFile;
 TFT_eSprite spr = TFT_eSprite(&tft);
+JPEGDEC jpeg;
 
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 uint8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
 int timerNotificationId;
 
-bool jpgDraw(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
-    spr.pushImage(x, y, w, h, bitmap);
-    return true;
+// Custom I/O callbacks for JPEGDEC
+static void *myOpen(const char *filename, int32_t *size) {
+    File *file = new File(contentFS->open(filename, "r")); // Use your filesystem (e.g., SD, SPIFFS)
+    if (!file || !*file) return nullptr;
+    *size = file->size();
+    return (void *)file;
+}
+
+static void myClose(void *handle) {
+    File *file = (File *)handle;
+    if (file) file->close();
+}
+
+static int32_t myRead(JPEGFILE *handle, uint8_t *buf, int32_t len) {
+    File *file = (File *)handle->fHandle;
+    return file->read(buf, len);
+}
+
+static int32_t mySeek(JPEGFILE *handle, int32_t pos) {
+    File *file = (File *)handle->fHandle;
+    return file->seek(pos) ? pos : -1;
+}
+
+int JPEGDraw(JPEGDRAW *pDraw) {
+    spr.pushImage(pDraw->x, pDraw->y, pDraw->iWidth, pDraw->iHeight, pDraw->pPixels);
+    return 1;
 }
 
 void initTFT() {
@@ -123,18 +147,15 @@ void initSprites(bool reInit) {
                 truetype.setDrawer(sprites[i]);
                 truetype.setCursor(posx, posy);
                 truetype.printf("%d", i);
-
             } else {
                 Serial.println("Failed to create sprite " + String(i));
             }
         }
     } else {
 
-        TJpgDec.setJpgScale(1);
-        TJpgDec.setSwapBytes(true);
-        TJpgDec.setCallback(jpgDraw);
         spr.setColorDepth(16);
         spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+        spr.setSwapBytes(true);
         if (spr.getPointer() == nullptr) {
             Serial.println("Failed to create sprite in initSprites");
             return;
@@ -143,8 +164,12 @@ void initSprites(bool reInit) {
             sprites[i].setColorDepth(16);
             sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
             if (sprites[i].created()) {
-                sprites[i].fillSprite(TFT_BLACK);
-                TJpgDec.drawFsJpg(0, 0, fonts[currentFont].file + String(i) + ".jpg", *contentFS);
+                String path = fonts[currentFont].file + String(i) + ".jpg";
+                if (jpeg.open((const char *)path.c_str(), myOpen, myClose, myRead, mySeek, JPEGDraw)) {
+                    jpeg.decode(0, 0, 0);
+                    jpeg.close();
+                }
+                spr.pushSprite(0, 0);
                 memcpy(sprites[i].getPointer(), spr.getPointer(), spr.width() * spr.height() * 2);
             } else {
                 Serial.println("Failed to create sprite " + String(i));
@@ -272,16 +297,18 @@ void drawDigit(uint8_t digit, bool useSprite) {
 
         } else {
 
-            TJpgDec.setJpgScale(1);
-            TJpgDec.setSwapBytes(true);
-            TJpgDec.setCallback(jpgDraw);
-
             spr.setColorDepth(16);
             spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+            spr.setSwapBytes(true);
             if (spr.getPointer() == nullptr) {
                 Serial.println("Failed to create sprite in drawDigit");
             } else {
-                TJpgDec.drawFsJpg(0, 0, fonts[fonttemp].file + String(digit) + ".jpg", *contentFS);
+
+                String path = fonts[fonttemp].file + String(digit) + ".jpg";
+                if (jpeg.open((const char *)path.c_str(), myOpen, myClose, myRead, mySeek, JPEGDraw)) {
+                    jpeg.decode(0, 0, 0);
+                    jpeg.close();
+                }
                 spr.pushSprite(0, 0);
                 spr.deleteSprite();
             }

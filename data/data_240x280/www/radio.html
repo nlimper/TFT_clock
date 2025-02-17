@@ -86,6 +86,7 @@
         // Search with lookahead, filtered by country if selected
         function searchStations() {
             const query = document.getElementById("searchInput").value;
+            if (query.length == 0) loadTopStations();
             if (query.length < 2) return; // Avoid excessive API calls
 
             const country = document.getElementById("countrySelect").value;
@@ -105,30 +106,36 @@
 
         // Display stations and set up lazy loading for audio
         function displayStations(stations) {
-            const list = document.getElementById("stationList");
+            const list = document.getElementById("station-list");
             list.innerHTML = "";
+            const country = document.getElementById("countrySelect").value;
 
             stations.forEach(station => {
                 const li = document.createElement("li");
 
+                const div = document.createElement("div");
                 if (station.favicon) {
                     const img = document.createElement("img");
                     img.src = station.favicon;
                     img.style.maxWidth = "64px";
                     img.style.maxHeight = "64px";
                     img.alt = station.name;
-                    li.appendChild(img);
+                    div.appendChild(img);
+                } else {
+                    const div = document.createElement("div");
                 }
+                li.appendChild(div);
 
-                const text = document.createElement("span");
-                text.textContent = `${station.name} (${station.bitrate} ${station.codec} ${station.country})`;
+                const text = document.createElement("div");
+                //text.textContent = `${station.name} (${station.bitrate} ${station.codec} ${station.country})`;
+                text.innerHTML = `<b>${station.name}</b>`;
+                if (country != station.country) text.innerHTML += ` ${station.country}`;
 
                 const button = document.createElement("button");
                 button.textContent = "Play";
-                button.addEventListener("click", () => playStream(button, station));
+                li.addEventListener("click", () => playStream(button, station));
 
                 li.appendChild(text);
-                li.appendChild(document.createElement("br"));
                 li.appendChild(button);
 
                 list.appendChild(li);
@@ -150,6 +157,66 @@
                 .catch(error => console.error("Error playing stream:", error));
         }
     </script>
+<style>
+    main {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+        padding: 20px;
+        margin: 20px auto;
+    }
+
+    h2,
+    h3 {
+        text-align: center;
+        color: #222;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 15px;
+    }
+
+    select,
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 5px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+
+    #station-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 15px;
+    }
+
+    #station-list li {
+        background: #fafafa;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        padding: 12px;
+        margin-top: 10px;
+        transition: background 0.3s ease;
+    }
+
+    #station-list li:hover {
+        background: #f0f8ff;
+    }
+</style>
 </head>
 
 <body>
@@ -157,22 +224,16 @@
     <div id="header-container"></div>
 
     <main>
-
         <h2>Radio Browser</h2>
 
         <label for="countrySelect">Select Country:</label>
         <select id="countrySelect"></select>
 
-        <br><br>
-
         <label for="searchInput">Search Stations:</label>
-        <input type="text" id="searchInput" placeholder="Type a station name...">
-
-        <br><br>
+        <input type="text" id="searchInput" placeholder="Type a station name..." />
 
         <h3>Stations</h3>
-        <ul id="stationList"></ul>
-
+        <ul id="station-list"></ul>
     </main>
 </body>
 

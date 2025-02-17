@@ -77,10 +77,9 @@ void initTFT() {
 
     for (int i = 0; i < 4; i++) {
         selectScreen(i + 1, true);
-        tft.fillScreen(TFT_RED);
+        tft.fillScreen(TFT_MAROON);
 
-        tft.setTextColor(TFT_YELLOW, TFT_RED);
-
+        tft.setTextColor(TFT_YELLOW, TFT_MAROON);
         tft.setCursor(50, 50, 4);
         tft.println("display " + String(i + 1));
         tft.setRotation(2);
@@ -338,7 +337,6 @@ void showAlarmIcon(uint16_t nextAlarm) {
 }
 
 void showNotification(String text) {
-    Serial.println("showNotification: " + text);
     int fontr = nightmode ? 255 : std::clamp(static_cast<int>(colors[currentColor].r * 1.5), 0, 255);
     int fontg = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].g * 1.5), 0, 255);
     int fontb = nightmode ? 0 : std::clamp(static_cast<int>(colors[currentColor].b * 1.5), 0, 255);
@@ -363,7 +361,6 @@ void showNotification(String text) {
 }
 
 void resetNotification() {
-    Serial.println("resetNotification");
     d1 = 10;
     prevMinute = -1;
 }

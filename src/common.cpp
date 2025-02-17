@@ -14,13 +14,28 @@ BH1750 lightMeter(0x23); // 0x5C
 
 int perc2ledc(int brightness) {
     avgLux = constrain(avgLux, 0, 1000);
+    const float gamma = 2.2f;
+    const uint16_t min_output = prefs.getULong("minbrightness", 40);
+    const uint16_t max_output = 4095;
 
-    float exponent = 1.1;
-    uint16_t min_output = prefs.getULong("minbrightness", 40);
-    float max_output = 4095;
+    // 1. Normalize brightness (0-40 → 0.0-2.0)
+    float brightness_normalized = (float)brightness / 20.0f; // 20=100% (1.0), 40=200% (2.0)
+    brightness_normalized = constrain(brightness_normalized, 0.0f, 2.0f);
 
-    float normalized_value = (float)brightness / 20.0;
-    int output = constrain((float)min_output + (avgLux / config.luxfactor) * (int)((pow(normalized_value, exponent)) * (max_output - min_output)), 0, 4095);
+    // 2. Process ambient light (linear ratio)
+    float ambient_ratio = (float)avgLux / config.luxfactor;
+
+    // 3. Perceptual adjustments
+    float brightness_gamma = pow(brightness_normalized, gamma);
+    float ambient_gamma = pow(ambient_ratio, 0.8f); // Square root for ambient perception
+
+    // 4. Combine factors
+    float output_ratio = brightness_gamma * ambient_gamma;
+
+    // 5. Map to output range (automatically clamps at max_output)
+    int output = min_output + output_ratio * (max_output - min_output);
+    output = constrain(output, min_output, max_output);
+
     if (hardware.invertbacklight) output = 4095 - output;
     return output;
 }

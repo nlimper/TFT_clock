@@ -163,6 +163,39 @@ main {
     background: #0056b3;
 }
 
+/* radio */
+
+#station-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#station-list li {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 5px;
+    align-items: flex-start;
+    margin: 2px;
+    min-height: 64px;
+    background: #eee;
+    cursor: pointer;
+}
+
+#station-list li:hover {
+    background: #ddd;
+}
+
+#station-list div:nth-child(1){
+    width: 64px;
+    height: 64px;
+    margin-right: 10px;
+}
+
+#station-list div:nth-child(2){
+    flex-grow: 1;
+    padding: 0px 15px;
+}
 
 /* Mobile Menu Styles */
 @media (max-width: 768px) {

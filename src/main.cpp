@@ -92,7 +92,7 @@ void alarmAck() {
 }
 
 void displayLux() {
-    Serial.println("Lux: " + String(lux) + " avg: " + String(avgLux));
+    // Serial.println("Lux: " + String(lux) + " avg: " + String(avgLux));
 }
 
 void setup(void) {
@@ -306,6 +306,7 @@ void loop() {
                 clearScreen(1);
             }
             deselectScreen(1);
+            oldNextAlarm = 24 * 60;
         }
 
         if (oldNextAlarm != nextAlarm && menustate == OFF) {

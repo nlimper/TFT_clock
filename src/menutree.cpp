@@ -192,12 +192,12 @@ void handleRotaryOutsideMenu(int increment) {
     if (hardware.rotary) {
         if (audioStreaming()) {
             // adjust volume
-            uint16_t volume = prefs.getUShort("volume", 5);
-            volume = std::clamp(volume + increment, 0, 10);
+            uint16_t volume = prefs.getUShort("volume", 50);
+            volume = std::clamp(volume + 5 * increment, 0, 100);
             audioVolume(volume);
             prefs.putUShort("volume", volume);
-            Serial.println("Volume: " + String(volume * 10) + "%");
-            showNotification("Volume: " + String(volume * 10) + "%");
+            Serial.println("Volume: " + String(volume) + "%");
+            showNotification("Volume: " + String(volume) + "%");
         } else {
             // adjust brightness
             uint16_t brightness = prefs.getUShort("brightness", 15);
@@ -347,7 +347,7 @@ String getValue(const String &name) {
          }},
         {"selectNightFrom", []() { return String(formatTime(prefs.getUShort("night_from", 22) * 60)); }},
         {"selectNightTo", []() { return String(formatTime(prefs.getUShort("night_to", 9) * 60)); }},
-        {"adjustVolume", []() { return String(prefs.getUShort("volume", 5) * 10) + "%"; }},
+        {"adjustVolume", []() { return String(prefs.getUShort("volume", 50)) + "%"; }},
         {"exitMenu", []() { return ""; }},
         {"setYear", []() { return String(time_set[0]); }},
         {"setMonth", []() { return String(time_set[1]); }},
@@ -467,20 +467,23 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              }
          }},
         {"adjustVolume", [](int increment) {
-             uint16_t volume = prefs.getUShort("volume", 5);
+             uint16_t volume = prefs.getUShort("volume", 50);
              if (increment == 0) {
                  if (inFunction) {
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
                      audioStart("bell.mp3");
-                     showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1, true);
+                     showValue(String(static_cast<int>(volume)) + "%", menuLevel + 1, true);
                  }
              } else {
-                 increment = std::clamp(increment, -1, 1);
-                 volume = std::clamp(volume + increment, 0, 10);
-                 audioStart("bell.mp3", volume);
-                 showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1);
+                 volume = std::clamp(volume + increment, 0, 100);
+                 if (!audioRunning()) {
+                    audioStart("bell.mp3", volume);
+                 } else {
+                    audioVolume(volume);
+                 }
+                 showValue(String(static_cast<int>(volume)) + "%", menuLevel + 1);
                  prefs.putUShort("volume", volume);
              }
          }},

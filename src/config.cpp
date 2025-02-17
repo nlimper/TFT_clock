@@ -48,6 +48,7 @@ bool readConfig() {
     config.luxday = configObj["luxday"];
     config.luxnight = configObj["luxnight"];
     config.luxfactor = configObj["luxfactor"];
+    config.maxvolume = configObj["maxvolume"];
 
     JsonObject identityObj = doc["identity"];
     config.deviceName = identityObj["deviceName"].as<String>();

@@ -20,6 +20,7 @@ struct Config {
     float luxday;
     float luxnight;
     float luxfactor;
+    uint8_t maxvolume;
     String deviceName;
     String firmwareName;
 };

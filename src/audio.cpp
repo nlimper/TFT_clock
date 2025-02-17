@@ -4,47 +4,26 @@
 #include "AudioTools/AudioLibs/AudioSourceLittleFS.h"
 #include <Arduino.h>
 #include <Preferences.h>
+#include "config.h"
 
 SemaphoreHandle_t audioMutex;
 TaskHandle_t audioTaskHandle = NULL;
 
 I2SStream i2sStream;
 MP3DecoderHelix decoder;
+VolumeStream volume(i2sStream);
 
 AudioSourceLittleFS source("/", "mp3");
 URLStream streamSource;
 
-EncodedAudioStream dec(&i2sStream, &decoder);
-StreamCopy streamCopier(dec, streamSource);
+EncodedAudioStream dec(&volume, &decoder);
+StreamCopy streamCopier(dec, streamSource, 8192);
 
-AudioPlayer audioPlayer(source, i2sStream, decoder);
+AudioPlayer audioPlayer(source, volume, decoder);
 
 extern Preferences prefs;
 
-void onStreamStarted() {
-    Serial.println("Network stream started");
-    // Add your stream start logic here
-}
-
-void onStreamStopped() {
-    Serial.println("Network stream stopped");
-    // Add your stream stop logic here
-}
-
-void onPlaybackStarted() {
-    Serial.println("Local playback started");
-    // Add your local file start logic here
-}
-
-void onPlaybackStopped() {
-    Serial.println("Local playback stopped");
-    // Add your local file stop logic here
-}
-
 void audioTask(void *pvParameters) {
-    bool last_player_state = false;
-    bool last_streamcopier_state = false;
-
     while (true) {
         if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
             String(streamCopier.copy());
@@ -55,75 +34,88 @@ void audioTask(void *pvParameters) {
             }
             xSemaphoreGive(audioMutex);
         }
-        vTaskDelay(3 / portTICK_PERIOD_MS);
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
 void initAudio() {
     AudioLogger::instance().begin(Serial, AudioLogger::Error);
-    auto config = i2sStream.defaultConfig(TX_MODE);
-    config.pin_bck = AUDIO_BCLK;
-    config.pin_ws = AUDIO_WS;
-    config.pin_data = AUDIO_DATA;
-    i2sStream.begin(config);
-    uint16_t volume = prefs.getUShort("volume", 5);
-    audioPlayer.setVolume((float)volume / 10);
+    auto i2sconfig = i2sStream.defaultConfig(TX_MODE);
+    i2sconfig.pin_bck = AUDIO_BCLK;
+    i2sconfig.pin_ws = AUDIO_WS;
+    i2sconfig.pin_data = AUDIO_DATA;
+    i2sconfig.i2s_format = I2S_LSB_FORMAT;
+    i2sconfig.channels = 1;
+
+    auto vcfg = volume.defaultConfig();
+    vcfg.copyFrom(i2sconfig);
+    volume.begin(vcfg); 
+
+    i2sStream.begin(i2sconfig);
+    uint16_t volumeVal = prefs.getUShort("volume", 50);
+    audioPlayer.begin(-1, false);
+    audioPlayer.setAutoNext(false);
+    audioPlayer.setVolume(1.0f);
+    volume.setVolume(((float)volumeVal / 100) * (config.maxvolume / 100));
 
     audioMutex = xSemaphoreCreateMutex();
-    xTaskCreate(
-        audioTask,       // Task function
-        "Audiotask",     // Name of the task
-        10000,           // Stack size (in words)
-        NULL,            // Task input parameter
-        1,               // Priority of the task
-        &audioTaskHandle // Task handle
+    xTaskCreatePinnedToCore(
+        audioTask,        // Task function
+        "Audiotask",      // Name of the task
+        10000,            // Stack size (in words)
+        NULL,             // Task input parameter
+        1,                // Priority of the task
+        &audioTaskHandle, // Task handle
+        1                 // Core ID (0 or 1)
     );
 }
 
 void audioStart(String filename, int volume) {
+    audioVolume(volume);
     bool isStreaming = filename.startsWith("http");
     if (!isStreaming && audioStreaming()) return;
-    audioVolume(volume);
     if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-        if (audioPlayer.isActive()) audioPlayer.end();
-        audioPlayer.begin(-1, false);
-        audioPlayer.setAutoNext(false);
+        if (audioPlayer.isActive()) {
+            audioPlayer.stop();
+            audioPlayer.end();
+        }
         if (filename != "") {
             if (isStreaming) {
-                audioPlayer.end();
+                audioPlayer.setBufferSize(8192);
                 streamSource.setReadBufferSize(8192);
                 streamSource.setTimeout(4000);
                 streamSource.begin(filename.c_str(), "audio/mp3");
             } else {
                 filename = "/sounds/" + filename;
                 streamSource.end();
-                audioPlayer.end();
+                audioPlayer.setBufferSize(512);
                 audioPlayer.setPath(filename.c_str());
                 audioPlayer.play();
             }
-            Serial.println("Playing " + filename);
         }
-
         xSemaphoreGive(audioMutex);
+        Serial.println("Playing " + filename);
     }
 }
 
 void audioStart(String filename) {
-    uint16_t volume = prefs.getUShort("volume", 5);
+    uint16_t volume = prefs.getUShort("volume", 50);
     audioStart(filename, volume);
 }
 
 void audioStop() {
     if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-        audioPlayer.end();
+        audioPlayer.stop();
         streamSource.end();
         xSemaphoreGive(audioMutex);
     }
 }
 
-void audioVolume(int volume) {
+void audioVolume(int volumeVal) {
+    float volFloat = ((float)volumeVal / 100.0) * ((float)config.maxvolume / 100.0);
     if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-        audioPlayer.setVolume((float)volume / 10);
+        // audioPlayer.setVolume((float)volumeVal / 10);
+        volume.setVolume(volFloat);
         xSemaphoreGive(audioMutex);
     }
 }

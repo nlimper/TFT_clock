@@ -257,7 +257,7 @@ void loop() {
         }
 
         if (prefs.getUShort("minutesound", 0) > 0 && alarmActive == 0 && !isNightMode(timeinfo.tm_hour) && prevMinute != -1) {
-            uint16_t volume = prefs.getUShort("volume", 5);
+            uint16_t volume = prefs.getUShort("volume", 50);
             audioStart("flip.mp3", prefs.getUShort("minutesound", 0) == 1 ? volume / 1.5 : volume);
         }
 

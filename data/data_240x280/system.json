@@ -108,7 +108,7 @@
     [ "Cowbells", "cowbells.mp3" ],
     [ "Moldau", "moldau.mp3" ],
     [ "Wakeup", "wakeup.mp3" ],
-    [ "Radio 2", "http://icecast.omroep.nl/radio2-bb-mp3" ]
+    [ "Radio", "*" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],

@@ -91,10 +91,6 @@ void alarmAck() {
     }
 }
 
-void displayLux() {
-    // Serial.println("Lux: " + String(lux) + " avg: " + String(avgLux));
-}
-
 void setup(void) {
     pinMode(TING_PIN, OUTPUT);
     digitalWrite(TING_PIN, LOW);
@@ -122,7 +118,6 @@ void setup(void) {
     Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
     initLightmeter();
-    if (hasLightmeter) timer.setInterval(1000, displayLux);
 
     debugTFT("Real time clock init");
     if (!rtc.begin()) {
@@ -240,7 +235,7 @@ void loop() {
                 nightmode = false;
                 initSprites(true);
             }
-            audioStart(sounds[soundid].filename);
+            alarmStart(soundid);
         }
         if (alarmActive == 2 && audioRunning() == false) {
             alarmActive = 3;

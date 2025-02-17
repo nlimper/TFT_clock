@@ -82,7 +82,7 @@ void audioStart(String filename, int volume) {
         if (filename != "") {
             if (isStreaming) {
                 audioPlayer.setBufferSize(8192);
-                streamSource.setReadBufferSize(8192);
+                streamSource.setReadBufferSize(16384);
                 streamSource.setTimeout(4000);
                 streamSource.begin(filename.c_str(), "audio/mp3");
             } else {
@@ -113,11 +113,10 @@ void audioStop() {
 
 void audioVolume(int volumeVal) {
     float volFloat = ((float)volumeVal / 100.0) * ((float)config.maxvolume / 100.0);
-    if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-        // audioPlayer.setVolume((float)volumeVal / 10);
+    //if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
         volume.setVolume(volFloat);
-        xSemaphoreGive(audioMutex);
-    }
+        //xSemaphoreGive(audioMutex);
+    //}
 }
 
 bool audioRunning() {
@@ -126,4 +125,12 @@ bool audioRunning() {
 
 bool audioStreaming() {
     return streamSource.httpRequest().connected();
+}
+
+void alarmStart(uint8_t soundid) {
+    if (sounds[soundid].filename == "*") {
+        audioStart(prefs.getString("radiostation", "http://25353.live.streamtheworld.com:80/RADIO10.mp3"));
+    } else {
+        audioStart(sounds[soundid].filename);
+    }
 }

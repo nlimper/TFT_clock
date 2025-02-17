@@ -8,3 +8,5 @@ void audioStop();
 void audioVolume(int volume);
 bool audioRunning();
 bool audioStreaming();
+void alarmStart(uint8_t soundid);
+

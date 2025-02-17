@@ -160,6 +160,7 @@ void init_web() {
     server.on("/playradio", HTTP_POST, [](AsyncWebServerRequest *request) {
         if (request->hasParam("url", true)) {
             String url = request->getParam("url", true)->value();
+            prefs.putString("radiostation", url);
             audioStart(url);
         }
         request->send(200, "text/plain", "OK");

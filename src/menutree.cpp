@@ -221,7 +221,7 @@ void handleMenuInput(int button, int stepSize) {
     case 0:
         // up
         if (!menuActive) {
-            handleRotaryOutsideMenu(-1);
+            handleRotaryOutsideMenu(-stepSize);
             break;
         };
         if (inFunction) {
@@ -239,7 +239,7 @@ void handleMenuInput(int button, int stepSize) {
     case 1:
         // down
         if (!menuActive) {
-            handleRotaryOutsideMenu(1);
+            handleRotaryOutsideMenu(stepSize);
             break;
         };
         if (inFunction) {
@@ -334,8 +334,7 @@ String getValue(const String &name) {
         {"setAlarm5", []() { return formatTime(alarm_set[5]); }},
         {"setAlarm6", []() { return formatTime(alarm_set[6]); }},
         {"setAlarm7", []() { return formatTime(alarm_set[7]); }},
-        {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
-                                                                                                                                : "0:00 AM"; }},
+        {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00": "0:00 AM"; }},
         {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
         {"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
                                                                                                                                         : "Loud"; }},
@@ -423,8 +422,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              uint16_t hourMode = prefs.getUShort("hourmode", 0);
              increment = std::clamp(increment, -1, 1);
              hourMode = (hourMode + increment + 3) % 3;
-             String modeStr = (hourMode == 0) ? "0:00" : (hourMode == 1) ? "00:00"
-                                                                         : "0:00 AM";
+             String modeStr = (hourMode == 0) ? "0:00" : (hourMode == 1) ? "00:00" : "0:00 AM";
              if (increment == 0) {
                  if (inFunction) {
                      clearScreen(menuLevel + 2);
@@ -473,13 +471,13 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
-                     audioStart("bell.mp3");
+                     audioStart("cuckoo.mp3");
                      showValue(String(static_cast<int>(volume)) + "%", menuLevel + 1, true);
                  }
              } else {
                  volume = std::clamp(volume + increment, 0, 100);
                  if (!audioRunning()) {
-                    audioStart("bell.mp3", volume);
+                    audioStart("cuckoo.mp3", volume);
                  } else {
                     audioVolume(volume);
                  }
@@ -648,13 +646,15 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
-                     audioStart(sounds[soundid].filename);
+                     audioStop();
+                     alarmStart(soundid);
                      showValue(sounds[soundid].name, menuLevel + 1, true);
                  }
              } else {
                  increment = std::clamp(increment, -1, 1);
                  soundid = (soundid + increment + soundCount) % soundCount;
-                 audioStart(sounds[soundid].filename);
+                 audioStop();
+                 alarmStart(soundid);
                  showValue(sounds[soundid].name, menuLevel + 1);
                  prefs.putUShort("alarmsound", soundid);
              }
@@ -746,7 +746,6 @@ void doFunction(String &name, int8_t increment) {
 
 void showValue(String value, uint8_t menuLevel, bool initialise) {
     selectScreen(menuLevel + 1);
-    // tft.setFreeFont(&FreeSans9pt7b);
     if (initialise) {
         tft.fillScreen(TFT_BLACK);
         tft.loadFont("/dejavusanscond24", *contentFS);
@@ -761,15 +760,15 @@ void showValue(String value, uint8_t menuLevel, bool initialise) {
             tft.resetViewport();
         }
         tft.unloadFont();
+        tft.loadFont("/dejavusanscond15", *contentFS);
     }
     tft.fillTriangle(TFT_WIDTH / 2, 85, TFT_WIDTH / 2 + 10, 95, TFT_WIDTH / 2 - 10, 95, tft.color565(200, 200, 200));
     tft.fillTriangle(TFT_WIDTH / 2, 137, TFT_WIDTH / 2 + 10, 127, TFT_WIDTH / 2 - 10, 127, tft.color565(200, 200, 200));
     tft.fillRect(50, 100, TFT_WIDTH - 80, 22, spr.color565(40, 40, 40));
-    tft.loadFont("/dejavusanscond15", *contentFS);
     tft.setTextColor(spr.color565(240, 240, 50), spr.color565(40, 40, 40));
     tft.setCursor(53, 104);
     tft.println(value);
-    tft.unloadFont();
+    // tft.unloadFont();
     deselectScreen(menuLevel + 1);
 };
 

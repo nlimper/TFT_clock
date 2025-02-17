@@ -17,6 +17,18 @@
 
             document.getElementById("countrySelect").addEventListener("change", loadTopStations);
             document.getElementById("searchInput").addEventListener("input", searchStations);
+            document.getElementById("stopButton").addEventListener("click", () => {
+            fetch("/audiostop", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+                .then(response => response.text())
+                .then(() => {
+                const buttons = document.querySelectorAll("#station-list button");
+                buttons.forEach(button => button.textContent = "▶");
+                })
+                .catch(error => console.error("Error stopping stream:", error));
+            });
         });
 
         // Load top 25 most clicked stations (global or per country)
@@ -132,7 +144,7 @@
                 if (country != station.country) text.innerHTML += ` ${station.country}`;
 
                 const button = document.createElement("button");
-                button.textContent = "Play";
+                button.textContent = "▶";
                 li.addEventListener("click", () => playStream(button, station));
 
                 li.appendChild(text);
@@ -152,7 +164,9 @@
             })
                 .then(response => response.text())
                 .then(() => {
-                    button.textContent = "Playing";
+                    const buttons = document.querySelectorAll("#station-list button");
+                    buttons.forEach(button => button.textContent = "▶");
+                    button.textContent = "♫";
                 })
                 .catch(error => console.error("Error playing stream:", error));
         }
@@ -226,11 +240,13 @@
     <main>
         <h2>Radio Browser</h2>
 
-        <label for="countrySelect">Select Country:</label>
+        <label for="countrySelect">Select Country</label>
         <select id="countrySelect"></select>
 
-        <label for="searchInput">Search Stations:</label>
+        <label for="searchInput">Search Stations</label>
         <input type="text" id="searchInput" placeholder="Type a station name..." />
+
+        <button id="stopButton">&#9209;</button>
 
         <h3>Stations</h3>
         <ul id="station-list"></ul>

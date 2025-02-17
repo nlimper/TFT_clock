@@ -123,7 +123,6 @@ void initMenu() {
 }
 
 void exitmenu() {
-    audioStop();
     tft.unloadFont();
     spr.unloadFont();
     spr.deleteSprite();
@@ -471,7 +470,6 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              uint16_t volume = prefs.getUShort("volume", 5);
              if (increment == 0) {
                  if (inFunction) {
-                     audioStop();
                      clearScreen(menuLevel + 2);
                      return;
                  } else {
@@ -481,8 +479,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              } else {
                  increment = std::clamp(increment, -1, 1);
                  volume = std::clamp(volume + increment, 0, 10);
-                 audioVolume(volume);
-                 audioStart("bell.mp3");
+                 audioStart("bell.mp3", volume);
                  showValue(String(static_cast<int>(volume * 10)) + "%", menuLevel + 1);
                  prefs.putUShort("volume", volume);
              }

@@ -8,17 +8,18 @@
 SemaphoreHandle_t audioMutex;
 TaskHandle_t audioTaskHandle = NULL;
 
-const char *startFilePath = "/";
-const char *ext = "mp3";
-AudioSourceLittleFS source(startFilePath, ext);
-URLStream streamSource;
 I2SStream i2sStream;
 MP3DecoderHelix decoder;
+
+AudioSourceLittleFS source("/", "mp3");
+URLStream streamSource;
+
 EncodedAudioStream dec(&i2sStream, &decoder);
 StreamCopy streamCopier(dec, streamSource);
+
 AudioPlayer audioPlayer(source, i2sStream, decoder);
+
 extern Preferences prefs;
-bool isStreaming = false;
 
 void onStreamStarted() {
     Serial.println("Network stream started");
@@ -46,48 +47,20 @@ void audioTask(void *pvParameters) {
 
     while (true) {
         if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-            // Get current states using library methods
-            bool current_player_state = audioPlayer.isActive();
-            bool current_streamcopier_state = streamCopier.isActive();
-
-            // Detect local file playback changes
-            if (current_player_state != last_player_state) {
-                if (current_player_state) {
-                    onPlaybackStarted(); // Local file started
-                } else {
-                    onPlaybackStopped(); // Local file ended
-                }
-                last_player_state = current_player_state;
-            }
-
-            // Detect stream changes
-            if (current_streamcopier_state != last_streamcopier_state) {
-                if (current_streamcopier_state) {
-                    onStreamStarted(); // Network stream started
-                } else {
-                    onStreamStopped(); // Network stream ended
-                }
-                last_streamcopier_state = current_streamcopier_state;
-            }
-
-            // Let the library handle what to copy based on its internal state
-            if (current_streamcopier_state) { // If stream source is active
-                streamCopier.copy();
-            }
-            if (current_player_state) {
+            String(streamCopier.copy());
+            if (audioPlayer.isActive()) {
                 if (audioPlayer.copy() == 0) {
                     audioPlayer.end();
                 }
             }
-
             xSemaphoreGive(audioMutex);
         }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(3 / portTICK_PERIOD_MS);
     }
 }
 
 void initAudio() {
-    AudioLogger::instance().begin(Serial, AudioLogger::Warning);
+    AudioLogger::instance().begin(Serial, AudioLogger::Error);
     auto config = i2sStream.defaultConfig(TX_MODE);
     config.pin_bck = AUDIO_BCLK;
     config.pin_ws = AUDIO_WS;
@@ -100,7 +73,7 @@ void initAudio() {
     xTaskCreate(
         audioTask,       // Task function
         "Audiotask",     // Name of the task
-        20000,           // Stack size (in words)
+        10000,           // Stack size (in words)
         NULL,            // Task input parameter
         1,               // Priority of the task
         &audioTaskHandle // Task handle
@@ -108,25 +81,27 @@ void initAudio() {
 }
 
 void audioStart(String filename, int volume) {
+    bool isStreaming = filename.startsWith("http");
+    if (!isStreaming && audioStreaming()) return;
     audioVolume(volume);
     if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
         if (audioPlayer.isActive()) audioPlayer.end();
         audioPlayer.begin(-1, false);
         audioPlayer.setAutoNext(false);
         if (filename != "") {
-            Serial.println("Playing " + filename);
-            isStreaming = filename.startsWith("http");
             if (isStreaming) {
                 audioPlayer.end();
-                streamSource.setReadBufferSize(4096);
+                streamSource.setReadBufferSize(8192);
                 streamSource.setTimeout(4000);
                 streamSource.begin(filename.c_str(), "audio/mp3");
             } else {
                 filename = "/sounds/" + filename;
                 streamSource.end();
+                audioPlayer.end();
                 audioPlayer.setPath(filename.c_str());
                 audioPlayer.play();
             }
+            Serial.println("Playing " + filename);
         }
 
         xSemaphoreGive(audioMutex);
@@ -154,9 +129,9 @@ void audioVolume(int volume) {
 }
 
 bool audioRunning() {
-    return isStreaming || audioPlayer.isActive();
+    return streamSource.httpRequest().connected() || audioPlayer.isActive();
 }
 
 bool audioStreaming() {
-    return isStreaming;
+    return streamSource.httpRequest().connected();
 }

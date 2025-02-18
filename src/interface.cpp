@@ -142,6 +142,9 @@ void interfaceRun() {
     }
 }
 
+const float alpha = 0.2;
+float filteredX = 0, filteredY = 0, filteredZ = 0;
+
 void initAccelerometer() {
     if (!lis.begin(0x19)) {
         Serial.println("Couldnt start lis3dh");
@@ -155,7 +158,14 @@ void initAccelerometer() {
         lis.setClick(2, 100, 50, 30, 255);
         hasAccelerometer = true;
     }
+
+    sensors_event_t event;
+    lis.getEvent(&event);
+    filteredX = event.acceleration.x;
+    filteredY = event.acceleration.y;
+    filteredZ = event.acceleration.z;
 }
+
 uint8_t accelerometerRun(bool active) {
     if (!hasAccelerometer) return 0;
     
@@ -174,17 +184,17 @@ uint8_t accelerometerRun(bool active) {
 
     sensors_event_t event;
     lis.getEvent(&event);
-    float x = event.acceleration.x;
-    float y = event.acceleration.y;
-    float z = event.acceleration.z;
+    filteredX = alpha * event.acceleration.x + (1 - alpha) * filteredX;
+    filteredY = alpha * event.acceleration.y + (1 - alpha) * filteredY;
+    filteredZ = alpha * event.acceleration.z + (1 - alpha) * filteredZ;
 
     uint8_t side = 0;
-    if (abs(x) > abs(y) && abs(x) > abs(z)) {
-        side = (x > 0) ? 1 : 2; // 1: Right side up, 2: Left side up
-    } else if (abs(y) > abs(x) && abs(y) > abs(z)) {
-        side = (y > 0) ? 3 : 4; // 3: Front side up, 4: Back side up
+    if (abs(filteredX) > abs(filteredY) && abs(filteredX) > abs(filteredZ)) {
+        side = (filteredX > 0) ? 1 : 2;
+    } else if (abs(filteredY) > abs(filteredX) && abs(filteredY) > abs(filteredZ)) {
+        side = (filteredY > 0) ? 3 : 4;
     } else {
-        side = (z > 0) ? 5 : 6; // 5: Bottom side up, 6: Top side up
+        side = (filteredZ > 0) ? 5 : 6;
     }
 
     if (active && side != currOrientation) {
@@ -192,17 +202,10 @@ uint8_t accelerometerRun(bool active) {
         currOrientation = side;
         Serial.print("Orientation: ");
         Serial.println(side);
-        if (String(config.fliporientation).indexOf(String(currOrientation)) > -1) {
-            flipOrientation = true;
-            d1 = 10;
-            d2 = 10;
-            d3 = 10;
-            prevMinute = -1;
-        } else if (flipOrientation == true) {
-            flipOrientation = false;
-            d1 = 10;
-            d2 = 10;
-            d3 = 10;
+        bool newFlip = (String(config.fliporientation).indexOf(String(currOrientation)) > -1);
+        if (newFlip != flipOrientation) {
+            flipOrientation = newFlip;
+            d1 = d2 = d3 = 10;
             prevMinute = -1;
         }
     }

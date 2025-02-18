@@ -101,6 +101,7 @@ bool readConfig() {
     JsonArray soundsArray = doc["sounds"];
     soundCount = soundsArray.size();
     for (int i = 0; i < soundCount; i++) {
+        if (!prefs.getBool("enablewifi", false) && sounds[i].filename == "*") continue;
         JsonArray sound = soundsArray[i];
         sounds[i].name = sound[0].as<String>();
         sounds[i].filename = sound[1].as<String>();

@@ -138,6 +138,18 @@ void init_web() {
         Serial.println("config saved");
         request->send(200, "text/plain", "Ok, saved");
 
+        if (jsonObj["ssid"].as<String>() == "factory") {
+            preferences.begin("wifi", false);
+            preferences.putString("ssid", "");
+            preferences.putString("pw", "");
+            preferences.end();
+
+            prefs.putBool("enablewifi", false);
+
+            delay(100);
+            esp_deep_sleep_start();
+        }
+
         delay(100);
         ESP.restart();
     });

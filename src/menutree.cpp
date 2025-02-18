@@ -302,8 +302,9 @@ void handleMenuInput(int button, int stepSize) {
             int ledc_from = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
             manualNightmode = !manualNightmode;
             nightmode = manualNightmode;
+            showNotification(manualNightmode ? "Nightmode On" : "Nightmode Off");
             int ledc_to = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
-            fadeLEDC(1, ledc_from, ledc_to, 600);
+            fadeLEDC(1, ledc_from, ledc_to, 800);
             initSprites(true);
         }
         break;

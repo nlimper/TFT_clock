@@ -9,7 +9,7 @@
     "gps": 0,
     "rotary": 0,                // 1 when rotary encoder is present
     "buttons": [ 40, 0, 7, 6 ], // pins for up, down, enter, back buttons
-    // "rotary": 1,                // 1 when rotary encoder is present
+    // "rotary": 1,             // 1 when rotary encoder is present
     // "buttons": [ 6, 7, 40 ], // pins for up, down, enter, back buttons
     "invertbacklight": 0
   },
@@ -19,9 +19,9 @@
     "wifi": 1,
     "maxvolume": 75,            // maximum volume (in %) to prevent speaker damage
     "fliporientation": "5",     // orientation where display is flipped
-    "luxday": 1,                // lux reference for switching to day mode
-    "luxnight": 0.5,              // lux reference for switching to night mode
-    "luxfactor": 100             // lux reference for 100% brightness
+    "luxday": 3,                // lux reference for switching to day mode
+    "luxnight": 2.7,            // lux reference for switching to night mode
+    "luxfactor": 100            // lux reference for 100% brightness
   },
   "menu": [
     { "name": "Alarm set", "children": [

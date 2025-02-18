@@ -25,21 +25,21 @@ extern Preferences prefs;
 
 void audioTask(void *pvParameters) {
     while (true) {
-        if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
+        //if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
             String(streamCopier.copy());
             if (audioPlayer.isActive()) {
                 if (audioPlayer.copy() == 0) {
                     audioPlayer.end();
                 }
             }
-            xSemaphoreGive(audioMutex);
-        }
+            //xSemaphoreGive(audioMutex);
+        //}
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
 void initAudio() {
-    AudioLogger::instance().begin(Serial, AudioLogger::Error);
+    AudioLogger::instance().begin(Serial, AudioLogger::Warning);
     auto i2sconfig = i2sStream.defaultConfig(TX_MODE);
     i2sconfig.pin_bck = AUDIO_BCLK;
     i2sconfig.pin_ws = AUDIO_WS;
@@ -74,7 +74,7 @@ void audioStart(String filename, int volume) {
     audioVolume(volume);
     bool isStreaming = filename.startsWith("http");
     if (!isStreaming && audioStreaming()) return;
-    if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
+    //if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
         if (audioPlayer.isActive()) {
             audioPlayer.stop();
             audioPlayer.end();
@@ -93,9 +93,9 @@ void audioStart(String filename, int volume) {
                 audioPlayer.play();
             }
         }
-        xSemaphoreGive(audioMutex);
+        //xSemaphoreGive(audioMutex);
         Serial.println("Playing " + filename);
-    }
+    //}
 }
 
 void audioStart(String filename) {

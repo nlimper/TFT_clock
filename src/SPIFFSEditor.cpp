@@ -8,7 +8,7 @@ SPIFFSEditor::SPIFFSEditor(const fs::FS &fs, const String &username, const Strin
     : _fs(fs), _username(username), _password(password), _authenticated(false), _startTime(0) {
 }
 
-bool SPIFFSEditor::canHandle(AsyncWebServerRequest *request) {
+bool SPIFFSEditor::canHandle(AsyncWebServerRequest *request) const {
     if (request->url().equalsIgnoreCase("/edit")) {
         if (request->method() == HTTP_GET) {
             if (request->hasParam("list")) {
@@ -34,7 +34,7 @@ bool SPIFFSEditor::canHandle(AsyncWebServerRequest *request) {
                     return false;
                 }
             }
-            request->addInterestingHeader("If-Modified-Since");
+            // request->addInterestingHeader("If-Modified-Since");
             return true;
         } else if (request->method() == HTTP_POST || request->method() == HTTP_DELETE || request->method() == HTTP_PUT) {
             return true;
@@ -44,7 +44,7 @@ bool SPIFFSEditor::canHandle(AsyncWebServerRequest *request) {
 }
 
 String SPIFFSEditor::listFilesRecursively(String path, bool recursive) {
-    if (recursive && (path == "//www" || path == "//tagtypes" || path == "//current")) return "";
+    if (recursive && (path == "//www")) return "";
 
     File dir = _fs.open(path);
     String output = "";
@@ -91,7 +91,7 @@ void SPIFFSEditor::handleRequest(AsyncWebServerRequest *request) {
             if (request->header("If-Modified-Since").equals(buildTime)) {
                 request->send(304);
             } else {
-                AsyncWebServerResponse *response = request->beginResponse(_fs, "/www/edit.html");
+                AsyncWebServerResponse *response = request->beginResponse(_fs, "/www/edit.html", "text/html");
                 response->addHeader("Last-Modified", buildTime);
                 request->send(response);
             }
@@ -164,4 +164,8 @@ void SPIFFSEditor::handleUpload(AsyncWebServerRequest *request, const String &fi
             request->_tempFile.close();
         }
     }
+}
+
+bool SPIFFSEditor::isRequestHandlerTrivial() const {
+    return false;
 }

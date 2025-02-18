@@ -29,8 +29,6 @@ void init_web() {
 
     wm.connectToWifi();
 
-    server.addHandler(new SPIFFSEditor(*contentFS));
-
     server.on("/reboot", HTTP_POST, [](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", "OK Reboot");
         delay(100);
@@ -180,6 +178,7 @@ void init_web() {
     });
 
     server.addHandler(handler);
+    server.addHandler(new SPIFFSEditor(*contentFS));
 
     server.onNotFound([](AsyncWebServerRequest *request) {
         if (request->url() == "/" || request->url() == "index.htm") {

@@ -17,13 +17,15 @@
     "alarmclock": 1,
     "autobrightness": 1,
     "wifi": 1,
+    "maxvolume": 35,            // maximum volume (in %) to prevent speaker damage
     "fliporientation": "5",     // orientation where display is flipped
-    "luxday": 0.15,
-    "luxnight": 0.11,           // lux reference for night mode
-    "luxfactor": 10             // lux reference for 100% brightness
+    "luxday": 1,                // lux reference for switching to day mode
+    "luxnight": 0.5,              // lux reference for switching to night mode
+    "luxfactor": 100             // lux reference for 100% brightness
   },
   "menu": [
     { "name": "Alarm set", "children": [
+        { "name": "Daily", "function": "setAlarm7", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
@@ -103,7 +105,7 @@
     [ "Cowbells", "cowbells.mp3" ],
     [ "Moldau", "moldau.mp3" ],
     [ "Wakeup", "wakeup.mp3" ],
-    [ "Radio 2", "http://icecast.omroep.nl/radio2-bb-mp3" ]
+    [ "Radio", "*" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],

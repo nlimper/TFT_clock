@@ -4,6 +4,22 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.text())
         .then(html => {
             document.getElementById("header-container").innerHTML = html;
+
+            const hamburger = document.getElementById('hamburger');
+            const menu = document.getElementById('menu');
+
+            hamburger?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu?.classList.toggle('active');
+                hamburger.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (menu?.classList.contains('active') && !e.target.closest('nav')) {
+                    menu.classList.remove('active');
+                    hamburger.classList.remove('active');
+                }
+            });
         })
         .catch(error => console.error("Error loading header:", error));
 
@@ -22,19 +38,4 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 
-    const hamburger = document.getElementById('hamburger');
-    const menu = document.getElementById('menu');
-
-    hamburger?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu?.classList.toggle('active');
-        hamburger.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (menu?.classList.contains('active') && !e.target.closest('nav')) {
-            menu.classList.remove('active');
-            hamburger.classList.remove('active');
-        }
-    });
 });

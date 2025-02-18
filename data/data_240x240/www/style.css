@@ -70,6 +70,144 @@ main {
     margin: 2rem;
 }
 
+.time-picker {
+    display: inline-block;
+    font-size: 20px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+}
+
+.time-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 280px;
+}
+
+.time-selection {
+    display: flex;
+    gap: 20px;
+}
+
+.time-grid {
+    display: grid;
+    gap: 5px;
+}
+
+#hour-grid {
+    grid-template-columns: repeat(4, 1fr);
+    /* Wide grid */
+    flex: 2;
+}
+
+#minute-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* Narrow grid */
+    flex: 1;
+}
+
+.time-option {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    background: #f8f8f8;
+}
+
+.time-option:hover,
+.time-option.selected {
+    background: #ddd;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+}
+
+.modal-footer {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.confirm-btn,
+.reset-btn {
+    padding: 8px 15px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirm-btn:hover,
+.reset-btn:hover {
+    background: #0056b3;
+}
+
+/* radio */
+
+#stopButton {
+    margin: 15px 0px;
+    font-size: 24px;
+    padding: 5px 10px 8px 10px;
+}
+
+#station-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#station-list li {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 5px;
+    align-items: flex-start;
+    margin: 2px;
+    min-height: 64px;
+    background: #eee;
+    cursor: pointer;
+}
+
+#station-list li:hover {
+    background: #ddd;
+}
+
+#station-list li button {
+    font-size: 24px;
+    padding: 0px 8px 4px 10px;
+}
+
+#station-list div:nth-child(1) {
+    width: 64px;
+    height: 64px;
+    margin-right: 10px;
+}
+
+#station-list div:nth-child(2) {
+    flex-grow: 1;
+    padding: 0px 15px;
+}
+
 /* Mobile Menu Styles */
 @media (max-width: 768px) {
     .menu {

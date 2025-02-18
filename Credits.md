@@ -49,7 +49,7 @@
 
 ### **Truetype Fonts**  
 
-These fonts are licensed under the [Open Font License (OFL)](https://openfontlicense.org/).  
+These fonts are all licensed under the [Open Font License (OFL)](https://openfontlicense.org/).  
 
 - **Benne** – Designed by John Harrington  
   [View on Google Fonts](https://fonts.google.com/specimen/Benne)  
@@ -92,9 +92,29 @@ These fonts are licensed under the [Open Font License (OFL)](https://openfontlic
 
 ### **Bitmap digits** 
 
-- ..
+- **Animals** - Derived from an image by kablam
+  [Number Animals](https://www.clipsafari.com/clips/o27962-number-animals)
+  Image License: CC0 No Rights Reserved
 
+- **Balloons** - Images by atevern07
+  [View on Pixabay](https://pixabay.com/illustrations/balloon-foil-balloon-foil-number-7185736/)
+  Free for use under the Pixabay Content License
 
+- **Wood** - Inages by Gerd Altmann/geralt
+  [View on Pixabay](https://pixabay.com/illustrations/pay-wood-one-grain-template-digit-3208068/)
+  Free for use under the Pixabay Content License
 
+- **Nixie** - Images by User:Hellbus
+  [View on WikiMedia](https://commons.wikimedia.org/wiki/File:Nixie2.gif)
+  [Highres version](https://en.wikipedia.org/wiki/User_talk:Hellbus)
+  Creative Commons Attribution-Share Alike 3.0 Unported license
 
 ---  
+
+## **Internet Radio**
+
+Radio station browser uses the public API to a database by [RadioBrowser](https://www.radio-browser.info/)
+Data license: public domain, software license: GPL, server software: open source
+
+---
+

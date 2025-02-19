@@ -113,10 +113,8 @@ void audioStop() {
 
 void audioVolume(int volumeVal) {
     float volFloat = ((float)volumeVal / 100.0) * ((float)config.maxvolume / 100.0);
-    //if (xSemaphoreTake(audioMutex, portMAX_DELAY)) {
-        volume.setVolume(volFloat);
-        //xSemaphoreGive(audioMutex);
-    //}
+    volume.setVolume(volFloat);
+    prefs.putUShort("volume", volumeVal);
 }
 
 bool audioRunning() {

@@ -10,6 +10,7 @@
 
     <script>
         const API_BASE = "http://all.api.radio-browser.info/json";
+        var uuid = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
             await loadCountries();
@@ -18,16 +19,81 @@
             document.getElementById("countrySelect").addEventListener("change", loadTopStations);
             document.getElementById("searchInput").addEventListener("input", searchStations);
             document.getElementById("stopButton").addEventListener("click", () => {
-            fetch("/audiostop", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            })
-                .then(response => response.text())
-                .then(() => {
-                const buttons = document.querySelectorAll("#station-list button");
-                buttons.forEach(button => button.textContent = "▶");
+                fetch("/audiostop", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" }
                 })
-                .catch(error => console.error("Error stopping stream:", error));
+                    .then(response => response.text())
+                    .then(() => {
+                        const buttons = document.querySelectorAll("#station-list button");
+                        buttons.forEach(button => button.textContent = "▶");
+                    })
+                    .catch(error => console.error("Error stopping stream:", error));
+            });
+
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeValue = document.getElementById('volumeValue');
+
+            // Throttle function with trailing call support.
+            function throttleWithTrailing(func, limit) {
+                let lastCall = 0;
+                let trailingTimeout = null;
+                return function (...args) {
+                    const now = Date.now();
+                    const remaining = limit - (now - lastCall);
+                    if (remaining <= 0) {
+                        if (trailingTimeout) {
+                            clearTimeout(trailingTimeout);
+                            trailingTimeout = null;
+                        }
+                        lastCall = now;
+                        func.apply(this, args);
+                    } else if (!trailingTimeout) {
+                        trailingTimeout = setTimeout(() => {
+                            lastCall = Date.now();
+                            trailingTimeout = null;
+                            func.apply(this, args);
+                        }, remaining);
+                    }
+                };
+            }
+
+            // Function to POST volume change using application/x-www-form-urlencoded
+            function postVolume(volume) {
+                const formData = new URLSearchParams();
+                formData.append('volume', volume);
+                fetch('/setvolume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                }).catch(error => console.error('Error setting volume:', error));
+            }
+
+            // Throttled version of postVolume: 300ms limit with trailing call support.
+            const throttledPostVolume = throttleWithTrailing(postVolume, 300);
+
+            // Fetch the initial volume from /getaudio
+            fetch('/getaudio')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.volume !== undefined) {
+                        volumeSlider.value = data.volume;
+                        volumeValue.textContent = data.volume;
+                        uuid = data.uuid;
+                        if (uuid && document.getElementById(uuid)) {
+                            document.getElementById(uuid).querySelector("button").textContent = "♫";
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching audio settings:', error));
+
+            // Listen for slider input events and use the throttled function
+            volumeSlider.addEventListener('input', function () {
+                const volume = volumeSlider.value;
+                volumeValue.textContent = volume;
+                throttledPostVolume(volume);
             });
         });
 
@@ -124,6 +190,7 @@
 
             stations.forEach(station => {
                 const li = document.createElement("li");
+                li.id = station.stationuuid;
 
                 const div = document.createElement("div");
                 if (station.favicon) {
@@ -144,7 +211,7 @@
                 if (country != station.country) text.innerHTML += ` ${station.country}`;
 
                 const button = document.createElement("button");
-                button.textContent = "▶";
+                if (station.stationuuid === uuid) button.textContent = "♫"; else button.textContent = "▶";
                 li.addEventListener("click", () => playStream(button, station));
 
                 li.appendChild(text);
@@ -160,7 +227,7 @@
             fetch("/playradio", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `url=${encodeURIComponent(station.url_resolved)}`
+                body: `url=${encodeURIComponent(station.url_resolved)}&uuid=${station.stationuuid}&name=${encodeURIComponent(station.name)}`
             })
                 .then(response => response.text())
                 .then(() => {
@@ -171,66 +238,6 @@
                 .catch(error => console.error("Error playing stream:", error));
         }
     </script>
-<style>
-    main {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        max-width: 500px;
-        width: 100%;
-        padding: 20px;
-        margin: 20px auto;
-    }
-
-    h2,
-    h3 {
-        text-align: center;
-        color: #222;
-    }
-
-    label {
-        font-weight: bold;
-        display: block;
-        margin-top: 15px;
-    }
-
-    select,
-    input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin-top: 5px;
-        font-size: 1rem;
-        box-sizing: border-box;
-        transition: border-color 0.3s ease;
-    }
-
-    select:focus,
-    input[type="text"]:focus {
-        border-color: #007BFF;
-        outline: none;
-    }
-
-    #station-list {
-        list-style: none;
-        padding: 0;
-        margin-top: 15px;
-    }
-
-    #station-list li {
-        background: #fafafa;
-        border: 1px solid #eee;
-        border-radius: 4px;
-        padding: 12px;
-        margin-top: 10px;
-        transition: background 0.3s ease;
-    }
-
-    #station-list li:hover {
-        background: #f0f8ff;
-    }
-</style>
 </head>
 
 <body>
@@ -248,7 +255,11 @@
         <label for="searchInput">Search Stations</label>
         <input type="text" id="searchInput" placeholder="Type a station name..." />
 
-        <button id="stopButton" alt="Stop music">&#9209;</button>
+        <p>
+            <button id="stopButton" alt="Stop music">&#9209;</button>
+            <input type="range" id="volumeSlider" min="0" max="100">
+            <span id="volumeValue"></span>
+        </p>
 
         <h3>Stations</h3>
         <ul id="station-list"></ul>

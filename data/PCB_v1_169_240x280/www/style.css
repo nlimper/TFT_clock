@@ -67,7 +67,20 @@ header {
 }
 
 main {
-    margin: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    padding: 20px;
+    margin: 20px auto;
+    box-sizing: border-box;
+}
+
+h2,
+h3 {
+    text-align: center;
+    color: #222;
 }
 
 .time-picker {
@@ -163,29 +176,68 @@ main {
     background: #0056b3;
 }
 
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
+}
+
+select,
+input[type="text"],
+input[type="range"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+select:focus,
+input[type="text"]:focus,
+input[type="range"]:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
 /* radio */
 
 #stopButton {
-    margin: 15px 0px;
-    font-size: 24px;
+    margin: 15px 10px 15px 0px;
     padding: 5px 10px 8px 10px;
+}
+
+#volumeSlider {
+    width: auto;
+    vertical-align: middle;
+}
+
+#volumeValue {
+    margin-left: 10px;
+    vertical-align: middle;
+    font-weight: bold;
 }
 
 #station-list {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    margin-top: 15px;
 }
 
 #station-list li {
     display: flex;
-    border: 1px solid #ccc;
     padding: 5px;
     align-items: flex-start;
     margin: 2px;
     min-height: 64px;
-    background: #eee;
+    background: #fafafa;
     cursor: pointer;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    transition: background 0.3s ease;
 }
 
 #station-list li:hover {

@@ -10,14 +10,15 @@ This software powers the [QuadClock](https://www.quadblock.com/) product line, o
 
 ## Features
 - **Multi-display support** – Designed to run on four TFT displays. You can use any display type that's compatible with the TFT_eSPI library.
-- **Custom fonts** – Includes a selection of TrueType fonts for a unique and personalized look.
+- **Custom fonts** – Able to render TrueType fonts, or to display digits from jpeg files.
 - **Adaptive brightness** – Automatic brightness adjustment based on ambient light conditions.
 - **Auto-rotation** – Uses an accelerometer to detect and adjust the display orientation.
-- **7-day alarms** – Set individual alarms for each day of the week.
+- **7-day alarms** – Set individual alarms for each day of the week, and one daily alarm.
 - **Minute & hourly sounds** – Optional chimes and flip sounds to enhance the experience.
 - **Night mode** – Dims the display and shifts to red at night for comfortable viewing.
 - **Physical controls** – Navigate menus and adjust settings with 4 physical buttons or a rotary encoder.
+- **Internet Radio** – By connecting to a WiFi access point, you get a radio alarm clock. You can set your preferred radio station using the web interface.
 
 To build and upload the firmware, clone this repository and open it in VSCode with PlatformIO.
-Don't forget to update the littleFS partition. In `/data` you will find multiple file system partitions. In `platformio.ini` you can select which file system partition you want to use.
+Don't forget to update the littleFS partition. In `/data` you will find multiple file system partitions, one for each build environment.
 The software is open source, so feel free to modify it or add new features. If you have improvements, you can submit a pull request on GitHub, and I’ll review them for inclusion in the main branch.

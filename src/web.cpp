@@ -122,6 +122,17 @@ void init_web() {
         request->send(response);
     });
 
+    server.on("/getaudio", HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        JsonDocument doc;
+        doc["volume"] = prefs.getUShort("volume", 50);
+        doc["url"] = prefs.getString("radiostation", "");
+        doc["uuid"] = prefs.getString("radiouuid", "");
+        doc["streaming"] = audioStreaming();
+        serializeJsonPretty(doc, *response);
+        request->send(response);
+    });
+
     AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/save_wifi_config", [](AsyncWebServerRequest *request, JsonVariant &json) {
         const JsonObject &jsonObj = json.as<JsonObject>();
         Preferences preferences;
@@ -172,6 +183,10 @@ void init_web() {
             String url = request->getParam("url", true)->value();
             prefs.putString("radiostation", url);
             audioStart(url);
+        }
+        if (request->hasParam("uuid", true)) {
+            String uuid = request->getParam("uuid", true)->value();
+            prefs.putString("radiouuid", uuid);
         }
         request->send(200, "text/plain", "OK");
     });

@@ -9,16 +9,6 @@
     <script src="/common.js"></script>
     <style>
 
-.container {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-}
-
 pre {
     text-align: left;
     font-family: monospace;
@@ -81,15 +71,7 @@ option, select {
 
 /* Responsive Design */
 @media (max-width: 500px) {
-    .container {
-        max-width: 95%;
-    }
-
-    .window input {
-        width: 100%; /* Make inputs responsive on smaller screens */
-    }
 }
-
 
     </style>
 </head>
@@ -98,7 +80,7 @@ option, select {
 
     <div id="header-container"></div>
     
-    <div class="container">
+    <main>
         <div class="window">
             <h1>Setup WiFi settings</h1>
             <p>WiFi mac address: <span id="mac">-</span></p>
@@ -116,7 +98,7 @@ DNS             <input type="text" id="dns">
             <button id="connect">Save WiFi settings and reboot</button><br>
 
         </div>
-    </div>
+    </main>
     <script src="setup.js"></script>
 
 </body>

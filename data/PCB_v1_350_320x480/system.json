@@ -15,13 +15,15 @@
     "alarmclock": 1,
     "autobrightness": 1,
     "wifi": 1,
-    "fliporientation": "456",
-    "luxday": 0.15,
-    "luxnight": 0.11,
-    "luxfactor": 5
+    "maxvolume": 35,            // maximum volume (in %) to prevent speaker damage
+    "fliporientation": "456",     // orientation where display is flipped
+    "luxday": 0.15,                // lux reference for switching to day mode
+    "luxnight": 0.11,              // lux reference for switching to night mode
+    "luxfactor": 5             // lux reference for 100% brightness
   },
   "menu": [
     { "name": "Alarm set", "children": [
+        { "name": "Daily", "function": "setAlarm7", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Monday", "function": "setAlarm1", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Tuesday", "function": "setAlarm2", "info": "Long press 'enter'\nto turn off alarm" },
         { "name": "Wednesday", "function": "setAlarm3", "info": "Long press 'enter'\nto turn off alarm" },
@@ -54,7 +56,9 @@
       ] },
     { "name": "Settings", "children": [
         { "name": "Hour format", "function": "selectHourMode" },
-        { "name": "Min.brightness", "function": "setMinBrightness", "info": "This brightness is used in total\ndarkness when a light sensor\nis present." },
+        { "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
+        { "name": "WiFi enable", "function": "setWifi" },
+        { "name": "Version info", "function": "showVersion" },
         { "name": "Exit", "function": "exitMenu" }
       ] },
     { "name": "Exit", "function": "exitMenu" }
@@ -80,21 +84,26 @@
   "colors": [
     [ "Snow White", 255, 255, 255 ],
     [ "Sunshine Yellow", 255, 255, 0 ],
-    [ "Tangerine Dream", 255, 128, 0 ],
-    [ "Crimson Red", 255, 0, 0 ],
-    [ "Emerald Green", 0, 255, 0 ],
-    [ "Ocean Blue", 0, 0, 255 ],
-    [ "Coral Blush", 255, 168, 64 ],
-    [ "Mint Green", 128, 255, 128 ],
-    [ "Lavender Mist", 219, 160, 255 ],
-    [ "Peach Fuzz", 255, 200, 100 ]
+    [ "Pale Lemon", 255, 255, 128 ],
+    [ "Golden Tangerine", 255, 192, 64 ],
+    [ "Burnt Orange", 255, 128, 0 ],
+    [ "Peach Blossom", 255, 215, 180 ],
+    [ "Scarlet Glow", 255, 96, 96 ],
+    [ "Fiery Red", 255, 0, 0 ],
+    [ "Lush Green", 64, 255, 128 ],
+    [ "Neon Lime", 0, 255, 0 ],
+    [ "Sky Lagoon", 64, 192, 255 ],
+    [ "Deep Ocean", 0, 0, 255 ],
+    [ "Soft Lavender", 224, 192, 255 ],
+    [ "Royal Amethyst", 192, 128, 255 ]
   ],
   "sounds": [
     [ "Rooster", "rooster.mp3" ],
     [ "Ptarmigan", "ptarmigan.mp3" ],
     [ "Cowbells", "cowbells.mp3" ],
     [ "Moldau", "moldau.mp3" ],
-    [ "Wakeup", "wakeup.mp3" ]
+    [ "Wakeup", "wakeup.mp3" ],
+    [ "Radio", "*" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],
@@ -117,5 +126,9 @@
   ],
   "layout": {
     "nextalarm": [ 10, 440 ]
+  },
+  "identity": {
+    "deviceName": "Clock",
+    "firmwareName": "TFT_Clock 320x480 3.5"
   }
 }

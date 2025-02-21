@@ -1,5 +1,5 @@
 #include "menutree.h"
-#include "audio.h"
+#include "sound.h"
 #include "common.h"
 #include "display.h"
 #include "timefunctions.h"
@@ -58,6 +58,10 @@ void readMenu(JsonArray menuArray, uint16_t parentId = -1) {
 void drawMenu(uint16_t parentId, uint16_t activeItem, uint8_t menuLevel) {
     spr.setColorDepth(16);
     spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+    if (!spr.created()) {
+        spr.setAttribute(PSRAM_ENABLE, false);
+        spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
+    }
     if (!spr.created()) {
         Serial.println("Failed to create sprite for drawmenu");
         return;
@@ -279,7 +283,7 @@ void handleMenuInput(int button, int stepSize) {
             clearScreen(4);
 
             drawMenu(currentMenuId, activeItemId, menuLevel);
-            ledcWrite(1, hardware.invertbacklight ? 1000 : 3000);
+            setBrightness(1, hardware.invertbacklight ? 1000 : 3000);
         } else {
             selectMenuItem(currentItem.id);
         }
@@ -542,7 +546,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              if (increment == 0) {
                  if (inFunction) {
                      menustate = MENU;
-                     ledcWrite(1, hardware.invertbacklight ? 1000 : 3000);
+                     setBrightness(1, hardware.invertbacklight ? 1000 : 3000);
                      clearScreen(menuLevel + 2);
                      clearScreen(3);
                      clearScreen(4);
@@ -557,7 +561,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                  brightness = std::clamp(brightness + increment, 0, hasLightmeter ? 40 : 20);
                  avgLux = config.luxfactor;
                  int ledc = perc2ledc(brightness);
-                 ledcWrite(1, ledc);
+                 setBrightness(1, ledc);
                  vTaskDelay(10 / portTICK_PERIOD_MS);
                  showValue(String(brightness * 5) + "%", menuLevel + 1);
                  prefs.putUShort("brightness", brightness);
@@ -566,8 +570,11 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
         {"setMinBrightness", [](int increment) {
              uint16_t brightness = prefs.getULong("minbrightness", 40);
              if (increment == 0) {
+                 int digitId = 4;
+                 uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
                  if (inFunction) {
                      menustate = MENU;
+                     removePWM(backlight[screenId]);
                      clearScreen(menuLevel + 2);
                      clearScreen(3);
                      clearScreen(4);
@@ -577,15 +584,13 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      selectScreen(4);
                      drawDigit(0, false);
                      deselectScreen(4);
-                     int digitId = 4;
-                     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
-                     ledcAttachPin(backlight[screenId], 2);
-                     ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                     addPWM(backlight[screenId], 2);
+                     setBrightness(2, hardware.invertbacklight ? 4095 - brightness : brightness);
                      showValue(String(brightness), menuLevel + 1, true);
                  }
              } else {
                  brightness = std::clamp(brightness + increment, 0, 4095);
-                 ledcWrite(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                 setBrightness(2, hardware.invertbacklight ? 4095 - brightness : brightness);
                  vTaskDelay(10 / portTICK_PERIOD_MS);
                  showValue(String(brightness), menuLevel + 1);
                  prefs.putULong("minbrightness", brightness);

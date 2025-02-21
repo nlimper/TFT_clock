@@ -39,6 +39,9 @@ void showAlarmIcon(uint16_t nextAlarm);
 void showNotification(String text);
 void resetNotification();
 void debugTFT(String message);
+void setBrightness(uint8_t channel, uint32_t value);
+void addPWM(uint8_t pin, uint8_t channel);
+void removePWM(uint8_t pin);
 
 FT_FILE *OFR_fopen(const char *filename, const char *mode);
 void OFR_fclose(FT_FILE *stream);

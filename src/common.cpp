@@ -1,13 +1,14 @@
 #include "common.h"
 #include "Wire.h"
 #include "config.h"
+#include "display.h"
 #include "esp_system.h"
 #include <Arduino.h>
 #include <BH1750.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include <Preferences.h>
-#include <esp_adc_cal.h>
+#include <WiFi.h>
 #include <math.h>
 
 BH1750 lightMeter(0x23); // 0x5C
@@ -47,7 +48,7 @@ void fadeLEDC(int channel, int from, int to, int duration_ms) {
         float t = (float)i / steps;
         float easedT = t * t * (3 - 2 * t);
         int value = from + easedT * (to - from);
-        ledcWrite(channel, value);
+        setBrightness(channel, value);
         vTaskDelay(delayTime / portTICK_PERIOD_MS);
     }
 }
@@ -122,7 +123,7 @@ const int WORD_LENGTH = 5;
 String generateSerialWord() {
 
     uint8_t mac[6];
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    WiFi.macAddress(mac);
     uint32_t macValue = 0;
 
     // Use only the last 4 bytes of the MAC address
@@ -155,8 +156,6 @@ String parseDate(const char *dateStr) {
     return String(formattedDate);
 }
 
-#define PHOTODIODE_ADC ((adc1_channel_t)(PHOTODIODE_PIN - 1))
-
 void initLightmeter() {
     if (hardware.bh1750 && lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE_2)) {
         lightMeter.setMTreg(254);
@@ -167,15 +166,15 @@ void initLightmeter() {
         hardware.bh1750 = false;
     }
     if (hardware.photodiode) {
-        adc1_config_width(ADC_WIDTH_BIT_12);
-        adc1_config_channel_atten(PHOTODIODE_ADC, ADC_ATTEN_DB_12);
+        analogReadResolution(12);
+        analogSetPinAttenuation(PHOTODIODE_PIN, ADC_11db);
 
         pinMode(PHOTODIODE_PIN, INPUT_PULLDOWN);
         delay(5);
-        uint16_t pulldownValue = adc1_get_raw(PHOTODIODE_ADC);
+        uint16_t pulldownValue = analogReadMilliVolts(PHOTODIODE_PIN);
         pinMode(PHOTODIODE_PIN, INPUT_PULLUP);
         delay(5);
-        uint16_t pullupValue = adc1_get_raw(PHOTODIODE_ADC);
+        uint16_t pullupValue = analogReadMilliVolts(PHOTODIODE_PIN);
         pinMode(PHOTODIODE_PIN, INPUT);
         if (pulldownValue < 2 && pullupValue > 4093) {
             Serial.println(F("Photodiode NOT found"));
@@ -189,24 +188,24 @@ void initLightmeter() {
 
 // Function to read ADC with automatic attenuation and smoothing
 struct AttenuationSetting {
-    adc_atten_t atten;
+    adc_attenuation_t atten;
     float vFullScale;
 };
 
 const AttenuationSetting attenuationLevels[] = {
-    {ADC_ATTEN_DB_0, 0.75},
-    {ADC_ATTEN_DB_2_5, 1.5},
-    {ADC_ATTEN_DB_6, 2.2},
-    {ADC_ATTEN_DB_12, 3.3}};
+    {ADC_0db, 0.75},
+    {ADC_2_5db, 1.5},
+    {ADC_6db, 2.2},
+    {ADC_11db, 3.3}};
 
-float readPhotodiode(adc1_channel_t channel) {
+float readPhotodiode(uint8_t pin) {
     int rawValue;
     float vFullScale;
 
     // Loop through attenuation levels from lowest to highest
     for (int i = 0; i < 4; i++) {
-        adc1_config_channel_atten(channel, attenuationLevels[i].atten);
-        rawValue = adc1_get_raw(channel);
+        analogSetPinAttenuation(pin, attenuationLevels[i].atten);
+        rawValue = analogReadMilliVolts(pin);
         vFullScale = attenuationLevels[i].vFullScale;
 
         if (rawValue < 3800) { // Stop if value is within range
@@ -223,7 +222,7 @@ float lightsensorRun() {
     if (hasLightmeter && hardware.bh1750) {
         if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
     } else if (hasLightmeter && hardware.photodiode) {
-        lux = readPhotodiode(PHOTODIODE_ADC) * 100; 
+        lux = readPhotodiode(PHOTODIODE_PIN) * 100;
     } else {
         lux = nightmode ? 25 : 75;
     }

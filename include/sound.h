@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-void audioTask(void *pvParameters);
 void initAudio();
+void audioRun();
 void audioStart(String filename);
 void audioStart(String filename, int volume);
 void audioStop();

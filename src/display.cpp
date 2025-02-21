@@ -14,6 +14,7 @@ JPEGDEC jpeg;
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 uint8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
 int timerNotificationId;
+bool isAttached[4] = {true, true, true, true};
 
 // Custom I/O callbacks for JPEGDEC
 static void *myOpen(const char *filename, int32_t *size) {
@@ -43,6 +44,9 @@ int JPEGDraw(JPEGDRAW *pDraw) {
     return 1;
 }
 
+const uint32_t freq = 9700;
+const uint8_t resolution = 12;
+
 void initTFT() {
 
     for (int pin : {DIGIT1, DIGIT2, DIGIT3, DIGIT4}) {
@@ -68,12 +72,18 @@ void initTFT() {
     for (int pin : {DIGIT1, DIGIT2, DIGIT3, DIGIT4}) {
         digitalWrite(pin, HIGH);
     }
-
-    ledcSetup(1, 9700, 12);
-    ledcWrite(1, 2048);
-    ledcSetup(2, 9700, 12);
-    ledcWrite(2, 2048);
-    vTaskDelay(1 / portTICK_PERIOD_MS);
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+    ledcSetup(1, freq, resolution);
+    ledcSetup(2, freq, resolution);
+    for (int pin : {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4}) {
+        addPWM(pin, 1);
+    }
+#else
+    for (int pin : {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4}) {
+        ledcAttachChannel(pin, freq, resolution, 1);
+    }
+#endif
+    setBrightness(1, 2048);
 
     for (int i = 0; i < 4; i++) {
         selectScreen(i + 1, true);
@@ -118,7 +128,6 @@ void initSprites(bool reInit) {
     d2 = 10;
     d3 = 10;
     prevMinute = -1;
-
     if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
 
     currentFont = prefs.getUShort("font", 0);
@@ -182,10 +191,15 @@ void initSprites(bool reInit) {
 void clearScreen(uint8_t digitId, bool enableBacklight) {
     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
     if (enableBacklight) {
-        ledcAttachPin(backlight[screenId], 1);
+        if (!isAttached[screenId]) addPWM(backlight[screenId], 1);
+        isAttached[screenId] = true;
     } else {
-        ledcDetachPin(backlight[screenId]);
-        digitalWrite(backlight[screenId], hardware.invertbacklight ? HIGH : LOW);
+        if (isAttached[screenId]) {
+            removePWM(backlight[screenId]);
+            pinMode(backlight[screenId], OUTPUT);
+            digitalWrite(backlight[screenId], hardware.invertbacklight ? HIGH : LOW);
+        }
+        isAttached[digitId - 1] = false;
     }
     digitalWrite(digits[screenId], LOW);
     vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -196,10 +210,15 @@ void clearScreen(uint8_t digitId, bool enableBacklight) {
 void selectScreen(uint8_t digitId, bool enableBacklight) {
     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
     if (enableBacklight) {
-        ledcAttachPin(backlight[screenId], 1);
+        if (!isAttached[screenId]) addPWM(backlight[screenId], 1);
+        isAttached[digitId - 1] = true;
     } else {
-        ledcDetachPin(backlight[screenId]);
-        digitalWrite(backlight[screenId], hardware.invertbacklight ? HIGH : LOW);
+        if (isAttached[screenId]) {
+            removePWM(backlight[screenId]);
+            pinMode(backlight[screenId], OUTPUT);
+            digitalWrite(backlight[screenId], hardware.invertbacklight ? HIGH : LOW);
+        }
+        isAttached[screenId] = false;
     }
     digitalWrite(digits[screenId], LOW);
     vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -365,6 +384,26 @@ void resetNotification() {
     prevMinute = -1;
 }
 
+void setBrightness(uint8_t channel, uint32_t value) {
+    ledcWrite(channel, value);
+}
+
+void removePWM(uint8_t pin) {
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+    ledcDetachPin(pin);
+#else
+    ledcDetach(pin);
+#endif
+}
+
+void addPWM(uint8_t pin, uint8_t channel) {
+#if ESP_ARDUINO_VERSION_MAJOR == 2
+    ledcAttachPin(pin, channel);
+#else
+    ledcAttachChannel(pin, freq, resolution, channel);
+#endif
+}
+
 void debugTFT(String message) {
     selectScreen(1);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
@@ -373,6 +412,7 @@ void debugTFT(String message) {
     tft.println(message);
     deselectScreen(1);
 }
+
 FT_FILE *OFR_fopen(const char *filename, const char *mode) {
     ttfFile = contentFS->open(filename, mode);
     return &ttfFile;

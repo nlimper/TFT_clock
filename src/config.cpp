@@ -153,7 +153,7 @@ void haltError(String message) {
     tft.setCursor(50, 50, 2);
     tft.println(message);
     digitalWrite(DIGIT1, HIGH);
-    ledcWrite(1, 2048);
+    setBrightness(1, 2048);
     while (1) {
         delay(5000);
         Serial.println(message);

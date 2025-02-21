@@ -9,7 +9,7 @@
 #include <TFT_eSPI.h>
 
 #include "OpenFontRender.h"
-#include "audio.h"
+#include "sound.h"
 #include "common.h"
 #include "config.h"
 #include "display.h"
@@ -69,9 +69,9 @@ void doCuckoo() {
 
 void alarmFlash() {
     if (millis() % 1000 >= 500) {
-        ledcWrite(1, 200);
+        setBrightness(1, 200);
     } else {
-        ledcWrite(1, 4095);
+        setBrightness(1, 4095);
     }
 }
 
@@ -85,7 +85,7 @@ void alarmAck() {
         alarmActive = 0;
         timer.deleteTimer(timerAlarmSoundId);
         timer.deleteTimer(timerAlarmFlashId);
-        ledcWrite(1, perc2ledc(prefs.getUShort("brightness", 15)));
+        setBrightness(1, perc2ledc(prefs.getUShort("brightness", 15)));
         d1 = 10;
         prevMinute = -1;
     }
@@ -163,6 +163,7 @@ void loop() {
 
     timer.run();
     interfaceRun();
+    audioRun();
 
     time_t now;
     struct tm timeinfo;
@@ -178,7 +179,7 @@ void loop() {
         lux = lightsensorRun();
         avgLux = 0.98 * avgLux + 0.02 * lux;
         int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
-        if (alarmActive == 0) ledcWrite(1, ledc);
+        if (alarmActive == 0) setBrightness(1, ledc);
 
         int nightTo = prefs.getUShort("night_to", 9);
         if (manualNightmode && prevHour == (nightTo - 1 + 24) % 24 && timeinfo.tm_hour == nightTo) {

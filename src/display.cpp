@@ -385,7 +385,11 @@ void resetNotification() {
 }
 
 void setBrightness(uint8_t channel, uint32_t value) {
+#if ESP_ARDUINO_VERSION_MAJOR == 2
     ledcWrite(channel, value);
+#else
+    ledcWriteChannel(channel, value);
+#endif
 }
 
 void removePWM(uint8_t pin) {

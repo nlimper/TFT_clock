@@ -15,7 +15,7 @@
     "alarmclock": 1,
     "autobrightness": 1,
     "wifi": 1,
-    "maxvolume": 35,            // maximum volume (in %) to prevent speaker damage
+    "maxvolume": 50,            // maximum volume (in %) to prevent speaker damage
     "fliporientation": "456",     // orientation where display is flipped
     "luxday": 0.15,                // lux reference for switching to day mode
     "luxnight": 0.11,              // lux reference for switching to night mode

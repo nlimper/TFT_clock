@@ -37,7 +37,6 @@ int perc2ledc(int brightness) {
     int output = min_output + output_ratio * (max_output - min_output);
     output = constrain(output, min_output, max_output);
 
-    if (hardware.invertbacklight) output = 4095 - output;
     return output;
 }
 
@@ -218,7 +217,6 @@ float readPhotodiode(uint8_t pin) {
 }
 
 float lightsensorRun() {
-    float lux;
     if (hasLightmeter && hardware.bh1750) {
         if (lightMeter.measurementReady()) lux = lightMeter.readLightLevel();
     } else if (hasLightmeter && hardware.photodiode) {

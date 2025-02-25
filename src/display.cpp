@@ -14,7 +14,7 @@ JPEGDEC jpeg;
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 uint8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
 int timerNotificationId;
-bool isAttached[4] = {true, true, true, true};
+bool isAttached[4] = {false, false, false, false};
 
 // Custom I/O callbacks for JPEGDEC
 static void *myOpen(const char *filename, int32_t *size) {
@@ -44,8 +44,8 @@ int JPEGDraw(JPEGDRAW *pDraw) {
     return 1;
 }
 
-const uint32_t freq = 9700;
 const uint8_t resolution = 12;
+const uint16_t freq = 9700;
 
 void initTFT() {
 
@@ -56,9 +56,9 @@ void initTFT() {
 
     pinMode(TFT_RST, OUTPUT);
     digitalWrite(TFT_RST, LOW);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
     digitalWrite(TFT_RST, HIGH);
-    vTaskDelay(200 / portTICK_PERIOD_MS);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
 
     for (int pin : {DIGIT1, DIGIT2, DIGIT3, DIGIT4}) {
         digitalWrite(pin, LOW);
@@ -68,20 +68,14 @@ void initTFT() {
     vTaskDelay(1 / portTICK_PERIOD_MS);
     tft.initDMA();
     tft.setRotation(0);
-    tft.fillScreen(TFT_DARKGREEN);
+    tft.fillScreen(TFT_BLACK);
+    vTaskDelay(1 / portTICK_PERIOD_MS);
     for (int pin : {DIGIT1, DIGIT2, DIGIT3, DIGIT4}) {
         digitalWrite(pin, HIGH);
     }
 #if ESP_ARDUINO_VERSION_MAJOR == 2
     ledcSetup(1, freq, resolution);
     ledcSetup(2, freq, resolution);
-    for (int pin : {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4}) {
-        addPWM(pin, 1);
-    }
-#else
-    for (int pin : {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4}) {
-        ledcAttachChannel(pin, freq, resolution, 1);
-    }
 #endif
     setBrightness(1, 2048);
 
@@ -128,10 +122,11 @@ void initSprites(bool reInit) {
     d2 = 10;
     d3 = 10;
     prevMinute = -1;
-    if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
-
     currentFont = prefs.getUShort("font", 0);
     currentColor = prefs.getUShort("color", 0);
+
+    if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) return;
+
     int fontr = nightmode ? 255 : colors[currentColor].r;
     int fontg = nightmode ? 0 : colors[currentColor].g;
     int fontb = nightmode ? 0 : colors[currentColor].b;
@@ -199,7 +194,7 @@ void clearScreen(uint8_t digitId, bool enableBacklight) {
             pinMode(backlight[screenId], OUTPUT);
             digitalWrite(backlight[screenId], hardware.invertbacklight ? HIGH : LOW);
         }
-        isAttached[digitId - 1] = false;
+        isAttached[screenId] = false;
     }
     digitalWrite(digits[screenId], LOW);
     vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -211,7 +206,7 @@ void selectScreen(uint8_t digitId, bool enableBacklight) {
     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
     if (enableBacklight) {
         if (!isAttached[screenId]) addPWM(backlight[screenId], 1);
-        isAttached[digitId - 1] = true;
+        isAttached[screenId] = true;
     } else {
         if (isAttached[screenId]) {
             removePWM(backlight[screenId]);
@@ -279,6 +274,7 @@ void drawDigit(uint8_t digit, bool useSprite) {
     if (sprites[digit].created() && useSprite) {
         sprites[digit].pushSprite(0, 0);
     } else {
+        time_t t = millis();
         auto &c = colors[prefs.getUShort("color", 0)];
         int fontr = c.r, fontg = c.g, fontb = c.b;
 
@@ -304,14 +300,17 @@ void drawDigit(uint8_t digit, bool useSprite) {
                 truetype.setDrawer(tft);
             }
             loadTruetype(fonts[fonttemp].file, fonts[fonttemp].size);
+            Serial.println("loadTruetype " + String(millis() - t) + "ms");
             truetype.setFontColor(fontr, fontg, fontb);
             truetype.setAlignment(Align::Center);
             truetype.setCursor(posx, posy);
             truetype.printf("%d", digit);
+            Serial.println("printf " + String(millis() - t) + "ms");
             if (digitspr.created()) {
                 digitspr.pushSprite(0, 0);
                 digitspr.deleteSprite();
             }
+            Serial.println("finished " + String(millis() - t) + "ms");
 
         } else {
 
@@ -327,9 +326,11 @@ void drawDigit(uint8_t digit, bool useSprite) {
                     jpeg.decode(0, 0, 0);
                     jpeg.close();
                 }
+                Serial.println("load jpg " + String(millis() - t) + "ms");
                 spr.pushSprite(0, 0);
                 spr.deleteSprite();
             }
+            Serial.println("finished " + String(millis() - t) + "ms");
         }
     }
 }
@@ -386,9 +387,9 @@ void resetNotification() {
 
 void setBrightness(uint8_t channel, uint32_t value) {
 #if ESP_ARDUINO_VERSION_MAJOR == 2
-    ledcWrite(channel, value);
+    ledcWrite(channel, hardware.invertbacklight ? 4095 - value : value);
 #else
-    ledcWriteChannel(channel, value);
+    ledcWriteChannel(channel, hardware.invertbacklight ? 4095 - value : value);
 #endif
 }
 

@@ -185,7 +185,7 @@ label {
 select,
 input[type="text"],
 input[type="range"] {
-    width: 100%;
+    max-width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -258,6 +258,10 @@ input[type="range"]:focus {
 #station-list div:nth-child(2) {
     flex-grow: 1;
     padding: 0px 15px;
+}
+
+#searchInput {
+    width: 100%;
 }
 
 /* Mobile Menu Styles */

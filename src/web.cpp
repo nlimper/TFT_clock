@@ -194,7 +194,7 @@ void init_web() {
     server.on("/setvolume", HTTP_POST, [](AsyncWebServerRequest *request) {
         if (request->hasParam("volume", true)) {
             int volume = request->getParam("volume", true)->value().toInt();
-            audioVolume(volume);
+            audioVolume(volume, true);
         }
         request->send(200, "text/plain", "OK");
     });

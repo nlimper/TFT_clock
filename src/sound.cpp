@@ -65,8 +65,8 @@ void audio_eof_stream(const char *info) {
 }
 
 void audio_info(const char *info) {
-    Serial.print("info        ");
-    Serial.println(info);
+    // Serial.print("info        ");
+    // Serial.println(info);
 }
 
 void audio_id3data(const char *info) {
@@ -93,9 +93,12 @@ void audioStop() {
     audio.stopSong();
 }
 
-void audioVolume(int volumeVal) {
+void audioVolume(int volumeVal, bool save) {
     float volFloat = ((float)volumeVal) * ((float)config.maxvolume / 100.0);
     audio.setVolume(static_cast<uint8_t>(volFloat));
+    if (save) {
+        prefs.putUShort("volume", volumeVal);
+    }
 }
 
 bool audioRunning() {

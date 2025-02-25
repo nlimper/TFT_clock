@@ -198,8 +198,7 @@ void handleRotaryOutsideMenu(int increment) {
             // adjust volume
             uint16_t volume = prefs.getUShort("volume", 50);
             volume = std::clamp(volume + 5 * increment, 0, 100);
-            audioVolume(volume);
-            prefs.putUShort("volume", volume);
+            audioVolume(volume, true);
             Serial.println("Volume: " + String(volume) + "%");
             showNotification("Volume: " + String(volume) + "%");
         } else {
@@ -283,7 +282,7 @@ void handleMenuInput(int button, int stepSize) {
             clearScreen(4);
 
             drawMenu(currentMenuId, activeItemId, menuLevel);
-            setBrightness(1, hardware.invertbacklight ? 1000 : 3000);
+            setBrightness(1, 3000);
         } else {
             selectMenuItem(currentItem.id);
         }
@@ -546,7 +545,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              if (increment == 0) {
                  if (inFunction) {
                      menustate = MENU;
-                     setBrightness(1, hardware.invertbacklight ? 1000 : 3000);
+                     setBrightness(1, 3000);
                      clearScreen(menuLevel + 2);
                      clearScreen(3);
                      clearScreen(4);
@@ -585,12 +584,12 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      drawDigit(0, false);
                      deselectScreen(4);
                      addPWM(backlight[screenId], 2);
-                     setBrightness(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                     setBrightness(2, brightness);
                      showValue(String(brightness), menuLevel + 1, true);
                  }
              } else {
                  brightness = std::clamp(brightness + increment, 0, 4095);
-                 setBrightness(2, hardware.invertbacklight ? 4095 - brightness : brightness);
+                 setBrightness(2, brightness);
                  vTaskDelay(10 / portTICK_PERIOD_MS);
                  showValue(String(brightness), menuLevel + 1);
                  prefs.putULong("minbrightness", brightness);

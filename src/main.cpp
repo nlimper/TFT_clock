@@ -131,7 +131,6 @@ void setup(void) {
 
     debugTFT("Accelerometer init");
     initAccelerometer();
-    // int timerAccelerometerId = timer.setInterval(1000, accelerometerRun);
 
     if (prefs.getBool("enablewifi", false)) {
         debugTFT("WiFi init");

@@ -16,6 +16,7 @@ Audio audio;
 bool isStreaming;
 
 void initAudio() {
+    if (!hardware.max98357) return;
     audio.setPinout(I2S_BCLK, I2S_WS, I2S_DATA);
     audio.setI2SCommFMT_LSB(true);
     audio.forceMono(true);
@@ -31,10 +32,12 @@ void initAudio() {
 }
 
 void audioRun() {
+    if (!hardware.max98357) return;
     audio.loop();
 }
 
 void audioStart(String filename, int volume) {
+    if (!hardware.max98357) return;
     bool isStream = filename.startsWith("http");
     if (!isStream && audioStreaming()) return;
     if (audio.isRunning()) {
@@ -90,10 +93,12 @@ void audioStart(String filename) {
 }
 
 void audioStop() {
+    if (!hardware.max98357) return;
     audio.stopSong();
 }
 
 void audioVolume(int volumeVal, bool save) {
+    if (!hardware.max98357) return;
     float volFloat = ((float)volumeVal) * ((float)config.maxvolume / 100.0);
     audio.setVolume(static_cast<uint8_t>(volFloat));
     if (save) {
@@ -102,14 +107,17 @@ void audioVolume(int volumeVal, bool save) {
 }
 
 bool audioRunning() {
+    if (!hardware.max98357) return false;
     return audio.isRunning();
 }
 
 bool audioStreaming() {
+    if (!hardware.max98357) return false;
     return isStreaming && audio.isRunning();
 }
 
 void alarmStart(uint8_t soundid) {
+    if (!hardware.max98357) return;
     if (sounds[soundid].filename == "*") {
         audioStart(prefs.getString("radiostation", "http://25353.live.streamtheworld.com:80/RADIO10.mp3"));
     } else {

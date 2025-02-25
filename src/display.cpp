@@ -143,7 +143,13 @@ void initSprites(bool reInit) {
         int posy = TFT_HEIGHT / 2 + fonts[currentFont].posY - fonts[currentFont].size / 2;
 
         for (int i = 0; i < 10; i++) {
-            sprites[i].setColorDepth(16);
+            if (TFT_WIDTH * TFT_HEIGHT > 320 * 240) {
+                // 1 bit color depth works, but no anti-aliasing so less beautiful
+                sprites[i].setColorDepth(1);
+                sprites[i].setBitmapColor(tft.color565(fontr, fontg, fontb), TFT_BLACK);
+            } else {
+                sprites[i].setColorDepth(16);
+            }
             sprites[i].createSprite(TFT_WIDTH, TFT_HEIGHT);
             if (sprites[i].created()) {
                 sprites[i].fillSprite(TFT_BLACK);
@@ -172,7 +178,7 @@ void initSprites(bool reInit) {
                     jpeg.decode(0, 0, 0);
                     jpeg.close();
                 }
-                spr.pushSprite(0, 0);
+                // spr.pushSprite(0, 0);
                 memcpy(sprites[i].getPointer(), spr.getPointer(), spr.width() * spr.height() * 2);
             } else {
                 Serial.println("Failed to create sprite " + String(i));
@@ -271,10 +277,11 @@ void showColors() {
 }
 
 void drawDigit(uint8_t digit, bool useSprite) {
+    time_t t = millis();
     if (sprites[digit].created() && useSprite) {
         sprites[digit].pushSprite(0, 0);
+        Serial.println("draw sprite " + String(millis() - t) + "ms");
     } else {
-        time_t t = millis();
         auto &c = colors[prefs.getUShort("color", 0)];
         int fontr = c.r, fontg = c.g, fontb = c.b;
 

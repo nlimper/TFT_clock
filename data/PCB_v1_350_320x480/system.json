@@ -79,8 +79,10 @@
     [ "OCR-A", "ocra-subset.ttf", 560, -30, 60 ],
     [ "Quicksand", "quicksand-subset.ttf", 610, -18, -90 ],
     [ "Vibur", "vibur-subset.ttf", 570, -7, -40 ],
-    [ "YatraOne", "yatraone-subset.ttf", 570, -12, -90 ]
-  ],
+    [ "YatraOne", "yatraone-subset.ttf", 570, -12, -90 ],
+    [ "Animals", "/bitmap/animals/", 0, 0, 0 ],
+    [ "Wood", "/bitmap/wood/", 0, 0, 0 ]
+],
   "colors": [
     [ "Snow White", 255, 255, 255 ],
     [ "Sunshine Yellow", 255, 255, 0 ],

@@ -59,6 +59,8 @@ void drawMenu(uint16_t parentId, uint16_t activeItem, uint8_t menuLevel) {
     spr.setColorDepth(16);
     spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
     if (!spr.created()) {
+        Serial.println("Failed to create sprite, fallback to 8bpp");
+        spr.setColorDepth(8);
         spr.setAttribute(PSRAM_ENABLE, false);
         spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
     }
@@ -583,6 +585,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                      selectScreen(4);
                      drawDigit(0, false);
                      deselectScreen(4);
+                     removePWM(backlight[screenId]);
                      addPWM(backlight[screenId], 2);
                      setBrightness(2, brightness);
                      showValue(String(brightness), menuLevel + 1, true);

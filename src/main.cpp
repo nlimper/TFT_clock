@@ -96,7 +96,6 @@ void setup(void) {
     digitalWrite(TING_PIN, LOW);
 
     Serial.begin(115200);
-    Serial.setTxTimeoutMs(0);
 
     initTFT();
 

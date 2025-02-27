@@ -4,31 +4,19 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-// Reserve PSRAM globally before Audio is constructed
-#define SPRITE_WIDTH 320
-#define SPRITE_HEIGHT 240
-#define COLOR_BYTES 2
-#define NUM_SPRITES 11
-void *reservedPSRAM = ps_malloc(SPRITE_WIDTH * SPRITE_HEIGHT * COLOR_BYTES * NUM_SPRITES + 20);
-
 extern Preferences prefs;
 Audio audio;
 bool isStreaming;
 
 void initAudio() {
     if (!hardware.max98357) return;
+    audio.setBufferSize(70 * 1024);
     audio.setPinout(I2S_BCLK, I2S_WS, I2S_DATA);
     audio.setI2SCommFMT_LSB(true);
     audio.forceMono(true);
     uint16_t volumeVal = prefs.getUShort("volume", 50);
     audio.setVolumeSteps(100);
     audio.setVolume(static_cast<uint8_t>(((float)volumeVal) * (config.maxvolume / 100)));
-
-    if (reservedPSRAM != NULL) {
-        free(reservedPSRAM);
-        reservedPSRAM = NULL;
-        Serial.println("** Memory freed");
-    }
 }
 
 void audioRun() {

@@ -89,4 +89,3 @@ extern uint16_t layoutNextalarmY;
 
 void initConfig();
 void haltError(String message);
-String generateSerialWord();

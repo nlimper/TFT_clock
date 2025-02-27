@@ -115,14 +115,14 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels) {
 }
 
 const char vowels[] = "aeiouy";
-const char consonants[] = "bcdfghjklmnpqrstvwxyz";
+const char consonants[] = "bcdfghjklmnpqrstvwxjz";
 const int BASE = 120;
 const int WORD_LENGTH = 5;
 
 String generateSerialWord() {
 
     uint8_t mac[6];
-    WiFi.macAddress(mac);
+    Network.macAddress(mac);
     uint32_t macValue = 0;
 
     // Use only the last 4 bytes of the MAC address

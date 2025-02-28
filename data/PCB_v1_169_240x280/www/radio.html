@@ -179,7 +179,8 @@
         function fetchStations(url) {
             fetch(url)
                 .then(response => response.json())
-                .then(data => displayStations(data.filter(station => station.codec === "MP3")));
+                .then(data => displayStations(data));
+                //.then(data => displayStations(data.filter(station => station.codec === "MP3")));
         }
 
         // Display stations and set up lazy loading for audio

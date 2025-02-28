@@ -84,6 +84,7 @@
     [ "YatraOne", "yatraone-subset.ttf", 345, -7, -62 ],
     [ "Animals", "/bitmap/animals/", 0, 0, 0 ],
     [ "Balloons", "/bitmap/balloons/", 0, 0, 0 ],
+    [ "Nixie", "/bitmap/nixie/", 0, 0, 0 ],
     [ "Wood", "/bitmap/wood/", 0, 0, 0 ]
 ],
   "colors": [

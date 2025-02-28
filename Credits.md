@@ -109,6 +109,10 @@ These fonts are all licensed under the [Open Font License (OFL)](https://openfon
   [Highres version](https://en.wikipedia.org/wiki/User_talk:Hellbus)
   Creative Commons Attribution-Share Alike 3.0 Unported license
 
+### **Nixie tube indicator** - creator unknown
+- [View on Pixabay](https://pixabay.com/photos/nixie-tube-indicator-vacuum-digit-3407302/)
+  Free for use under the Pixabay Content License
+
 ---  
 
 ## **Internet Radio**

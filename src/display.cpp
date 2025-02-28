@@ -77,10 +77,10 @@ void initTFT() {
     ledcSetup(1, freq, resolution);
     ledcSetup(2, freq, resolution);
 #endif
-    setBrightness(1, 2048);
 
     for (int i = 0; i < 4; i++) {
         selectScreen(i + 1, true);
+        setBrightness(1, 2048);
         tft.fillScreen(TFT_MAROON);
 
         tft.setTextColor(TFT_YELLOW, TFT_MAROON);
@@ -92,7 +92,7 @@ void initTFT() {
         tft.setRotation(0);
 
         deselectScreen(i + 1);
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(350 / portTICK_PERIOD_MS);
     }
 }
 

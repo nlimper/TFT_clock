@@ -80,7 +80,6 @@ void initTFT() {
 
     for (int i = 0; i < 4; i++) {
         selectScreen(i + 1, true);
-        setBrightness(1, 2048);
         tft.fillScreen(TFT_MAROON);
 
         tft.setTextColor(TFT_YELLOW, TFT_MAROON);
@@ -90,6 +89,7 @@ void initTFT() {
         tft.setCursor(50, 50, 4);
         tft.println("display " + String(i + 1));
         tft.setRotation(0);
+        setBrightness(1, 2048);
 
         deselectScreen(i + 1);
         vTaskDelay(350 / portTICK_PERIOD_MS);

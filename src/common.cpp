@@ -204,14 +204,13 @@ float readPhotodiode(uint8_t pin) {
     // Loop through attenuation levels from lowest to highest
     for (int i = 0; i < 4; i++) {
         analogSetPinAttenuation(pin, attenuationLevels[i].atten);
-        rawValue = analogReadMilliVolts(pin);
+        rawValue = analogRead(pin);
         vFullScale = attenuationLevels[i].vFullScale;
 
         if (rawValue < 3800) { // Stop if value is within range
             break;
         }
     }
-
     // Convert raw ADC reading to voltage
     return (rawValue / 4095.0) * vFullScale;
 }

@@ -221,6 +221,7 @@ void handleMenuInput(int button) {
 void handleMenuInput(int button, int stepSize) {
     MenuItem &currentItem = menuItems[activeItemId];
     MenuItem &currentMenu = menuItems[currentMenuId];
+    if (prefs.getBool("rotarydir", false)) button = (button == 0) ? 1 : (button == 1) ? 0 : button;
 
     switch (button) {
     case 0:
@@ -340,7 +341,8 @@ String getValue(const String &name) {
         {"setAlarm5", []() { return formatTime(alarm_set[5]); }},
         {"setAlarm6", []() { return formatTime(alarm_set[6]); }},
         {"setAlarm7", []() { return formatTime(alarm_set[7]); }},
-        {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00": "0:00 AM"; }},
+        {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
+                                                                                                                                : "0:00 AM"; }},
         {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
         {"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
                                                                                                                                         : "Loud"; }},
@@ -360,6 +362,7 @@ String getValue(const String &name) {
         {"setHour", []() { return String(time_set[3]); }},
         {"setMinute", []() { return String(time_set[4]); }},
         {"setTime", []() { return ""; }},
+        {"setRotaryDir", []() { return prefs.getBool("rotarydir", false) ? "ON" : "OFF"; }},
         {"setWifi", []() { return prefs.getBool("enablewifi", false) ? "ON" : "OFF"; }},
         {"selectFont", []() { return String(fonts[prefs.getUShort("font", 0)].name); }},
         {"setBrightness", []() { return String(prefs.getUShort("brightness", 15) * 5) + "%"; }},
@@ -401,6 +404,22 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
         {"setTime", [](int increment) {
              setSystemTime();
              exitmenu();
+         }},
+        {"setRotaryDir", [](int increment) {
+             bool rotarydir = prefs.getBool("rotarydir", false);
+             if (increment != 0) rotarydir = !rotarydir;
+             String modeStr = (rotarydir) ? "ON" : "OFF";
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 prefs.putBool("rotarydir", rotarydir);
+                 showValue(modeStr, menuLevel + 1);
+             }
          }},
         {"setWifi", [](int increment) {
              bool wifimode = prefs.getBool("enablewifi", false);
@@ -483,9 +502,9 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              } else {
                  volume = std::clamp(volume + increment, 0, 100);
                  if (!audioRunning()) {
-                    audioStart("cuckoo.mp3", volume);
+                     audioStart("cuckoo.mp3", volume);
                  } else {
-                    audioVolume(volume);
+                     audioVolume(volume);
                  }
                  showValue(String(static_cast<int>(volume)) + "%", menuLevel + 1);
                  prefs.putUShort("volume", volume);

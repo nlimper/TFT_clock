@@ -37,7 +37,7 @@ RTC_DS3231 rtc;
 
 int currentFont = -1, currentColor = -1;
 uint32_t lastmenuactive = 0;
-volatile int prevMinute = -1, prevHour = -1;
+volatile int prevMinute = -1, prevHour = -1, prevSecond = -1;
 volatile int d1 = 10, d2 = 10, d3 = 10;
 int hour, minute;
 int menulevel = 1;
@@ -155,6 +155,7 @@ void setup(void) {
     setESP32RTCfromDS3231();
 
     debugTFT("Finished!");
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 }
 
 void loop() {
@@ -205,6 +206,11 @@ void loop() {
         exitmenu();
     }
 
+    if (prevSecond != timeinfo.tm_sec) {
+        // debug space
+        prevSecond = timeinfo.tm_sec;
+    }
+    
     if (menustate == PREVIEW) {
         hour = timeinfo.tm_hour;
         minute = timeinfo.tm_sec;
@@ -221,7 +227,7 @@ void loop() {
     if ((minute != prevMinute || ((d1 == 10 || d2 == 10) && menustate == OFF) || d3 == 10 || nextAlarm != oldNextAlarm) && menustate != MENU) {
 
         uint16_t alarmStarted = 24 * 60;
-        if (alarmActive == 0 && timevalue == nextAlarm - 1) {
+        if (alarmActive == 0 && timevalue == nextAlarm - 1 && nextAlarm != 24 * 60) {
             alarmActive = 1;
         }
         if (alarmActive == 1 && timevalue == nextAlarm) {

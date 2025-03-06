@@ -19,6 +19,8 @@ This software powers the [QuadClock](https://www.quadblock.com/) product line, o
 - **Physical controls** – Navigate menus and adjust settings with 4 physical buttons or a rotary encoder.
 - **Internet Radio** – By connecting to a WiFi access point, you get a radio alarm clock. You can set your preferred radio station using the web interface.
 
-To build and upload the firmware, clone this repository and open it in VSCode with PlatformIO.
-Don't forget to update the littleFS partition. In `/data` you will find multiple file system partitions, one for each build environment.
-The software is open source, so feel free to modify it or add new features. If you have improvements, you can submit a pull request on GitHub, and I’ll review them for inclusion in the main branch.
+To build and upload the firmware, clone this repository and open it in VSCode with PlatformIO. To build and upload the firmware, clone this repository and open it in VSCode with PlatformIO. The project relies on the I2S library, which needs to run on Arduino 3.x. Therefore, it uses [pioarduino](https://github.com/pioarduino/platform-espressif32), a community-driven platform compatible with PlatformIO, as PlatformIO is still using Arduino 2.x .
+
+Don't forget to upload the LittleFS partition. In `/data,` you'll find multiple filesystem partitions, one for each build environment. The correct partition is selected automatically.
+
+The software is open source, so feel free to modify it or add new features. If you have improvements, you can submit a pull request on GitHub, and I'll review it for inclusion in the main branch.

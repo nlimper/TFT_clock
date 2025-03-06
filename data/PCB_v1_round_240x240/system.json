@@ -132,8 +132,8 @@
     "nextalarm": [ 60, 185 ]
   },
   "identity": {
-    "deviceName": "Clock",
-    "firmwareName": "TFT_Clock 240x240 round"
+    "deviceName": "QuadClock Orbix",
+    "firmwareName": "PCB_v1_round_240x240"
   }
 }
 

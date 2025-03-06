@@ -130,7 +130,7 @@
     "nextalarm": [ 10, 440 ]
   },
   "identity": {
-    "deviceName": "Clock",
-    "firmwareName": "TFT_Clock 320x480 3.5"
+    "deviceName": "QuadClock Grandis",
+    "firmwareName": "PCB_v1_350_320x480"
   }
 }

@@ -56,6 +56,14 @@ for env_name, metadata in environments.items():
         else:
             print(f"⚠️ Filesystem image not found for {env_name} at {src_littlefs}")
 
+    # Clean cache.
+    firmware_cmd = f'platformio run --environment {env_name} --target clean'
+    print("Clean cache:", firmware_cmd)
+    result = subprocess.run(firmware_cmd, shell=True)
+    if result.returncode != 0:
+        print(f"❌ Clean failed for {env_name}.")
+        continue
+
     # 2. Build the firmware.
     firmware_cmd = f'platformio run --environment {env_name}'
     print("Running firmware build command:", firmware_cmd)
@@ -101,8 +109,8 @@ for env_name, metadata in environments.items():
                 {
                     "chipFamily": "ESP32-S3",
                     "parts": [
-                        {"path": f"../firmware/{date_str}-bootloader.bin", "offset": 0},
-                        {"path": f"../firmware/{date_str}-partitions.bin", "offset": 32768},
+                        {"path": f"../firmware/{date_str}-{env_name}-bootloader.bin", "offset": 0},
+                        {"path": f"../firmware/{date_str}-{env_name}-partitions.bin", "offset": 32768},
                         {"path": f"../firmware/{date_str}-{env_name}-firmware.bin", "offset": 65536},
                         {"path": f"../firmware/{date_str}-{env_name}-littlefs.bin", "offset": metadata["littlefs_offset"]},
                     ]

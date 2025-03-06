@@ -135,7 +135,7 @@
     "nextalarm": [ 60, 202 ]
   },
   "identity": {
-    "deviceName": "Clock",
-    "firmwareName": "TFT_Clock 240x280 1.69"
+    "deviceName": "QuadClock Bricta",
+    "firmwareName": "PCB_v1_169_240x280"
   }
 }

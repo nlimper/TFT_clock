@@ -285,10 +285,6 @@ void WifiManager::WiFiEvent(WiFiEvent_t event) {
 #define STR_IMPL(x) #x
 #define STR(x) STR_IMPL(x)
 
-#ifndef BUILD_ENV_NAME
-#define BUILD_ENV_NAME unknown
-#endif
-
 std::vector<std::string> getLocalUrl() {
     return {String("http://" + WiFi.localIP().toString()).c_str()};
 }
@@ -342,7 +338,7 @@ bool onCommandCallback(improv::ImprovCommand cmd) {
             // Firmware version
             parseDate(__DATE__).c_str(),
             // Hardware chip/variant
-            STR(BUILD_ENV_NAME),
+            ESP.getChipModel(),
             // Device name
             config.firmwareName.c_str()};
         std::vector<uint8_t> data = improv::build_rpc_response(improv::GET_DEVICE_INFO, infos, false);

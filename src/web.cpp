@@ -66,7 +66,7 @@ void init_web() {
         for (size_t i = 0; i < numKeys; i++) {
             doc[keys[i]] = preferences.getString(keys[i], "");
         }
-        doc["mac"] = WiFi.macAddress();
+        doc["mac"] = Network.macAddress();
         serializeJson(doc, *response);
         request->send(response);
     });

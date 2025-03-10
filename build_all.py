@@ -104,7 +104,7 @@ for env_name, metadata in environments.items():
             "name": metadata["name"],
             "version": date_str,
             "new_install_prompt_erase": True,
-            "new_install_improv_wait_time": 3,
+            "new_install_improv_wait_time": 8,
             "builds": [
                 {
                     "chipFamily": "ESP32-S3",

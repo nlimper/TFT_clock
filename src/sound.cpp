@@ -10,7 +10,7 @@ bool isStreaming;
 
 void initAudio() {
     if (!hardware.max98357) return;
-    audio.setBufferSize(300 * 1024);
+    audio.setBufferSize(100 * 1024);
     audio.setPinout(I2S_BCLK, I2S_WS, I2S_DATA);
     audio.setI2SCommFMT_LSB(true);
     audio.forceMono(true);

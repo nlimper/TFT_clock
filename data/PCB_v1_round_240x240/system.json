@@ -125,6 +125,7 @@
     [ "AWST", "AWST-8", "Perth" ],
     [ "ACST", "ACST-9:30ACDT,M10.1.0,M4.1.0/3", "Adelaide" ],
     [ "AEST", "AEST-10AEDT,M10.1.0,M4.1.0/3", "Sydney" ],
+    [ "ICT", "ICT-7", "Bangkok" ],
     [ "CST", "CST-8", "Beijing" ],
     [ "JST", "JST-9", "Tokyo" ]
   ],

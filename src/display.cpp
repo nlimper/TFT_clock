@@ -4,6 +4,7 @@
 #include "common.h"
 #include <Arduino.h>
 #include <JPEGDEC.h>
+#include <Preferences.h>
 #include <TFT_eSPI.h>
 #include <algorithm>
 
@@ -191,7 +192,11 @@ void initSprites(bool reInit) {
 
 void clearScreen(uint8_t digitId, bool enableBacklight) {
     uint8_t screenId = flipOrientation ? 3 - (digitId - 1) : digitId - 1;
-    if (enableBacklight) {
+    
+    // Check backlight mode setting - if "Always On", force enableBacklight to true
+    bool shouldEnableBacklight = enableBacklight || (prefs.getUShort("backlightmode", 0) == 1);
+    
+    if (shouldEnableBacklight) {
         if (!isAttached[screenId]) addPWM(backlight[screenId], 1);
         isAttached[screenId] = true;
     } else {

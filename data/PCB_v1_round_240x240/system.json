@@ -58,6 +58,7 @@
       ] },
     { "name": "Settings", "children": [
         { "name": "Hour format", "function": "selectHourMode" },
+        { "name": "Backlight", "function": "selectBacklightMode", "info": "Auto turns off backlight\nfor empty displays.\nAlways On keeps all\nbacklights active." },
         { "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
         { "name": "WiFi enable", "function": "setWifi" },
         { "name": "Version info", "function": "showVersion" },
@@ -137,4 +138,3 @@
     "firmwareName": "PCB_v1_round_240x240"
   }
 }
-

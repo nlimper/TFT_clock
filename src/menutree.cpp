@@ -285,7 +285,7 @@ void handleMenuInput(int button, int stepSize) {
             clearScreen(4);
 
             drawMenu(currentMenuId, activeItemId, menuLevel);
-            setBrightness(1, 3000);
+            setBrightness(1, 2048);
         } else {
             selectMenuItem(currentItem.id);
         }
@@ -344,6 +344,7 @@ String getValue(const String &name) {
         {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
                                                                                                                                 : "0:00 AM"; }},
         {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
+        {"selectBacklightMode", []() { return prefs.getUShort("backlightmode", 0) == 0 ? "Auto" : "Always On"; }},
         {"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
                                                                                                                                         : "Loud"; }},
         {"selectHourSound", []() {
@@ -460,6 +461,23 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                  prefs.putUShort("hourmode", hourMode);
              }
          }},
+        {"selectBacklightMode", [](int increment) {
+             uint16_t backlightMode = prefs.getUShort("backlightmode", 0);
+             increment = std::clamp(increment, -1, 1);
+             backlightMode = (backlightMode + increment + 2) % 2;
+             String modeStr = (backlightMode == 0) ? "Auto" : "Always On";
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(modeStr, menuLevel + 1, true);
+                 }
+             } else {
+                 showValue(modeStr, menuLevel + 1);
+                 prefs.putUShort("backlightmode", backlightMode);
+             }
+         }},
         {"selectHourSound", [](int increment) {
              uint16_t hourSound = prefs.getUShort("hoursound", 0);
              increment = std::clamp(increment, -1, 1);
@@ -566,7 +584,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              if (increment == 0) {
                  if (inFunction) {
                      menustate = MENU;
-                     setBrightness(1, 3000);
+                     setBrightness(1, 2048);
                      clearScreen(menuLevel + 2);
                      clearScreen(3);
                      clearScreen(4);

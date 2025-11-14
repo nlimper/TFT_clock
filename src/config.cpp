@@ -11,13 +11,15 @@ Config config;
 Hardware hardware;
 Font fonts[20];
 Color colors[30];
+#ifndef DISABLE_AUDIO
 Sound sounds[20];
+uint8_t soundCount;
+#endif
 Button buttons[4];
 TimeZone timezones[20];
 
 uint8_t fontCount;
 uint8_t colorCount;
-uint8_t soundCount;
 uint8_t buttonCount;
 uint8_t timeZoneCount;
 
@@ -98,6 +100,7 @@ bool readConfig() {
     }
 
     // Parse 'sounds'
+#ifndef DISABLE_AUDIO
     JsonArray soundsArray = doc["sounds"];
     soundCount = soundsArray.size();
     for (int i = 0; i < soundCount; i++) {
@@ -106,6 +109,7 @@ bool readConfig() {
         sounds[i].name = sound[0].as<String>();
         sounds[i].filename = sound[1].as<String>();
     }
+#endif
 
     // Parse 'timezone'
     JsonArray timezoneArray = doc["timezone"];

@@ -196,6 +196,7 @@ std::tuple<int, int, std::vector<int>> getSiblingInfo(
 
 void handleRotaryOutsideMenu(int increment) {
     if (hardware.rotary) {
+#ifndef DISABLE_AUDIO
         if (audioStreaming()) {
             // adjust volume
             uint16_t volume = prefs.getUShort("volume", 50);
@@ -203,7 +204,9 @@ void handleRotaryOutsideMenu(int increment) {
             audioVolume(volume, true);
             Serial.println("Volume: " + String(volume) + "%");
             showNotification("Volume: " + String(volume) + "%");
-        } else {
+        } else
+#endif
+        {
             // adjust brightness
             uint16_t brightness = prefs.getUShort("brightness", 15);
             brightness = std::clamp(brightness + increment, 0, hasLightmeter ? 40 : 20);
@@ -343,7 +346,9 @@ String getValue(const String &name) {
         {"setAlarm7", []() { return formatTime(alarm_set[7]); }},
         {"selectHourMode", []() { return (prefs.getUShort("hourmode", 0) == 0) ? "0:00" : (prefs.getUShort("hourmode", 0) == 1) ? "00:00"
                                                                                                                                 : "0:00 AM"; }},
+#ifndef DISABLE_AUDIO
         {"selectAlarmSound", []() { return String(sounds[prefs.getUShort("alarmsound", 0)].name); }},
+#endif
         {"selectBacklightMode", []() { return prefs.getUShort("backlightmode", 0) == 0 ? "Auto" : "Always On"; }},
         {"selectMinuteSound", []() { return (prefs.getUShort("minutesound", 0) == 0) ? "OFF" : (prefs.getUShort("minutesound", 0) == 1) ? "Soft"
                                                                                                                                         : "Loud"; }},
@@ -707,6 +712,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                  prefs.putUShort("font", font);
              }
          }},
+#ifndef DISABLE_AUDIO
         {"selectAlarmSound", [](int increment) {
              uint16_t soundid = prefs.getUShort("alarmsound", 0);
              if (increment == 0) {
@@ -728,6 +734,7 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
                  prefs.putUShort("alarmsound", soundid);
              }
          }},
+#endif
         {"setTimezone", [](int increment) {
              uint16_t tzid = prefs.getUShort("timezone", 1);
              if (increment == 0) {

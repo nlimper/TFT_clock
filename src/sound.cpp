@@ -1,3 +1,5 @@
+#ifndef DISABLE_AUDIO
+
 #include "sound.h"
 #include "audio.h"
 #include "config.h"
@@ -112,3 +114,5 @@ void alarmStart(uint8_t soundid) {
         audioStart(sounds[soundid].filename);
     }
 }
+
+#endif // DISABLE_AUDIO

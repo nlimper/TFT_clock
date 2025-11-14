@@ -75,12 +75,14 @@ extern Config config;
 extern Hardware hardware;
 extern Font fonts[20];
 extern Color colors[30];
+#ifndef DISABLE_AUDIO
 extern Sound sounds[20];
+extern uint8_t soundCount;
+#endif
 extern Button buttons[4];
 extern TimeZone timezones[20];
 extern uint8_t fontCount;
 extern uint8_t colorCount;
-extern uint8_t soundCount;
 extern uint8_t buttonCount;
 extern uint8_t timeZoneCount;
 

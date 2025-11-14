@@ -430,12 +430,14 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              if (increment == 0) {
                  if (inFunction) {
                      clearScreen(menuLevel + 2);
+#ifndef DISABLE_WIFI
                      if (wifimode) {
                          init_web();
                      } else {
                          WiFi.disconnect(false, true);
                          WiFi.mode(WIFI_OFF);
                      }
+#endif
                      return;
                  } else {
                      showValue(modeStr, menuLevel + 1, true);
@@ -888,10 +890,12 @@ void showVersion(int8_t digitId) {
     printTableRow("Lightmeter", "0", y += lineHeight);
     printTableRow("Orientation", "0", y += lineHeight);
     y += lineHeight;
+#ifndef DISABLE_WIFI
     if (WiFi.localIP().toString() != "0.0.0.0") {
         printTableRow("SSID", WiFi.SSID(), y += lineHeight);
         printTableRow("IP", WiFi.localIP().toString(), y += lineHeight);
     }
+#endif
     tft.resetViewport();
     deselectScreen(digitId + 1);
 

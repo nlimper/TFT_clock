@@ -9,7 +9,9 @@
 #ifndef WIFI_MANAGER_H
 #define WIFI_MANAGER_H
 
+#ifndef DISABLE_WIFI
 #include <WiFi.h>
+#endif
 
 enum WifiStatus {
     NOINIT,
@@ -18,6 +20,19 @@ enum WifiStatus {
     WAIT_RECONNECT,
     AP
 };
+
+#ifdef DISABLE_WIFI
+// Stub implementation for when WiFi is disabled
+class WifiManager {
+public:
+    WifiManager() {}
+    void poll() {}
+    bool connectToWifi() { return false; }
+    bool connectToWifi(String, String, bool) { return false; }
+    WifiStatus wifiStatus = NOINIT;
+    static uint8_t apClients;
+};
+#else
 
 class WifiManager {
 private:
@@ -55,7 +70,7 @@ public:
     static void WiFiEvent(WiFiEvent_t event);
 };
 
-#endif
+#endif // DISABLE_WIFI
 
 extern WifiManager wm;
 
@@ -127,3 +142,5 @@ void set_error(improv::Error error);
 void getAvailableWifiNetworks();
 bool onCommandCallback(improv::ImprovCommand cmd);
 void onErrorCallback(improv::Error err);
+
+#endif // WIFI_MANAGER_H

@@ -131,12 +131,14 @@ void setup(void) {
     debugTFT("Accelerometer init");
     initAccelerometer();
 
+#ifndef DISABLE_WIFI
     if (prefs.getBool("enablewifi", false)) {
         debugTFT("WiFi init");
         init_web();
     } else {
         WiFi.mode(WIFI_OFF);
     }
+#endif
 
     debugTFT("Audio init");
     initAudio();
@@ -173,7 +175,9 @@ void loop() {
     uint16_t nextAlarm = checkNextAlarm(timeinfo);
 
     if (menustate == OFF) {
+#ifndef DISABLE_WIFI
         if (prefs.getBool("enablewifi", false)) wm.poll();
+#endif
         accelerometerRun();
         lux = lightsensorRun();
         avgLux = 0.98 * avgLux + 0.02 * lux;

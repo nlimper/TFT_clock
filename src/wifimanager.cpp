@@ -1,5 +1,10 @@
 #include "wifimanager.h"
 
+#ifdef DISABLE_WIFI
+// Stub implementation - define static member
+uint8_t WifiManager::apClients = 0;
+#else
+
 #include "common.h"
 #include "config.h"
 #include "timefunctions.h"
@@ -566,3 +571,5 @@ namespace improv {
     }
 
 } // namespace improv
+
+#endif // DISABLE_WIFI

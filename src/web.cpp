@@ -1,5 +1,7 @@
 #include "web.h"
 
+#ifndef DISABLE_WIFI
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <AsyncTCP.h>
@@ -222,3 +224,5 @@ void init_web() {
 
     server.begin();
 }
+
+#endif // DISABLE_WIFI

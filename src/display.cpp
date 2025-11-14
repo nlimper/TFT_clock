@@ -3,20 +3,25 @@
 #include "OpenFontRender.h"
 #include "common.h"
 #include <Arduino.h>
+#ifndef DISABLE_JPEG
 #include <JPEGDEC.h>
+#endif
 #include <Preferences.h>
 #include <TFT_eSPI.h>
 #include <algorithm>
 
 fs::File ttfFile;
 TFT_eSprite spr = TFT_eSprite(&tft);
+#ifndef DISABLE_JPEG
 JPEGDEC jpeg;
+#endif
 
 uint8_t digits[] = {DIGIT1, DIGIT2, DIGIT3, DIGIT4};
 int8_t backlight[] = {BACKLIGHT1, BACKLIGHT2, BACKLIGHT3, BACKLIGHT4};
 int timerNotificationId;
 bool isAttached[4] = {false, false, false, false};
 
+#ifndef DISABLE_JPEG
 // Custom I/O callbacks for JPEGDEC
 static void *myOpen(const char *filename, int32_t *size) {
     File *file = new File(contentFS->open(filename, "r")); // Use your filesystem (e.g., SD, SPIFFS)
@@ -44,6 +49,7 @@ int JPEGDraw(JPEGDRAW *pDraw) {
     spr.pushImage(pDraw->x, pDraw->y, pDraw->iWidth, pDraw->iHeight, pDraw->pPixels);
     return 1;
 }
+#endif
 
 const uint8_t resolution = 12;
 const uint16_t freq = 9700;
@@ -162,7 +168,7 @@ void initSprites(bool reInit) {
             }
         }
     } else {
-
+#ifndef DISABLE_JPEG
         spr.setColorDepth(16);
         spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
         spr.setSwapBytes(true);
@@ -186,6 +192,7 @@ void initSprites(bool reInit) {
             }
         }
         spr.deleteSprite();
+#endif
     }
     Serial.println("Sprites loaded in " + String(millis() - t) + "ms");
 }
@@ -329,7 +336,7 @@ void drawDigit(uint8_t digit, bool useSprite) {
             Serial.println("finished " + String(millis() - t) + "ms");
 
         } else {
-
+#ifndef DISABLE_JPEG
             spr.setColorDepth(16);
             spr.createSprite(TFT_WIDTH, TFT_HEIGHT);
             spr.setSwapBytes(true);
@@ -347,6 +354,7 @@ void drawDigit(uint8_t digit, bool useSprite) {
                 spr.deleteSprite();
             }
             Serial.println("finished " + String(millis() - t) + "ms");
+#endif
         }
     }
 }

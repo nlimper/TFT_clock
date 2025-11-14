@@ -1,11 +1,15 @@
 #include "interface.h"
 #include "config.h"
 #include "menutree.h"
+#ifndef DISABLE_ACCELEROMETER
 #include <Adafruit_LIS3DH.h>
 #include <Adafruit_Sensor.h>
+#endif
 #include <Arduino.h>
 
+#ifndef DISABLE_ACCELEROMETER
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
+#endif
 
 uint8_t currOrientation = 0;
 extern bool flipOrientation;
@@ -142,6 +146,7 @@ void interfaceRun() {
     }
 }
 
+#ifndef DISABLE_ACCELEROMETER
 const float alpha = 0.2;
 float filteredX = 0, filteredY = 0, filteredZ = 0;
 
@@ -214,3 +219,14 @@ uint8_t accelerometerRun(bool active) {
 
     return side;
 }
+#else
+// Stub implementations when accelerometer is disabled
+void initAccelerometer() {
+    Serial.println("Accelerometer disabled");
+    hasAccelerometer = false;
+}
+
+uint8_t accelerometerRun(bool active) {
+    return 0;
+}
+#endif

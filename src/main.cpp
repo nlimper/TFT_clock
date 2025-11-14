@@ -128,8 +128,10 @@ void setup(void) {
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
 
+#ifndef DISABLE_ACCELEROMETER
     debugTFT("Accelerometer init");
     initAccelerometer();
+#endif
 
 #ifndef DISABLE_WIFI
     if (prefs.getBool("enablewifi", false)) {
@@ -178,7 +180,9 @@ void loop() {
 #ifndef DISABLE_WIFI
         if (prefs.getBool("enablewifi", false)) wm.poll();
 #endif
+#ifndef DISABLE_ACCELEROMETER
         accelerometerRun();
+#endif
         lux = lightsensorRun();
         avgLux = 0.98 * avgLux + 0.02 * lux;
         int ledc = perc2ledc(manualNightmode ? 0 : prefs.getUShort("brightness", 15));
@@ -346,7 +350,11 @@ void loop() {
     }
 
     if (menustate == DEBUG) {
+#ifndef DISABLE_ACCELEROMETER
         uint8_t side = accelerometerRun(false);
+#else
+        uint8_t side = 0;
+#endif
         lux = lightsensorRun();
         avgLux = 0.95 * avgLux + 0.05 * lux;
         lastmenuactive = millis();

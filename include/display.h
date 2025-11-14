@@ -20,7 +20,7 @@ extern bool nightmode, flipOrientation;
 extern volatile int d1, d2, d3, prevMinute;
 
 extern uint8_t digits[];
-extern uint8_t backlight[];
+extern int8_t backlight[];
 extern Font fonts[20];
 extern Color colors[30];
 

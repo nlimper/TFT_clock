@@ -355,6 +355,7 @@ String getValue(const String &name) {
          }},
         {"selectNightFrom", []() { return String(formatTime(prefs.getUShort("night_from", 22) * 60)); }},
         {"selectNightTo", []() { return String(formatTime(prefs.getUShort("night_to", 9) * 60)); }},
+        {"setChimeDelay", []() { return String(prefs.getUShort("chime_delay", 20)) + " ms"; }},
         {"adjustVolume", []() { return String(prefs.getUShort("volume", 50)) + "%"; }},
         {"exitMenu", []() { return ""; }},
         {"setYear", []() { return String(time_set[0]); }},
@@ -577,6 +578,27 @@ std::map<String, std::function<void(int)>> &getFunctionMap() {
              } else {
                  showValue(modeStr, menuLevel + 1);
                  prefs.putUShort("minutesound", minuteSound);
+             }
+         }},
+        {"setChimeDelay", [](int increment) {
+             uint16_t chimeDelay = prefs.getUShort("chime_delay", 20);
+             if (increment == 0) {
+                 if (inFunction) {
+                     clearScreen(menuLevel + 2);
+                     return;
+                 } else {
+                     showValue(String(chimeDelay) + " ms", menuLevel + 1, true);
+                 }
+             } else {
+                 chimeDelay = std::clamp(chimeDelay + increment, 1, 100);
+                 showValue(String(chimeDelay) + " ms", menuLevel + 1);
+                 prefs.putUShort("chime_delay", chimeDelay);
+                 // Test the chime with the new delay
+                 if (TING_PIN >= 0) {
+                     digitalWrite(TING_PIN, HIGH);
+                     vTaskDelay(chimeDelay / portTICK_PERIOD_MS);
+                     digitalWrite(TING_PIN, LOW);
+                 }
              }
          }},
         {"setBrightness", [](int increment) {

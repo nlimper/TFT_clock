@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuadClock</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/common.js"></script>
+
+    <script>
+        const API_BASE = "http://all.api.radio-browser.info/json";
+        var uuid = null;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadCountries();
+            loadTopStations();
+
+            document.getElementById("countrySelect").addEventListener("change", loadTopStations);
+            document.getElementById("searchInput").addEventListener("input", searchStations);
+            document.getElementById("stopButton").addEventListener("click", () => {
+                fetch("/audiostop", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" }
+                })
+                    .then(response => response.text())
+                    .then(() => {
+                        const buttons = document.querySelectorAll("#station-list button");
+                        buttons.forEach(button => button.textContent = "▶");
+                    })
+                    .catch(error => console.error("Error stopping stream:", error));
+            });
+
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeValue = document.getElementById('volumeValue');
+
+            // Throttle function with trailing call support.
+            function throttleWithTrailing(func, limit) {
+                let lastCall = 0;
+                let trailingTimeout = null;
+                return function (...args) {
+                    const now = Date.now();
+                    const remaining = limit - (now - lastCall);
+                    if (remaining <= 0) {
+                        if (trailingTimeout) {
+                            clearTimeout(trailingTimeout);
+                            trailingTimeout = null;
+                        }
+                        lastCall = now;
+                        func.apply(this, args);
+                    } else if (!trailingTimeout) {
+                        trailingTimeout = setTimeout(() => {
+                            lastCall = Date.now();
+                            trailingTimeout = null;
+                            func.apply(this, args);
+                        }, remaining);
+                    }
+                };
+            }
+
+            // Function to POST volume change using application/x-www-form-urlencoded
+            function postVolume(volume) {
+                const formData = new URLSearchParams();
+                formData.append('volume', volume);
+                fetch('/setvolume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                }).catch(error => console.error('Error setting volume:', error));
+            }
+
+            // Throttled version of postVolume: 300ms limit with trailing call support.
+            const throttledPostVolume = throttleWithTrailing(postVolume, 300);
+
+            // Fetch the initial volume from /getaudio
+            fetch('/getaudio')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.volume !== undefined) {
+                        volumeSlider.value = data.volume;
+                        volumeValue.textContent = data.volume;
+                        uuid = data.uuid;
+                        if (uuid && document.getElementById(uuid)) {
+                            document.getElementById(uuid).querySelector("button").textContent = "♫";
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching audio settings:', error));
+
+            // Listen for slider input events and use the throttled function
+            volumeSlider.addEventListener('input', function () {
+                const volume = volumeSlider.value;
+                volumeValue.textContent = volume;
+                throttledPostVolume(volume);
+            });
+        });
+
+        // Load top 25 most clicked stations (global or per country)
+        function loadTopStations() {
+            const country = document.getElementById("countrySelect").value;
+            const url = country
+                ? `${API_BASE}/stations/bycountry/${encodeURIComponent(country)}?order=clickcount&reverse=true&hidebroken=true&limit=25`
+                : `${API_BASE}/stations/topclick/25`;
+
+            fetchStations(url);
+        }
+
+        async function loadCountries() {
+            const continents = {
+                "Europe": ["AX", "AL", "AD", "AT", "BY", "BE", "BA", "BG", "HR", "CZ", "DK", "EE", "FO", "FI", "FR", "DE", "GI", "GR", "GG", "HU", "IS", "IE", "IM", "IT", "JE", "LV", "LI", "LT", "LU", "MT", "MD", "MC", "ME", "NL", "MK", "NO", "PL", "PT", "RO", "RU", "SM", "RS", "SK", "SI", "ES", "SJ", "SE", "CH", "UA", "GB", "VA"],
+                "North America": ["AI", "AG", "AW", "BS", "BB", "BZ", "BM", "BQ", "CA", "KY", "CR", "CU", "CW", "DM", "DO", "SV", "GL", "GD", "GP", "GT", "HT", "HN", "JM", "MQ", "MX", "MS", "NI", "PA", "PR", "BL", "KN", "LC", "MF", "PM", "VC", "SX", "TT", "TC", "US", "VG", "VI"],
+                "Asia": ["AF", "AM", "AZ", "BH", "BD", "BT", "BN", "KH", "CN", "CX", "CC", "CY", "GE", "HK", "IN", "ID", "IR", "IQ", "IL", "JP", "JO", "KZ", "KW", "KG", "LA", "LB", "MO", "MY", "MV", "MN", "MM", "NP", "KP", "OM", "PK", "PS", "PH", "QA", "SA", "SG", "KR", "LK", "SY", "TW", "TJ", "TH", "TL", "TR", "TM", "AE", "UZ", "VN", "YE"],
+                "Oceania": ["AS", "AU", "CK", "FJ", "GU", "KI", "MH", "FM", "NR", "NC", "NZ", "NU", "NF", "MP", "PW", "PG", "PN", "WS", "SB", "TK", "TO", "TV", "UM", "VU", "WF"],
+                "South America": ["AR", "BO", "BR", "CL", "CO", "EC", "FK", "GF", "GY", "PY", "PE", "SR", "UY", "VE"],
+                "Africa": ["DZ", "AO", "BJ", "BW", "BF", "BI", "CM", "CV", "CF", "TD", "KM", "CG", "CD", "DJ", "EG", "GQ", "ER", "SZ", "ET", "GA", "GM", "GH", "GN", "GW", "CI", "KE", "LS", "LR", "LY", "MG", "MW", "ML", "MR", "MU", "YT", "MA", "MZ", "NA", "NE", "NG", "RE", "RW", "SH", "ST", "SN", "SC", "SL", "SO", "ZA", "SS", "SD", "TZ", "TG", "TN", "UG", "EH", "ZM", "ZW"],
+                "Antarctica": ["AQ", "BV", "TF", "HM"]
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/countries`);
+                const data = await response.json();
+                const countryDropdown = document.getElementById("countrySelect");
+                countryDropdown.innerHTML = "";
+                const option = document.createElement("option");
+                option.value = "";
+                option.textContent = "all countries";
+                countryDropdown.appendChild(option);
+                const savedCountry = localStorage.getItem("selectedCountry");
+
+                Object.entries(continents).forEach(([continent, countries]) => {
+                    let continentHasCountries = false;
+                    const optGroup = document.createElement("optgroup");
+                    optGroup.label = continent;
+
+                    data.forEach(({ iso_3166_1, name, stationcount }) => {
+                        if (countries.includes(iso_3166_1)) {
+                            const option = document.createElement("option");
+                            option.value = name;
+                            option.textContent = `${name} (${stationcount})`;
+                            if (name === savedCountry) {
+                                option.selected = true;
+                            }
+                            optGroup.appendChild(option);
+                            continentHasCountries = true;
+                        }
+                    });
+
+                    if (continentHasCountries) {
+                        countryDropdown.appendChild(optGroup);
+                    }
+                });
+
+                countryDropdown.addEventListener("change", () => {
+                    localStorage.setItem("selectedCountry", countryDropdown.value);
+                });
+
+            } catch (error) {
+                console.error("Error loading countries:", error);
+            }
+        }
+
+        // Search with lookahead, filtered by country if selected
+        function searchStations() {
+            const query = document.getElementById("searchInput").value;
+            if (query.length == 0) loadTopStations();
+            if (query.length < 2) return; // Avoid excessive API calls
+
+            const country = document.getElementById("countrySelect").value;
+            const url = country
+                ? `${API_BASE}/stations/search?name=${encodeURIComponent(query)}&limit=25&country=${encodeURIComponent(country)}`
+                : `${API_BASE}/stations/search?name=${encodeURIComponent(query)}&limit=25`;
+
+            fetchStations(url);
+        }
+
+        // Fetch stations and update the UI
+        function fetchStations(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => displayStations(data));
+                //.then(data => displayStations(data.filter(station => station.codec === "MP3")));
+        }
+
+        // Display stations and set up lazy loading for audio
+        function displayStations(stations) {
+            const list = document.getElementById("station-list");
+            list.innerHTML = "";
+            const country = document.getElementById("countrySelect").value;
+
+            stations.forEach(station => {
+                const li = document.createElement("li");
+                li.id = station.stationuuid;
+
+                const div = document.createElement("div");
+                if (station.favicon) {
+                    const img = document.createElement("img");
+                    img.src = station.favicon;
+                    img.style.maxWidth = "64px";
+                    img.style.maxHeight = "64px";
+                    img.alt = station.name;
+                    div.appendChild(img);
+                } else {
+                    const div = document.createElement("div");
+                }
+                li.appendChild(div);
+
+                const text = document.createElement("div");
+                //text.textContent = `${station.name} (${station.bitrate} ${station.codec} ${station.country})`;
+                text.innerHTML = `<b>${station.name}</b>`;
+                if (country != station.country) text.innerHTML += ` ${station.country}`;
+
+                const button = document.createElement("button");
+                if (station.stationuuid === uuid) button.textContent = "♫"; else button.textContent = "▶";
+                li.addEventListener("click", () => playStream(button, station));
+
+                li.appendChild(text);
+                li.appendChild(button);
+
+                list.appendChild(li);
+            });
+        }
+
+        function playStream(button, station) {
+            fetch(`${API_BASE}/url/${station.stationuuid}`)
+                .catch(error => console.warn("Error updating click counter:", error));
+            fetch("/playradio", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `url=${encodeURIComponent(station.url_resolved)}&uuid=${station.stationuuid}&name=${encodeURIComponent(station.name)}`
+            })
+                .then(response => response.text())
+                .then(() => {
+                    const buttons = document.querySelectorAll("#station-list button");
+                    buttons.forEach(button => button.textContent = "▶");
+                    button.textContent = "♫";
+                })
+                .catch(error => console.error("Error playing stream:", error));
+        }
+    </script>
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+
+    <main>
+        <h2>Radio Browser</h2>
+
+        <p>Select a country to see the top 25 most clicked stations or search for a specific station.</p>
+        <p>The alarm clock is using the last listened station.</p>
+        <label for="countrySelect">Select Country</label>
+        <select id="countrySelect"></select>
+
+        <label for="searchInput">Search Stations</label>
+        <input type="text" id="searchInput" placeholder="Type a station name..." />
+
+        <p>
+            <button id="stopButton" alt="Stop music">&#9209;</button>
+            <input type="range" id="volumeSlider" min="0" max="100">
+            <span id="volumeValue"></span>
+        </p>
+
+        <h3>Stations</h3>
+        <ul id="station-list"></ul>
+
+        <p>This radio is powered by <a href="https://www.radio-browser.info/">Radio Browser</a></p>
+    </main>
+</body>
+
+</html>

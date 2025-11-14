@@ -27,8 +27,8 @@ void IRAM_ATTR updateEncoder() {
     int encoded = (MSB << 1) | LSB;
     sum = (lastEncoded << 2) | encoded;
 
-    if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) encoderValue++;
-    if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) encoderValue--;
+    if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) encoderValue = encoderValue + 1;
+    if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) encoderValue = encoderValue - 1;
 
     lastEncoded = encoded;
 
@@ -205,7 +205,9 @@ uint8_t accelerometerRun(bool active) {
         bool newFlip = (String(config.fliporientation).indexOf(String(currOrientation)) > -1);
         if (newFlip != flipOrientation) {
             flipOrientation = newFlip;
-            d1 = d2 = d3 = 10;
+            d1 = 10;
+            d2 = 10;
+            d3 = 10;
             prevMinute = -1;
         }
     }

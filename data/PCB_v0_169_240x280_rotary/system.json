@@ -2,9 +2,9 @@
   "hardware": {
     "ds3231": 1,
     "max98357": 1,
-    "lis3d": 1,
+    "lis3d": 0,
     "bh1750": 1,
-    "photodiode": 1,
+    "photodiode": 0,
     "solenoid": 0,
     "gps": 0,
     "rotary": 1,
@@ -14,10 +14,10 @@
   "config": {
     "alarmclock": 1,
     "autobrightness": 1,
-    "wifi": 1,
-    "maxvolume": 35,            // maximum volume (in %) to prevent speaker damage
+    "wifi": 0,
+    "maxvolume": 60,            // maximum volume (in %) to prevent speaker damage
     "fliporientation": "3",     // orientation where display is flipped
-    "luxday": 1,                // lux reference for switching to day mode
+    "luxday": 2,                // lux reference for switching to day mode
     "luxnight": 0.5,              // lux reference for switching to night mode
     "luxfactor": 100             // lux reference for 100% brightness
   },
@@ -108,8 +108,7 @@
     [ "Ptarmigan", "ptarmigan.mp3" ],
     [ "Cowbells", "cowbells.mp3" ],
     [ "Moldau", "moldau.mp3" ],
-    [ "Wakeup", "wakeup.mp3" ],
-    [ "Radio", "*" ]
+    [ "Wakeup", "wakeup.mp3" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],

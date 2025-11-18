@@ -49,6 +49,7 @@ int timerAlarmFlashId, timerAlarmSoundId;
 float lux = 75, avgLux = 75;
 bool nightmode = false, manualNightmode = false, flipOrientation = false;
 bool hasLightmeter = false, hasAccelerometer = false;
+bool alarmTriggeredToday = false;
 fs::FS *contentFS = nullptr;
 
 void doChime() {
@@ -197,15 +198,15 @@ void loop() {
         }
         prevHour = timeinfo.tm_hour;
 
-        bool alarmPassed = (timevalue >= alarm_set[timeinfo.tm_wday] || timevalue >= alarm_set[7]);
-        if (isNightMode(timeinfo.tm_hour) && !nightmode && !alarmPassed) {
+        if (isNightMode(timeinfo.tm_hour) && !nightmode && !alarmTriggeredToday) {
             Serial.println("Nightmode on");
             nightmode = true;
             initSprites(true);
         }
-        if ((!isNightMode(timeinfo.tm_hour) || alarmPassed) && nightmode) {
+        if (!isNightMode(timeinfo.tm_hour) && nightmode) {
             Serial.println("Nightmode off");
             nightmode = false;
+            alarmTriggeredToday = false;
             initSprites(true);
         }
     }
@@ -252,6 +253,7 @@ void loop() {
         }
         if (alarmActive == 2 && audioRunning() == false) {
             alarmActive = 3;
+            alarmTriggeredToday = true;
             doChime();
             timerAlarmSoundId = timer.setInterval(5000, alarmSound);
         }

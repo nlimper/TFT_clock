@@ -2,15 +2,13 @@
   "hardware": {
     "ds3231": 1,
     "max98357": 1,
-    "lis3d": 1,
+    "lis3d": 0,
     "bh1750": 1,
-    "photodiode": 1,
+    "photodiode": 0,
     "solenoid": 0,
     "gps": 0,
     "rotary": 1,
-    "buttons": [ 6, 7, 40 ],
-    //"rotary": 0,
-    //"buttons": [ 40, 0, 7, 6 ], // pins for up, down, enter, back buttons
+    "buttons": [ 11, 10, 12 ],
     "invertbacklight": 0
   },
   "config": {
@@ -76,19 +74,13 @@
     [ "Caveat", "caveat-subset.ttf", 405, -7, -80 ],
     [ "Cilbirab", "cilbirab-subset.ttf", 385, 0, 23 ],
     [ "DejaVu Sans", "dejavusans-subset.ttf", 325, -2, -25 ],
-    [ "Emilys Candy", "emilyscandy-subset.ttf", 330, -2, -40 ],
     [ "Fell English", "fellenglish-subset.ttf", 305, -2, -70 ],
     [ "HennyPenny", "hennypenny-subset.ttf", 260, -2, -70 ],
-    [ "Michroma", "michroma-subset.ttf", 242, -2, -68 ],
     [ "Moiraione", "moiraione-subset.ttf", 310, -2, -2 ],
     [ "OCR-A", "ocra-subset.ttf", 310, -2, 30 ],
     [ "Quicksand", "quicksand-subset.ttf", 345, -2, -55 ],
     [ "Vibur", "vibur-subset.ttf", 320, -2, -25 ],
-    [ "YatraOne", "yatraone-subset.ttf", 345, -2, -62 ],
-    [ "Animals", "/bitmap/animals/", 0, 0, 0 ],
-    [ "Balloons", "/bitmap/balloons/", 0, 0, 0 ],
-    [ "Nixie", "/bitmap/nixie/", 0, 0, 0 ],
-    [ "Wood", "/bitmap/wood/", 0, 0, 0 ]
+    [ "YatraOne", "yatraone-subset.ttf", 345, -2, -62 ]
 ],
   "colors": [
     [ "Snow White", 255, 255, 255 ],
@@ -109,10 +101,7 @@
   "sounds": [
     [ "Rooster", "rooster.mp3" ],
     [ "Ptarmigan", "ptarmigan.mp3" ],
-    [ "Cowbells", "cowbells.mp3" ],
-    [ "Moldau", "moldau.mp3" ],
-    [ "Wakeup", "wakeup.mp3" ],
-    [ "Radio", "*" ]
+    [ "Cowbells", "cowbells.mp3" ]
   ],
   "timezone": [
     [ "UTC", "UTC0", "UTC" ],
@@ -138,7 +127,7 @@
     "nextalarm": [ 60, 202 ]
   },
   "identity": {
-    "deviceName": "QuadClock Bricta",
-    "firmwareName": "PCB_v1_169_240x280"
+    "deviceName": "QuadClock Chiel",
+    "firmwareName": "lolin_s2_mini"
   }
 }

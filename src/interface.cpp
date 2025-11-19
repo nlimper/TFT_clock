@@ -23,60 +23,49 @@ volatile unsigned long lastEncoderTime = 0;
 volatile int stepSize = 0;
 volatile unsigned long lastDebounceTime = 0;
 volatile int sum = 0;
-volatile int lastValidState = 0;
-volatile bool stateStable = false;
 
-#define DEBOUNCE_DELAY_MICROS 2000  // 2ms debounce delay for rotary encoder
+#define DEBOUNCE_DELAY_MICROS 1000  // 1ms debounce delay for rotary encoder
 
 void IRAM_ATTR updateEncoder() {
     unsigned long currentTime = micros();
     
-    // Check if enough time has passed since last valid state change
+    // Basic debounce check
     if (currentTime - lastDebounceTime < DEBOUNCE_DELAY_MICROS) {
-        return;  // Ignore this change, too soon (likely bounce)
+        return;
     }
     
     int MSB = digitalRead(buttons[0].pin);
     int LSB = digitalRead(buttons[1].pin);
     int encoded = (MSB << 1) | LSB;
     
-    // Only process if the state has actually changed
+    // Only process if state changed
     if (encoded == lastEncoded) {
         return;
     }
     
     sum = (lastEncoded << 2) | encoded;
     
-    // Check for valid state transitions only
-    bool validTransition = false;
-    int deltaValue = 0;
-    
-    // Valid clockwise transitions
+    // Standard quadrature decoder - count on all valid transitions
+    // Clockwise transitions
     if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) {
-        deltaValue = 1;
-        validTransition = true;
+        encoderValue++;
     }
-    // Valid counter-clockwise transitions  
+    // Counter-clockwise transitions  
     else if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) {
-        deltaValue = -1;
-        validTransition = true;
+        encoderValue--;
     }
     
-    // Only update if we have a valid transition
-    if (validTransition) {
-        encoderValue += deltaValue;
-        lastDebounceTime = currentTime;
-        lastEncoded = encoded;
-        
-        // Update direction only on valid changes
-        if (encoderValue != lastencoderValue) {
-            if (encoderValue > lastencoderValue) {
-                direction = -1;
-            } else {
-                direction = 1;
-            }
-            lastencoderValue = encoderValue;
+    lastDebounceTime = currentTime;
+    lastEncoded = encoded;
+
+    // Update direction for the main loop
+    if (encoderValue != lastencoderValue) {
+        if (encoderValue > lastencoderValue) {
+            direction = -1;
+        } else {
+            direction = 1;
         }
+        lastencoderValue = encoderValue;
     }
 }
 
@@ -113,23 +102,37 @@ void onButtonHold(int buttonIndex) {
 
 void rotary_loop() {
     // https://www.best-microcontroller-projects.com/rotary-encoder.html
+    static long lastProcessedEncoder = 0;
+    
     if (direction != 0) {
         int encstate = (digitalRead(buttons[0].pin) << 1) | digitalRead(buttons[1].pin);
         if (encstate == 0 || encstate == 3) {
-            unsigned long currentTime = millis();
-            unsigned long timeDiff = currentTime - lastEncoderTime;
-            lastEncoderTime = currentTime;
-            if (timeDiff < 80) {
-                stepSize = 6;
-            } else if (timeDiff < 150) {
-                stepSize = 2;
-            } else {
-                stepSize = 1;
-            }
-            if (direction == 1) {
-                onButtonPress(1, stepSize);
-            } else if (direction == -1) {
-                onButtonPress(0, stepSize);
+            // Calculate how many detents we've moved (4 encoder counts = 1 detent)
+            long encoderDelta = encoderValue - lastProcessedEncoder;
+            
+            if (abs(encoderDelta) >= 4) {
+                // We've completed at least one full detent
+                int detentSteps = encoderDelta / 4;
+                lastProcessedEncoder += (detentSteps * 4);
+                
+                unsigned long currentTime = millis();
+                unsigned long timeDiff = currentTime - lastEncoderTime;
+                lastEncoderTime = currentTime;
+                
+                // Restore acceleration logic but apply to detent movements
+                if (timeDiff < 80) {
+                    stepSize = 6;
+                } else if (timeDiff < 150) {
+                    stepSize = 2;
+                } else {
+                    stepSize = 1;
+                }
+                
+                if (detentSteps > 0) {
+                    onButtonPress(0, stepSize * abs(detentSteps));
+                } else if (detentSteps < 0) {
+                    onButtonPress(1, stepSize * abs(detentSteps));
+                }
             }
             direction = 0;
         }

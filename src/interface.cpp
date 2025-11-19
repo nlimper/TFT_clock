@@ -103,15 +103,23 @@ void onButtonHold(int buttonIndex) {
 void rotary_loop() {
     // https://www.best-microcontroller-projects.com/rotary-encoder.html
     static long lastProcessedEncoder = 0;
+    static int lastDirection = 0;
     
     if (direction != 0) {
         int encstate = (digitalRead(buttons[0].pin) << 1) | digitalRead(buttons[1].pin);
         if (encstate == 0 || encstate == 3) {
-            // Calculate how many detents we've moved (4 encoder counts = 1 detent)
+            if (lastDirection != 0 && lastDirection != direction) {
+                if (direction > 0) {
+                    lastProcessedEncoder = encoderValue - 4;
+                } else {
+                    lastProcessedEncoder = encoderValue + 4;
+                }
+            }
+            lastDirection = direction;
+            
             long encoderDelta = encoderValue - lastProcessedEncoder;
             
             if (abs(encoderDelta) >= 4) {
-                // We've completed at least one full detent
                 int detentSteps = encoderDelta / 4;
                 lastProcessedEncoder += (detentSteps * 4);
                 
@@ -119,7 +127,6 @@ void rotary_loop() {
                 unsigned long timeDiff = currentTime - lastEncoderTime;
                 lastEncoderTime = currentTime;
                 
-                // Restore acceleration logic but apply to detent movements
                 if (timeDiff < 80) {
                     stepSize = 6;
                 } else if (timeDiff < 150) {
@@ -128,9 +135,11 @@ void rotary_loop() {
                     stepSize = 1;
                 }
                 
-                if (detentSteps > 0) {
+                if (direction == -1) {
+                    // Clockwise (direction = -1)
                     onButtonPress(0, stepSize * abs(detentSteps));
-                } else if (detentSteps < 0) {
+                } else if (direction == 1) {
+                    // Counter-clockwise (direction = 1)
                     onButtonPress(1, stepSize * abs(detentSteps));
                 }
             }

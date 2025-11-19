@@ -57,10 +57,8 @@
       ] },
     { "name": "Settings", "children": [
         { "name": "Hour format", "function": "selectHourMode" },
-        { "name": "Backlight", "function": "selectBacklightMode", "info": "Auto turns off backlight\nfor empty displays.\nAlways On keeps all\nbacklights active." },
         { "name": "Min. bright", "function": "setMinBrightness", "info": "This brightness is used\nin total darkness or\nmanual night mode" },
         { "name": "Dial direction", "function": "setRotaryDir", "info": "Reverse the turning\ndirection of the dial" },
-        { "name": "WiFi enable", "function": "setWifi" },
         { "name": "Version info", "function": "showVersion" },
         { "name": "Exit", "function": "exitMenu" }
       ] },
@@ -100,7 +98,6 @@
   ],
   "sounds": [
     [ "Rooster", "rooster.mp3" ],
-    [ "Ptarmigan", "ptarmigan.mp3" ],
     [ "Cowbells", "cowbells.mp3" ]
   ],
   "timezone": [

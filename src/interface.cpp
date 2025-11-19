@@ -23,26 +23,60 @@ volatile unsigned long lastEncoderTime = 0;
 volatile int stepSize = 0;
 volatile unsigned long lastDebounceTime = 0;
 volatile int sum = 0;
+volatile int lastValidState = 0;
+volatile bool stateStable = false;
+
+#define DEBOUNCE_DELAY_MICROS 2000  // 2ms debounce delay for rotary encoder
 
 void IRAM_ATTR updateEncoder() {
+    unsigned long currentTime = micros();
+    
+    // Check if enough time has passed since last valid state change
+    if (currentTime - lastDebounceTime < DEBOUNCE_DELAY_MICROS) {
+        return;  // Ignore this change, too soon (likely bounce)
+    }
+    
     int MSB = digitalRead(buttons[0].pin);
     int LSB = digitalRead(buttons[1].pin);
-
     int encoded = (MSB << 1) | LSB;
+    
+    // Only process if the state has actually changed
+    if (encoded == lastEncoded) {
+        return;
+    }
+    
     sum = (lastEncoded << 2) | encoded;
-
-    if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) encoderValue = encoderValue + 1;
-    if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) encoderValue = encoderValue - 1;
-
-    lastEncoded = encoded;
-
-    if (encoderValue != lastencoderValue) {
-        if (encoderValue > lastencoderValue) {
-            direction = -1;
-        } else {
-            direction = 1;
+    
+    // Check for valid state transitions only
+    bool validTransition = false;
+    int deltaValue = 0;
+    
+    // Valid clockwise transitions
+    if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) {
+        deltaValue = 1;
+        validTransition = true;
+    }
+    // Valid counter-clockwise transitions  
+    else if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) {
+        deltaValue = -1;
+        validTransition = true;
+    }
+    
+    // Only update if we have a valid transition
+    if (validTransition) {
+        encoderValue += deltaValue;
+        lastDebounceTime = currentTime;
+        lastEncoded = encoded;
+        
+        // Update direction only on valid changes
+        if (encoderValue != lastencoderValue) {
+            if (encoderValue > lastencoderValue) {
+                direction = -1;
+            } else {
+                direction = 1;
+            }
+            lastencoderValue = encoderValue;
         }
-        lastencoderValue = encoderValue;
     }
 }
 

@@ -32,7 +32,7 @@ struct Hardware {
     bool bh1750;
     bool photodiode;
     bool solenoid;
-    bool rotary;
+    int rotary;
     bool invertbacklight;
 };
 

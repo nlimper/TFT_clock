@@ -80,7 +80,7 @@ void initInterface() {
         pinMode(buttons[i].pin, INPUT_PULLUP);
     }
 
-    if (hardware.rotary) {
+    if (hardware.rotary != 0) {
         attachInterrupt(digitalPinToInterrupt(buttons[0].pin), updateEncoder, CHANGE);
         attachInterrupt(digitalPinToInterrupt(buttons[1].pin), updateEncoder, CHANGE);
     }
@@ -105,23 +105,21 @@ void rotary_loop() {
     static long lastProcessedEncoder = 0;
     static int lastDirection = 0;
     
+    int detent_count = (hardware.rotary == 2) ? 4 : 2;
+    
     if (direction != 0) {
         int encstate = (digitalRead(buttons[0].pin) << 1) | digitalRead(buttons[1].pin);
         if (encstate == 0 || encstate == 3) {
             if (lastDirection != 0 && lastDirection != direction) {
-                if (direction > 0) {
-                    lastProcessedEncoder = encoderValue - 4;
-                } else {
-                    lastProcessedEncoder = encoderValue + 4;
-                }
+                lastProcessedEncoder = encoderValue - (long)direction * detent_count;
             }
             lastDirection = direction;
             
             long encoderDelta = encoderValue - lastProcessedEncoder;
             
-            if (abs(encoderDelta) >= 4) {
-                int detentSteps = encoderDelta / 4;
-                lastProcessedEncoder += (detentSteps * 4);
+            if (abs(encoderDelta) >= detent_count) {
+                int detentSteps = encoderDelta / detent_count;
+                lastProcessedEncoder += (detentSteps * detent_count);
                 
                 unsigned long currentTime = millis();
                 unsigned long timeDiff = currentTime - lastEncoderTime;
@@ -182,7 +180,7 @@ void readButton(uint8_t button) {
 }
 
 void interfaceRun() {
-    if (hardware.rotary) {
+    if (hardware.rotary != 0) {
         rotary_loop();
         readButton(2);
     } else {

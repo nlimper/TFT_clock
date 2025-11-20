@@ -63,7 +63,7 @@ bool readConfig() {
     hardware.bh1750 = hardwareObj["bh1750"];
     hardware.photodiode = hardwareObj["photodiode"];
     hardware.solenoid = hardwareObj["solenoid"];
-    hardware.rotary = hardwareObj["rotary"];
+    hardware.rotary = hardwareObj["rotary"].as<int>();
     hardware.invertbacklight = hardwareObj["invertbacklight"];
 
     JsonArray buttonPinsArray = hardwareObj["buttons"];

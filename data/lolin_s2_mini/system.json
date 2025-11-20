@@ -7,7 +7,7 @@
     "photodiode": 0,
     "solenoid": 1,
     "gps": 0,
-    "rotary": 1,
+    "rotary": 2,
     "buttons": [ 11, 10, 12 ],
     "invertbacklight": 0
   },

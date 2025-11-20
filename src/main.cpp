@@ -244,6 +244,7 @@ void loop() {
             alarmStarted = timevalue;
             timerAlarmFlashId = timer.setInterval(500, alarmFlash);
             uint16_t soundid = prefs.getUShort("alarmsound", 0);
+            alarmTriggeredToday = true;
             if (nightmode) {
                 manualNightmode = false;
                 nightmode = false;
@@ -253,7 +254,6 @@ void loop() {
         }
         if (alarmActive == 2 && audioRunning() == false) {
             alarmActive = 3;
-            alarmTriggeredToday = true;
             doChime();
             timerAlarmSoundId = timer.setInterval(5000, alarmSound);
         }

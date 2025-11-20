@@ -5,7 +5,7 @@
     "lis3d": 0,
     "bh1750": 1,
     "photodiode": 0,
-    "solenoid": 0,
+    "solenoid": 1,
     "gps": 0,
     "rotary": 1,
     "buttons": [ 11, 10, 12 ],

@@ -244,8 +244,8 @@ void loop() {
             alarmStarted = timevalue;
             timerAlarmFlashId = timer.setInterval(500, alarmFlash);
             uint16_t soundid = prefs.getUShort("alarmsound", 0);
-            alarmTriggeredToday = true;
             if (nightmode) {
+                alarmTriggeredToday = true;
                 manualNightmode = false;
                 nightmode = false;
                 initSprites(true);
